@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">こどものひとこと</string>
+    <string name="app_name_en">Awordfromachild</string>
+    <string name="tab_text_1">タイムライン</string>
+    <string name="tab_text_2">自分の投稿</string>
+    <string name="tab_text_3">いいね</string>
+    <string name="tab_text_4">フォロー</string>
+    <string name="tab_text_5">フォロワー</string>
+
+    <string name="icon_text_1">利用上の注意</string>
+    <string name="icon_text_2">アプリについて</string>
+
+    <string name="search_hint_1">タイムラインから検索</string>
+    <string name="search_hint_2">自分の投稿から検索</string>
+    <string name="search_hint_3">いいねから検索</string>
+    <string name="search_hint_4">フォローから検索</string>
+    <string name="search_hint_5">フォロワーから検索</string>
+
+    <string name="btn_text_1">検索</string>
+    <string name="btn_text_2">結果リセット</string>
+
+    <string name="twitter_callback_url">https://appdevechan.wordpress.com/</string>
+</resources>

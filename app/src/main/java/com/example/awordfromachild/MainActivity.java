@@ -1,23 +1,30 @@
 package com.example.awordfromachild;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
-import java.lang.reflect.Array;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 import twitter4j.*;
+import twitter4j.auth.RequestToken;
 
+/**
+ * メインスレッド
+ */
 public class MainActivity extends AppCompatActivity {
     private AsyncConnect asyncCon;
+    private TwitterLoginActivity twitterLogin;
+    private RequestToken requestToken;
+
+    //Twitterインスタンスの取得
     private Twitter twitter = TwitterFactory.getSingleton();
     private Query query = new Query();
     private TabLayout tabLayout;
@@ -29,9 +36,21 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_ic_follower
     };
 
+    /**
+     * onCreate
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //ログイン（アクセストークン未取得の場合）
+        if(!TwitterUtils.hasAccessToken(this)){
+            Intent intent = new Intent(getApplication(), TwitterLoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+        //画面描画
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -39,13 +58,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setUpTabIcon();
-
-        //ログイン（アクセストークン未取得の場合）
-        if(!TwitterUtils.hasAccessToken(this)){
-            Intent intent = new Intent(getApplication(), LoginTwitterActivity.class);
-            startActivity(intent);
-            finish();
-        }
 
         //ツイートボタン
         ImageView tweet_btn = (ImageView) findViewById(R.id.img_tweet);
@@ -81,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * タブを設定
+     */
     private void setUpTabIcon() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);

@@ -19,5 +19,5 @@
     <string name="btn_text_1">検索</string>
     <string name="btn_text_2">結果リセット</string>
 
-    <string name="twitter_callback_url">https://appdevechan.wordpress.com/</string>
+    <string name="twitter_callback_url">com.example.awordfromachild://callback</string>
 </resources>

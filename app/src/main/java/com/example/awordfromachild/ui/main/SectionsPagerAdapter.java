@@ -9,10 +9,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.awordfromachild.R;
-import com.example.awordfromachild.tab.fragFollow;
-import com.example.awordfromachild.tab.fragFollower;
-import com.example.awordfromachild.tab.fragGood;
-import com.example.awordfromachild.tab.fragMypost;
+import com.example.awordfromachild.tab.fragAttention;
+import com.example.awordfromachild.tab.fragNoti;
+import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.tab.fragTimeLine;
 
 /**
@@ -26,8 +25,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             R.string.tab_text_1,
             R.string.tab_text_2,
             R.string.tab_text_3,
-            R.string.tab_text_4,
-            R.string.tab_text_5,
+            R.string.tab_text_4
     };
     private final Context mContext;
 
@@ -45,18 +43,14 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 fragment = new fragTimeLine();
                 break;
             case 1:
-                fragment = new fragMypost();
+                fragment = new fragAttention();
                 break;
             case 2:
-                fragment = new fragGood();
+                fragment = new fragSearch();
                 break;
 
             case 3:
-                fragment = new fragFollow();
-                break;
-
-            case 4:
-                fragment = new fragFollower();
+                fragment = new fragNoti();
                 break;
         }
         return fragment;
@@ -70,7 +64,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 5 total pages.
-        return 5;
+        // Show 4 total pages.
+        return 4;
     }
 }

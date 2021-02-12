@@ -2,10 +2,9 @@
     <string name="app_name">こどものひとこと</string>
     <string name="app_name_en">Awordfromachild</string>
     <string name="tab_text_1">タイムライン</string>
-    <string name="tab_text_2">自分の投稿</string>
-    <string name="tab_text_3">いいね</string>
-    <string name="tab_text_4">フォロー</string>
-    <string name="tab_text_5">フォロワー</string>
+    <string name="tab_text_2">注目</string>
+    <string name="tab_text_3">ワード検索</string>
+    <string name="tab_text_4">通知</string>
 
     <string name="icon_text_1">利用上の注意</string>
     <string name="icon_text_2">アプリについて</string>
@@ -16,8 +15,12 @@
     <string name="search_hint_4">フォローから検索</string>
     <string name="search_hint_5">フォロワーから検索</string>
 
-    <string name="btn_text_1">検索</string>
-    <string name="btn_text_2">結果リセット</string>
+    <string name="tweet_hint_1">例）散歩中、子供が～～を見て「～～」と言っていた。</string>
+
+    <string name="fs_text_1">検索したいワードを入力してください。</string>
+    <string name="fs_hint_1">ワード入力</string>
+    <string name="fs_btn_text_1">検索</string>
+    <string name="fs_btn_text_2">← 検索結果に戻る</string>
 
     <string name="twitter_callback_url">com.example.awordfromachild://callback</string>
 </resources>

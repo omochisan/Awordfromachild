@@ -1,107 +1,114 @@
 package com.example.awordfromachild;
 
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
-import twitter4j.*;
-import twitter4j.auth.RequestToken;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.User;
 
 /**
  * メインスレッド
  */
 public class MainActivity extends AppCompatActivity {
-    private AsyncConnect asyncCon;
-    private TwitterLoginActivity twitterLogin;
-    private RequestToken requestToken;
+    //context取得用
+    private static MainActivity instance = null;
+    private Context applicationContext;
 
-    //Twitterインスタンスの取得
-    private Twitter twitter = TwitterFactory.getSingleton();
-    private Query query = new Query();
+    private Twitter twitter;
+    //Twitter処理クラスインスタンス
+    private TwitterUtils twitterUtils;
+    //タブ
     private TabLayout tabLayout;
     private int[] tabIcons = {
             R.drawable.main_ic_timeline,
-            R.drawable.main_ic_mypost,
-            R.drawable.main_ic_good,
-            R.drawable.main_ic_follow,
-            R.drawable.main_ic_follower
+            R.drawable.main_ic_attention,
+            R.drawable.main_ic_search,
+            R.drawable.main_ic_noti
     };
 
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
     /**
-     * onCreate
+     * onCreate*
      * @param savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //ログイン（アクセストークン未取得の場合）
-        if(!TwitterUtils.hasAccessToken(this)){
+        twitterUtils = new TwitterUtils();
+        instance = this;
+
+        //Twitter認証用画面よりアクセストークンを取得
+        //取得済みの場合、端末に保存してあるアクセストークンをTwitterインスタンスにセット
+        if (!TwitterUtils.hasAccessToken(this)) {
             Intent intent = new Intent(getApplication(), TwitterLoginActivity.class);
             startActivity(intent);
             finish();
+        }else{
+            twitter = twitterUtils.getTwitterInstance(this);
         }
 
-        //画面描画
+        //画面基礎描画
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
+        twitterUtils.getTwitterUserInfo(twitter, instance); //自ユーザー情報取得
+        //アカウントアイコンを設置
+        ImageView accountImage = findViewById(R.id.fs_img_account);
+        String gifUrl = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png";
+        Glide.with(this).load(gifUrl).into(accountImage);
+
+        //タブ
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setUpTabIcon();
 
         //ツイートボタン
-        ImageView tweet_btn = (ImageView) findViewById(R.id.img_tweet);
-        ImageView search_btn = (ImageView) findViewById(R.id.ic_search);
+        ImageView tweet_btn = (ImageView) findViewById(R.id.fs_img_tweet);
         tweet_btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //非同期処理（Twitterへ接続）開始
-                asyncCon = new AsyncConnect();
-                asyncCon.execute("tweet");
+                twitterUtils.tweet(twitter);
             }
         });
+    }
 
-        //検索ボタン
-        search_btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //非同期処理（Twitterへ接続）開始
-                EditText word = (EditText) findViewById(R.id.edittext_search);
-                String async_arg[] = new String[2];
-                async_arg[0] = "search";
-                async_arg[1] = "マヂカルラブリー";
-                //async_arg[1] = word.getText().toString();
-                asyncCon = new AsyncConnect();
-                asyncCon.execute(async_arg);
-                /*android.os.AsyncTask<Void,Void,String> task = new android.os.AsyncTask<Void, Void, String>(){
-                    @Override
-                    protected String doInBackground(Void... aVoid) {
-                        search("マヂカルラブリー");
-                        return null;
-                    }
-                };
-                task.execute();*/
-            }
-        });
+    /**
+     * コールバック関数（Twitterの自ユーザー情報取得後）
+     * アカウント画像をアイコンとして表示
+     * @param user
+     */
+    public void onAsyncFinished_getUserInfo(User user){
+        ImageView accountImage = findViewById(R.id.fs_img_account);
+        String gifUrl = user.getProfileImageURL();
+        Glide.with(this).load(gifUrl).into(accountImage);
     }
 
     /**
      * タブを設定
      */
     private void setUpTabIcon() {
+        //アイコン設定
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         tabLayout.getTabAt(2).setIcon(tabIcons[2]);
         tabLayout.getTabAt(3).setIcon(tabIcons[3]);
-        tabLayout.getTabAt(4).setIcon(tabIcons[4]);
+        //初期選択タブ
+        tabLayout.getTabAt(0).select();
     }
+
 
 }

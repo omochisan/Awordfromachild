@@ -127,6 +127,8 @@ public class TwitterLoginActivity extends Activity {
     private void successOAuth(AccessToken accessToken) {
         //Utilクラスからトークン登録メソッドを呼び出し
         TwitterUtils.storeAccessToken(this, accessToken);
+        //Twitterインスタンスへアクセストークンをセット
+        twitter.setOAuthAccessToken(accessToken);
 
         //MainActivityへ遷移
         Intent intent = new Intent(this, MainActivity.class);

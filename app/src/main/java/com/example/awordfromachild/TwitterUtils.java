@@ -9,6 +9,8 @@ import com.example.awordfromachild.tab.fragSearch;
 
 import twitter4j.Query;
 import twitter4j.QueryResult;
+import twitter4j.ResponseList;
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -27,6 +29,8 @@ public class TwitterUtils {
     private fragSearch callback_fs;
     private MainActivity mainActivity;
 
+    private Twitter twitter;
+
     /*public TwitterUtils(Context callback) {
         this.callback = callback;
     }*/
@@ -38,16 +42,25 @@ public class TwitterUtils {
      * @return Twitterインスタンス
      */
     public static Twitter getTwitterInstance(Context context) {
+
         //Twitterオブジェクトのインスタンス
         //(キー等はtwitter4j.propertiesで定義済み)
         TwitterFactory factory = new TwitterFactory();
-        Twitter twitter = factory.getInstance();
+        Twitter _twitter = factory.getInstance();
 
         //トークンの設定
         if (hasAccessToken(context)) {
-            twitter.setOAuthAccessToken(loadAccessToken(context));
+            _twitter.setOAuthAccessToken(loadAccessToken(context));
         }
-        return twitter;
+        return _twitter;
+    }
+
+    /**
+     * TwitterUtilsインスタンスを設定します。
+     * @param context
+     */
+    public void setTwitterInstance(Context context){
+        twitter = getTwitterInstance(context);
     }
 
     /**
@@ -209,4 +222,13 @@ public class TwitterUtils {
         };
         task.execute();
     }
+
+    /*public ResponseList<Status> getTimeLine(){
+        //タイムライン取得
+        try {
+            twitter.getHomeTimeline();
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
+    }*/
 }

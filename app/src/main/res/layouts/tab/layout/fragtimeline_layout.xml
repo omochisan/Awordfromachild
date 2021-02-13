@@ -7,14 +7,14 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:id="@+id/scroll_timeline"
+        android:id="@+id/tl_scroll_timeline"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
-            android:id="@+id/main_timeline"
+            android:id="@+id/tl_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"

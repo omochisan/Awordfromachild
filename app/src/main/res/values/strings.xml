@@ -6,19 +6,21 @@
     <string name="tab_text_3">ワード検索</string>
     <string name="tab_text_4">通知</string>
 
-    <string name="icon_text_1">利用上の注意</string>
-    <string name="icon_text_2">アプリについて</string>
+    <!-- ヘッダー(hd_) -->
+    <string name="hd_title_main">メイン画面</string>
+    <string name="hd_title_tweet">こどものひとこと をツイート</string>
+    <string name="hd_title_setting">設定</string>
 
-    <string name="search_hint_1">タイムラインから検索</string>
-    <string name="search_hint_2">自分の投稿から検索</string>
-    <string name="search_hint_3">いいねから検索</string>
-    <string name="search_hint_4">フォローから検索</string>
-    <string name="search_hint_5">フォロワーから検索</string>
+    <string name="hd_icon_text_1">利用上の注意</string>
+    <string name="hd_icon_text_2">アプリについて</string>
+    <string name="hd_icon_text_3">画面更新</string>
+    <string name="hd_icon_text_4">アカウント</string>
 
     <string name="tweet_hint_1">例）散歩中、子供が～～を見て「～～」と言っていた。</string>
 
+    <!-- ワード検索タブ(fs_) -->
     <string name="fs_text_1">検索したいワードを入力してください。</string>
-    <string name="fs_hint_1">ワード入力</string>
+    <string name="fs_hint_1"> ワード入力</string>
     <string name="fs_btn_text_1">検索</string>
     <string name="fs_btn_text_2">← 検索結果に戻る</string>
 

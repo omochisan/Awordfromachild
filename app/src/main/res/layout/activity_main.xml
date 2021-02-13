@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -16,68 +22,130 @@
         app:layout_anchor="@+id/appBarLayout"
         app:layout_anchorGravity="center">
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="87dp"
-            android:layout_height="46dp"
-            app:srcCompat="@drawable/img_logo" />
+        <LinearLayout
+            android:id="@+id/fs_linerLayout_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="0.2"
+                app:srcCompat="@drawable/img_logo" />
+
+            <TextView
+                android:id="@+id/hd_dispTitle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6"
+                android:gravity="center_vertical"
+                android:text="@string/hd_title_main"
+                android:textColor="#838383"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="0dp"
+                android:layout_height="24dp"
+                android:layout_weight="0.2"
+                app:srcCompat="@drawable/main_ic_setting" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_weight="0.3"
+                android:gravity="start|center_vertical"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginStart="12dp"
                     android:layout_marginBottom="7dp"
-                    android:drawableLeft="@drawable/ic_bikkuri"
-                    android:gravity="left"
-                    android:paddingLeft="5dp"
-                    android:text="@string/icon_text_1"
-                    android:textColor="#4B4B4B" />
+                    android:drawableStart="@drawable/ic_bikkuri"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/hd_icon_text_1"
+                    android:textColor="#4B4B4B"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/textView2"
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:drawableLeft="@drawable/ic_hatena"
-                    android:gravity="left"
-                    android:paddingLeft="5dp"
-                    android:text="@string/icon_text_2"
-                    android:textColor="#4B4B4B" />
+                    android:layout_marginStart="12dp"
+                    android:drawableStart="@drawable/ic_hatena"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/hd_icon_text_2"
+                    android:textColor="#4B4B4B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.05"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/fs_img_account"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/fs_text_account"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/hd_icon_text_4"
+                    android:textColor="#4B4B4B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight=".05"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/fs_img_reload"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:textAlignment="viewEnd"
+                    app:srcCompat="@drawable/ic_reload" />
+
+                <TextView
+                    android:id="@+id/fs_text_upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/hd_icon_text_3"
+                    android:textColor="#4B4B4B"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <ImageView
-                android:id="@+id/fs_img_account"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <ImageView
-                android:id="@+id/fs_img_reload"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_reload" />
-
-            <ImageView
                 android:id="@+id/fs_img_tweet"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.3"
+                android:paddingBottom="5dp"
                 app:srcCompat="@drawable/main_ic_tweet" />
 
         </LinearLayout>
@@ -116,11 +184,5 @@
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,18 +2,20 @@ package com.example.awordfromachild;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.awordfromachild.library.GlideApp;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 import twitter4j.User;
 
 /**
@@ -66,16 +68,13 @@ public class MainActivity extends AppCompatActivity {
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
         twitterUtils.getTwitterUserInfo(twitter, instance); //自ユーザー情報取得
-        //アカウントアイコンを設置
-        ImageView accountImage = findViewById(R.id.fs_img_account);
-        String gifUrl = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png";
-        Glide.with(this).load(gifUrl).into(accountImage);
-
         //タブ
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setUpTabIcon();
-
+        //ヘッダー
+        TextView title = findViewById(R.id.hd_dispTitle);
+        title.setText(R.string.hd_title_main);
         //ツイートボタン
         ImageView tweet_btn = (ImageView) findViewById(R.id.fs_img_tweet);
         tweet_btn.setOnClickListener(new View.OnClickListener() {
@@ -92,9 +91,13 @@ public class MainActivity extends AppCompatActivity {
      * @param user
      */
     public void onAsyncFinished_getUserInfo(User user){
+        //アカウントアイコンを設置
         ImageView accountImage = findViewById(R.id.fs_img_account);
-        String gifUrl = user.getProfileImageURL();
-        Glide.with(this).load(gifUrl).into(accountImage);
+        String getUrl = user.getProfileImageURLHttps();
+        GlideApp.with(this)
+                .load(getUrl)
+                .circleCrop()
+                .into(accountImage);
     }
 
     /**

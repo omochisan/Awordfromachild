@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.example.awordfromachild.MainActivity;
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TwitterUtils;
+import com.example.awordfromachild.asynctask.callBacksSearch;
+import com.example.awordfromachild.common.fragmentBase;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,8 +23,7 @@ import androidx.fragment.app.Fragment;
 import twitter4j.QueryResult;
 import twitter4j.Twitter;
 
-public class fragSearch extends Fragment {
-    private static fragSearch instance = null;
+public class fragSearch extends fragmentBase implements callBacksSearch {
     //画面
     public View fs_view;
     //Twitter処理クラス
@@ -32,28 +33,28 @@ public class fragSearch extends Fragment {
     //スピナー（プログレスバー）
     private ProgressBar spinner;
 
-    public static fragSearch getInstance() {
-        return instance;
-    }
-
     @Nullable
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        instance = this;
         return inflater.inflate(R.layout.fragsearch_layout,container,false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (null != savedInstanceState) {
+            //mUser = savedInstanceState.getSerializable("User");
+        }
+
         fs_view = view;
         twitter = TwitterUtils.getTwitterInstance(getContext());
         //共通Twitter処理クラス
         MainActivity mainactivity = new MainActivity();
-        twitterUtils = new TwitterUtils();
+        twitterUtils = new TwitterUtils(this);
         //スピナー
         spinner = view.findViewById(R.id.fs_progressBar);
 
@@ -66,9 +67,19 @@ public class fragSearch extends Fragment {
                 //非同期処理（Twitterへ接続）開始
                 EditText value = view.findViewById(R.id.fs_input_tweet);
                 String str = value.getText().toString();
-                twitterUtils.search(twitter, fs_view, str);
+                twitterUtils.search(str);
             }
         });
+    }
+
+    @Override
+    /**
+     * 画面のGC対策（画面復帰用）
+     * ・メンバ変数の保存
+     */
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        //savedInstanceState.putBoolean("Num", mNum);
     }
 
     /**
@@ -76,11 +87,8 @@ public class fragSearch extends Fragment {
      * 取得したツイートを表示
      * @param getTweets
      */
-    public void onAsyncFinished_search(QueryResult getTweets) {
-        if (isDetached() || getActivity() == null){
-            return;
-        }
-        TextView arr_view_tweet[] = new TextView[30];
+    public void callBackGetSearch(QueryResult getTweets) {
+        if(checkViewDetach(this)) return;
 
         LinearLayout view_result = fs_view.findViewById(R.id.fs_result);
         int index = 0;

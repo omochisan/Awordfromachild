@@ -3,14 +3,20 @@ package com.example.awordfromachild;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.view.View;
 
+import com.example.awordfromachild.asynctask.callBacksBase;
+import com.example.awordfromachild.asynctask.callBacksMain;
+import com.example.awordfromachild.asynctask.callBacksSearch;
+import com.example.awordfromachild.asynctask.callBacksTimeLine;
+import com.example.awordfromachild.constant.appSharedPrerence;
+import com.example.awordfromachild.constant.timelineType;
 import com.example.awordfromachild.tab.fragSearch;
+
+import java.lang.ref.WeakReference;
 
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -21,19 +27,22 @@ import twitter4j.auth.AccessToken;
  * Twitterの機能実装クラス（検索、ツイート等）
  */
 public class TwitterUtils {
-    //SharedPrerence用のキー
-    private static final String TOKEN = "token";
-    private static final String TOKEN_SECRET = "token_secret";
-    private static final String PREF_NAME = "awordfromachild_twitter_access_token";
-
-    private fragSearch callback_fs;
-    private MainActivity mainActivity;
-
+    //コールバック先インターフェース（弱参照）
+    private WeakReference<callBacksBase> callBacks;
     private Twitter twitter;
 
-    /*public TwitterUtils(Context callback) {
-        this.callback = callback;
-    }*/
+    public static final String TOKEN = "token";
+    public static final String TOKEN_SECRET = "token_secret";
+    public static final String PREF_NAME = "awordfromachild_twitter_access_token";
+
+    /**
+     * コンストラクタ
+     * （コールバック先の画面を弱参照）
+     * @param callBacks
+     */
+    public TwitterUtils(callBacksBase callBacks) {
+        this.callBacks = new WeakReference<>(callBacks);
+    }
 
     /**
      * Twitterインスタンスの生成
@@ -42,7 +51,6 @@ public class TwitterUtils {
      * @return Twitterインスタンス
      */
     public static Twitter getTwitterInstance(Context context) {
-
         //Twitterオブジェクトのインスタンス
         //(キー等はtwitter4j.propertiesで定義済み)
         TwitterFactory factory = new TwitterFactory();
@@ -56,7 +64,7 @@ public class TwitterUtils {
     }
 
     /**
-     * TwitterUtilsインスタンスを設定します。
+     * TwitterUtilsインスタンスを設定
      * @param context
      */
     public void setTwitterInstance(Context context){
@@ -64,17 +72,15 @@ public class TwitterUtils {
     }
 
     /**
-     * Twitterの自ユーザー情報を取得します
-     * @param twitter
+     * Twitterの自ユーザー情報を取得
      * @return
      */
-    public void getTwitterUserInfo(Twitter twitter, MainActivity callBack) {
+    public void getTwitterUserInfo() {
         android.os.AsyncTask<Void, Void, User> task = new android.os.AsyncTask<Void, Void, User>() {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected User doInBackground(Void... aVoid) {
                 try {
-                    mainActivity = callBack;
                     User user = twitter.verifyCredentials();//Userオブジェクトを作成
                     return user;
                 } catch (TwitterException e) {
@@ -84,7 +90,8 @@ public class TwitterUtils {
             }
             @Override
             protected void onPostExecute(User user){
-                mainActivity.onAsyncFinished_getUserInfo(user);
+                callBacksMain callback = (callBacksMain) callBacks.get();
+                callback.callBackGetUser(user);
             }
         };
         task.execute();
@@ -140,8 +147,7 @@ public class TwitterUtils {
      *
      * @param str
      */
-    public void search(Twitter twitter, View view, String str) {
-        callback_fs = fragSearch.getInstance();
+    public void search(String str) {
         android.os.AsyncTask<Void, Void, QueryResult> task = new android.os.AsyncTask<Void, Void, QueryResult>() {
             @SuppressLint("StaticFieldLeak")
             @Override
@@ -154,33 +160,7 @@ public class TwitterUtils {
                 // 検索実行
                 try {
                     QueryResult result = twitter.search(query);
-                    System.out.println("ヒット数 : " + result.getTweets().size());
-                    // 検索結果を見てみる
-                    /*
-                    TextView arr_view_tweet[] = new TextView[30];
-                    int index = 0;
-                    for (twitter4j.Status tweet : result.getTweets()) {
-                        // 本文
-                        String t_text = tweet.getText();
-                        // TextView インスタンス生成
-                        TextView textView = new TextView(context);
-                        textView.setText(t_text);
-                        arr_view_tweet[index] = textView;
-                        index++;
-
-                        // ハッシュタグとURLの削除
-                        StringTokenizer sta = new StringTokenizer(t_text, " ");
-                        //トークンの出力
-                        while (sta.hasMoreTokens()) {
-                            String wk = sta.nextToken();
-                            if (wk.indexOf("#") == -1 && wk.indexOf("http") == -1
-                                    && wk.indexOf("RT") == -1 && wk.indexOf("@") == -1) {
-                            }
-                        }
-
-                    }*/
                     return result;
-
                 } catch (TwitterException e) {
                     System.out.println("TwitterException:" + e);
                 } catch (Exception e) {
@@ -191,7 +171,8 @@ public class TwitterUtils {
 
             @Override
             protected void onPostExecute(QueryResult arr_view) {
-                callback_fs.onAsyncFinished_search(arr_view);
+                callBacksSearch callback = (callBacksSearch) callBacks.get();
+                callback.callBackGetSearch(arr_view);
             }
         };
         task.execute();
@@ -200,9 +181,9 @@ public class TwitterUtils {
     /**
      * ツイート投稿
      *
-     * @param twitter
+     * @param
      */
-    public void tweet(Twitter twitter) {
+    public void tweet() {
         android.os.AsyncTask<Void, Void, String> task = new android.os.AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... aVoid) {
@@ -223,12 +204,63 @@ public class TwitterUtils {
         task.execute();
     }
 
-    /*public ResponseList<Status> getTimeLine(){
-        //タイムライン取得
-        try {
-            twitter.getHomeTimeline();
-        } catch (TwitterException e) {
-            e.printStackTrace();
-        }
-    }*/
+    /**
+     * タイムラインを取得
+     * @return
+     */
+    public void getTimeLine(String pattern){
+        android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>> task = new android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected ResponseList<twitter4j.Status> doInBackground(Void... aVoid) {
+                ResponseList<twitter4j.Status> result = null;
+                try {
+                    switch (pattern){
+                        case timelineType.HOME:
+                            result = twitter.getHomeTimeline();
+                            break;
+
+                        case timelineType.USER:
+                            result = twitter.getUserTimeline();
+                            break;
+
+                        case timelineType.MENTIONS:
+                            result = twitter.getMentionsTimeline();
+                            break;
+
+                        case timelineType.RT_OF_ME:
+                            result = twitter.getRetweetsOfMe();
+                            break;
+
+                        /*case timelineType.PUBLIC:
+                            result = twitter.getHomeTimeline();
+                            break;
+
+                        case timelineType.FRIEND:
+                            result = twitter.getHomeTimeline();
+                            break;
+
+                        case timelineType.RT_BY_ME:
+                            result = twitter.getHomeTimeline();
+                            break;
+
+                        case timelineType.RT_TO_ME:
+                            result = twitter.getHomeTimeline();
+                            break;*/
+                    }
+                    return result;
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(ResponseList<twitter4j.Status> status) {
+                callBacksTimeLine callback = (callBacksTimeLine) callBacks.get();
+                callback.callBackGetTimeLine(status);
+            }
+        };
+        task.execute();
+    }
 }

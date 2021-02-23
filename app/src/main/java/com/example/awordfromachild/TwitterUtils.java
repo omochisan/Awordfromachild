@@ -8,12 +8,12 @@ import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksSearch;
 import com.example.awordfromachild.asynctask.callBacksTimeLine;
-import com.example.awordfromachild.constant.appSharedPrerence;
-import com.example.awordfromachild.constant.timelineType;
-import com.example.awordfromachild.tab.fragSearch;
+import com.example.awordfromachild.constant.twitterValue;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
+import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
@@ -27,17 +27,17 @@ import twitter4j.auth.AccessToken;
  * Twitterの機能実装クラス（検索、ツイート等）
  */
 public class TwitterUtils {
+    public static final String TOKEN = "token";
+    public static final String TOKEN_SECRET = "token_secret";
+    public static final String PREF_NAME = "awordfromachild_twitter_access_token";
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
     private Twitter twitter;
 
-    public static final String TOKEN = "token";
-    public static final String TOKEN_SECRET = "token_secret";
-    public static final String PREF_NAME = "awordfromachild_twitter_access_token";
-
     /**
      * コンストラクタ
      * （コールバック先の画面を弱参照）
+     *
      * @param callBacks
      */
     public TwitterUtils(callBacksBase callBacks) {
@@ -61,40 +61,6 @@ public class TwitterUtils {
             _twitter.setOAuthAccessToken(loadAccessToken(context));
         }
         return _twitter;
-    }
-
-    /**
-     * TwitterUtilsインスタンスを設定
-     * @param context
-     */
-    public void setTwitterInstance(Context context){
-        twitter = getTwitterInstance(context);
-    }
-
-    /**
-     * Twitterの自ユーザー情報を取得
-     * @return
-     */
-    public void getTwitterUserInfo() {
-        android.os.AsyncTask<Void, Void, User> task = new android.os.AsyncTask<Void, Void, User>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            protected User doInBackground(Void... aVoid) {
-                try {
-                    User user = twitter.verifyCredentials();//Userオブジェクトを作成
-                    return user;
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-            @Override
-            protected void onPostExecute(User user){
-                callBacksMain callback = (callBacksMain) callBacks.get();
-                callback.callBackGetUser(user);
-            }
-        };
-        task.execute();
     }
 
     /**
@@ -140,6 +106,43 @@ public class TwitterUtils {
      */
     public static boolean hasAccessToken(Context context) {
         return loadAccessToken(context) != null;
+    }
+
+    /**
+     * TwitterUtilsインスタンスを設定
+     *
+     * @param context
+     */
+    public void setTwitterInstance(Context context) {
+        twitter = getTwitterInstance(context);
+    }
+
+    /**
+     * Twitterの自ユーザー情報を取得
+     *
+     * @return
+     */
+    public void getTwitterUserInfo() {
+        android.os.AsyncTask<Void, Void, User> task = new android.os.AsyncTask<Void, Void, User>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected User doInBackground(Void... aVoid) {
+                try {
+                    User user = twitter.verifyCredentials();//Userオブジェクトを作成
+                    return user;
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(User user) {
+                callBacksMain callback = (callBacksMain) callBacks.get();
+                callback.callBackGetUser(user);
+            }
+        };
+        task.execute();
     }
 
     /**
@@ -206,30 +209,55 @@ public class TwitterUtils {
 
     /**
      * タイムラインを取得
+     *
+     * @param pattern
+     */
+    public void getTimeLine(String pattern) {
+        getTimeLine(pattern, null, null);
+    }
+
+    /**
+     * タイムラインを取得
+     *
      * @return
      */
-    public void getTimeLine(String pattern){
+    public void getTimeLine(String pattern, Integer count, ResponseList<twitter4j.Status> old_status) {
         android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>> task = new android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>>() {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected ResponseList<twitter4j.Status> doInBackground(Void... aVoid) {
-                ResponseList<twitter4j.Status> result = null;
                 try {
-                    switch (pattern){
-                        case timelineType.HOME:
-                            result = twitter.getHomeTimeline();
+                    ResponseList<twitter4j.Status> result = null;
+                    //Pagingオブジェクトの作成
+                    Paging p = new Paging();
+                    Integer getCount = count;
+                    //取得数指定が無い場合、40を設定
+                    if (getCount == null) getCount = twitterValue.GET_COUNT_TIMELINE;
+
+                    //追加読込の場合、ページングオブジェクトをセット
+                    if (old_status != null) {
+                        //直近で読み込んだＴＬの最後のつぶやきを取得
+                        twitter4j.Status _status = old_status.get(old_status.size() - 1);
+                        p.setMaxId(_status.getId());
+                        p.setCount(getCount);
+                    } else {
+                        p.setCount(getCount);
+                    }
+                    switch (pattern) {
+                        case twitterValue.HOME:
+                            result = twitter.getHomeTimeline(p);
                             break;
 
-                        case timelineType.USER:
-                            result = twitter.getUserTimeline();
+                        case twitterValue.USER:
+                            result = twitter.getUserTimeline(p);
                             break;
 
-                        case timelineType.MENTIONS:
-                            result = twitter.getMentionsTimeline();
+                        case twitterValue.MENTIONS:
+                            result = twitter.getMentionsTimeline(p);
                             break;
 
-                        case timelineType.RT_OF_ME:
-                            result = twitter.getRetweetsOfMe();
+                        case twitterValue.RT_OF_ME:
+                            result = twitter.getRetweetsOfMe(p);
                             break;
 
                         /*case timelineType.PUBLIC:
@@ -248,8 +276,15 @@ public class TwitterUtils {
                             result = twitter.getHomeTimeline();
                             break;*/
                     }
+
+                    //追加読込の場合、取得した中の先頭ツイート（前回読込分の最古ツイート）を削除
+                    if(old_status != null){
+                        result.remove(0);
+                    }
                     return result;
                 } catch (TwitterException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;

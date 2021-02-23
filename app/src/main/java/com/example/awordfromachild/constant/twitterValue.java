@@ -1,6 +1,6 @@
 package com.example.awordfromachild.constant;
 
-public class timelineType {
+public class twitterValue {
     //公開タイムライン
     public static final String PUBLIC = "public_timeline";
     //自分のデフォルトタイムライン
@@ -17,4 +17,7 @@ public class timelineType {
     public static final String RT_TO_ME = "retweeted_to_me";
     //公式RTされた自分のツイートのみのタイムライン
     public static final String RT_OF_ME = "retweeted_of_me";
+
+    //1回の読込で取得するタイムライン数
+    public static final Integer GET_COUNT_TIMELINE = 40;
 }

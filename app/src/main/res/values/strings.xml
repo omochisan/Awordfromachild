@@ -1,4 +1,5 @@
 <resources>
+    <string name="sample">sample text</string>
     <string name="app_name">こどものひとこと</string>
     <string name="app_name_en">Awordfromachild</string>
     <string name="tab_text_1">タイムライン</string>

@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ft_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ScrollView
-        android:id="@+id/tl_scroll_timeline"
+    <ListView
+        android:id="@+id/ft_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
-
-        <LinearLayout
-            android:id="@+id/tl_main"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:layout_editor_absoluteX="140dp"
-            tools:layout_editor_absoluteY="233dp">
-
-        </LinearLayout>
-    </ScrollView>
+        tools:layout_editor_absoluteX="82dp"
+        tools:layout_editor_absoluteY="241dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

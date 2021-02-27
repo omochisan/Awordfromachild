@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.awordfromachild.*;
@@ -25,7 +27,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
      * @param resource リソースID
      * @param items リストビューの要素
      */
-    public SetDefaultTweetAdapter(Context context, int resource, ResponseList<twitter4j.Status> items) {
+    public SetDefaultTweetAdapter(Context context, int resource, ArrayList<Status> items) {
         super(context, resource, items);
 
         mResource = resource;
@@ -37,7 +39,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
      * リストにセットするツイート一覧を追加設定。
      * @param items
      */
-    public void addItems(ResponseList<twitter4j.Status> items){
+    public void addItems(ArrayList<twitter4j.Status> items){
         mItems.addAll(items);
     }
 

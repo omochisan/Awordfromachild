@@ -3,20 +3,25 @@ package com.example.awordfromachild;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksSearch;
 import com.example.awordfromachild.asynctask.callBacksTimeLine;
 import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.tab.fragTimeLine;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -221,11 +226,11 @@ public class TwitterUtils {
      *
      * @return
      */
-    public void getTimeLine(String pattern, Integer count, ResponseList<twitter4j.Status> old_status) {
-        android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>> task = new android.os.AsyncTask<Void, Void, ResponseList<twitter4j.Status>>() {
+    public void getTimeLine(String pattern, Integer count, ArrayList<Status> old_status) {
+        android.os.AsyncTask<Void, Void, ArrayList<twitter4j.Status>> task = new android.os.AsyncTask<Void, Void, ArrayList<twitter4j.Status>>() {
             @SuppressLint("StaticFieldLeak")
             @Override
-            protected ResponseList<twitter4j.Status> doInBackground(Void... aVoid) {
+            protected ArrayList<twitter4j.Status> doInBackground(Void... aVoid) {
                 try {
                     ResponseList<twitter4j.Status> result = null;
                     //Pagingオブジェクトの作成
@@ -281,7 +286,7 @@ public class TwitterUtils {
                     if(old_status != null){
                         result.remove(0);
                     }
-                    return result;
+                    return (ArrayList<twitter4j.Status>) result;
                 } catch (TwitterException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -291,7 +296,7 @@ public class TwitterUtils {
             }
 
             @Override
-            protected void onPostExecute(ResponseList<twitter4j.Status> status) {
+            protected void onPostExecute(ArrayList<twitter4j.Status> status) {
                 callBacksTimeLine callback = (callBacksTimeLine) callBacks.get();
                 callback.callBackGetTimeLine(status);
             }

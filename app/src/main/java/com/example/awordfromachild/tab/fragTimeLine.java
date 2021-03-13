@@ -22,20 +22,23 @@ import androidx.annotation.Nullable;
 import twitter4j.Status;
 
 public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
-    //listviewのアイテムを保存するためのキー
+    //Bundleキー
     private static final String BUNDLE_KEY_ITEM_LIST = "ft_item_list";
+    private static final String BUNDLE_KEY_ITEM_POSITION = "ft_item_position";
     //ListViewアダプター
     SetDefaultTweetAdapter adapter;
     //Twitter処理クラス
-    private TwitterUtils twitterUtils;
+    private static TwitterUtils twitterUtils;
     //最新の読込タイムライン
-    private ArrayList<Status> latest_status;
+    private static ArrayList<Status> latest_status;
     //現在実施中の読込開始ポイント
-    private int now_readPoint = 0;
+    private static int now_readPoint = 0;
     //スピナー用
-    private PopupWindow mPopupWindow;
+    private static PopupWindow mPopupWindow;
     //onPuase時、ListView復元のため一時保存
-    private ArrayList<Status> temp_listView;
+    private static Bundle bundle = new Bundle();
+
+    private ListView listView;
 
     @Nullable
     @Override
@@ -47,20 +50,20 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
     }
 
     @Override
-    public void onCreate(Bundle b) {
-        super.onCreate(b);
+    public void onResume(){
+        super.onResume();
+        //ListViewの復元
+        if (bundle.getSerializable(BUNDLE_KEY_ITEM_LIST) != null && adapter != null) {
+            dispSpinner(mPopupWindow);
+            adapter.clear();
+            setListView((ArrayList<Status>)bundle.getSerializable(BUNDLE_KEY_ITEM_LIST));
+            hideSpinner(mPopupWindow);
+        }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //ListViewの復元
-        if (temp_listView != null) {
-            dispSpinner(mPopupWindow);
-            adapter.clear();
-            setListView(temp_listView);
-            hideSpinner(mPopupWindow);
-        }
     }
 
     @Override
@@ -72,11 +75,10 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
         //タイムライン取得
         twitterUtils.getTimeLine(twitterValue.HOME);
 
-        mPopupWindow = new PopupWindow(getActivity());
-
         //スクロールイベント
         //ポイントまでスクロールした時、追加で40件読み込み
-        ListView listView = getActivity().findViewById(R.id.ft_main);
+        mPopupWindow = new PopupWindow(getActivity());
+        listView = getActivity().findViewById(R.id.ft_main);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -100,19 +102,24 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
 
     /**
      * ListViewにツイートをセット
-     *
      * @param result
      */
     private void setListView(ArrayList<Status> result) {
         latest_status = result;
-        ListView view_result = getActivity().findViewById(R.id.ft_main);
         //カスタマイズしたリストviewに取得結果を表示
         if (adapter == null) {
             adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, result);
-            view_result.setAdapter(adapter);
         } else {
             adapter.addItems(result);
             adapter.notifyDataSetChanged();
+        }
+        //VIEWにアイテムが未登録の場合＝新規登録
+        if(listView.getAdapter() == null){
+            listView.setAdapter(adapter);
+            //（画面復元の場合）スクロール位置を復元
+            if(bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1){
+                listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
+            }
         }
     }
 
@@ -133,7 +140,8 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
     @Override
     public void onPause() {
         super.onPause();
-        temp_listView = getItemList(adapter);
+        bundle.putSerializable(BUNDLE_KEY_ITEM_LIST, getItemList(adapter));
+        bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
     }
 
     /**

@@ -1,7 +1,10 @@
 <resources>
+    <!-- アプリ情報 -->
     <string name="sample">sample text</string>
     <string name="app_name">こどものひとこと</string>
     <string name="app_name_en">Awordfromachild</string>
+
+    <!-- タブ名 -->
     <string name="tab_text_1">タイムライン</string>
     <string name="tab_text_2">注目</string>
     <string name="tab_text_3">ワード検索</string>
@@ -24,6 +27,27 @@
     <string name="fs_hint_1"> ワード入力</string>
     <string name="fs_btn_text_1">検索</string>
     <string name="fs_btn_text_2">← 検索結果に戻る</string>
+
+    <!-- ツイート作成(ct_) -->
+    <string name="ct_hint1">お買い物に行く途中</string>
+    <string name="ct_hint2">歩道で</string>
+    <string name="ct_hint3">お散歩中の犬を見て</string>
+    <string name="ct_hint4">～～と言っていた</string>
+    <string name="ct_hint5">お買い物に行く途中、歩道で、お散歩中の犬を見て、～～と言っていた</string>
+    <string name="ct_btn_sent">投稿</string>
+    <string name="ct_notes1">※すべてのアカウントが返信できます</string>
+    <string name="ct_notes2">※投稿時、タグ「#こどものひとこと」が自動で付与されます</string>
+
+    <!-- 設定画面(set_) -->
+    <string name="set_ct">「こどものひとことをツイート」画面</string>
+    <string name="set_ct_defaultType">デフォルトのツイート作成画面</string>
+    <string name="set_ct_defaultType_type1">自由入力</string>
+    <string name="set_ct_defaultType_type2">フォーム入力</string>
+    <string name="set_at">「注目」タブ</string>
+    <string name="set_at_explan">注目タブには、一定以上のいいね＆リツイートがされた
+    ハッシュタグ #こどものひとこと を含むツイートを表示します。</string>
+    <string name="set_at_countLike">表示するツイートの\nいいね数</string>
+    <string name="set_at_countRetweet">表示するツイートの\nリツイート数</string>
 
     <string name="twitter_callback_url">com.example.awordfromachild://callback</string>
 </resources>

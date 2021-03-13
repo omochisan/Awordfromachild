@@ -33,6 +33,15 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     //スピナー（プログレスバー）
     private ProgressBar spinner;
 
+    @Override
+    public void onStart(){
+        super.onStart();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+
     @Nullable
     @Override
     public View onCreateView(

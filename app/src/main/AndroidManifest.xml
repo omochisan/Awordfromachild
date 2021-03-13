@@ -31,6 +31,12 @@
                 <data android:host="callback" android:scheme="com.example.awordfromachild" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CreateTweetActivity">
+        </activity>
+        <activity
+            android:name=".SettingActivity">
+        </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

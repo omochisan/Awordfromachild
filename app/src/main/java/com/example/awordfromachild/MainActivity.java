@@ -66,16 +66,23 @@ public class MainActivity extends activityBase implements callBacksMain {
             title.setText(R.string.hd_title_main);
             //ツイートボタン
             ImageView tweet_btn = (ImageView) findViewById(R.id.fs_img_tweet);
-            tweet_btn.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    //非同期処理（Twitterへ接続）開始
-                    twitterUtils.tweet();
-                }
-            });
+            tweet_btn.setOnClickListener(iconTweetClick);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     * ツイートアイコン押下時
+     */
+    private final View.OnClickListener iconTweetClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            //ツイート作成画面へ遷移
+            Intent intent = new Intent(getApplication(), CreateTweetActivity.class);
+            startActivity(intent);
+        }
+    };
 
     /**
      * コールバック関数（Twitterの自ユーザー情報取得後）

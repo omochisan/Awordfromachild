@@ -3,19 +3,17 @@ package com.example.awordfromachild;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.example.awordfromachild.asynctask.callBacksBase;
+import com.example.awordfromachild.asynctask.callBacksCreateTweet;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksSearch;
 import com.example.awordfromachild.asynctask.callBacksTimeLine;
+import com.example.awordfromachild.constant.appSharedPrerence;
 import com.example.awordfromachild.constant.twitterValue;
-import com.example.awordfromachild.tab.fragTimeLine;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 
 import twitter4j.Paging;
 import twitter4j.Query;
@@ -32,9 +30,7 @@ import twitter4j.auth.AccessToken;
  * Twitterの機能実装クラス（検索、ツイート等）
  */
 public class TwitterUtils {
-    public static final String TOKEN = "token";
-    public static final String TOKEN_SECRET = "token_secret";
-    public static final String PREF_NAME = "awordfromachild_twitter_access_token";
+
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
     private Twitter twitter;
@@ -76,10 +72,10 @@ public class TwitterUtils {
      */
     public static void storeAccessToken(Context context, AccessToken accessToken) {
         //トークンの設定
-        SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(appSharedPrerence.PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(TOKEN, accessToken.getToken());
-        editor.putString(TOKEN_SECRET, accessToken.getTokenSecret());
+        editor.putString(appSharedPrerence.TOKEN, accessToken.getToken());
+        editor.putString(appSharedPrerence.TOKEN_SECRET, accessToken.getTokenSecret());
 
         //トークンの保存
         editor.commit();
@@ -93,9 +89,9 @@ public class TwitterUtils {
      */
     public static AccessToken loadAccessToken(Context context) {
         //preferenceからトークンの呼び出し
-        SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String token = preferences.getString(TOKEN, null);
-        String tokenSecret = preferences.getString(TOKEN_SECRET, null);
+        SharedPreferences preferences = context.getSharedPreferences(appSharedPrerence.PREF_NAME, Context.MODE_PRIVATE);
+        String token = preferences.getString(appSharedPrerence.TOKEN, null);
+        String tokenSecret = preferences.getString(appSharedPrerence.TOKEN_SECRET, null);
         if (token != null && tokenSecret != null) {
             return new AccessToken(token, tokenSecret);
         } else {
@@ -192,21 +188,21 @@ public class TwitterUtils {
      * @param
      */
     public void tweet() {
-        android.os.AsyncTask<Void, Void, String> task = new android.os.AsyncTask<Void, Void, String>() {
+        android.os.AsyncTask<Void, Void, Boolean> task = new android.os.AsyncTask<Void, Void, Boolean>() {
             @Override
-            protected String doInBackground(Void... aVoid) {
+            protected Boolean doInBackground(Void... aVoid) {
                 try {
                     twitter4j.Status status = twitter.updateStatus("Twitter4Jから初めてのツイート！ #twitter4j");
-                    System.out.println("Successfully updated the status to [" + status.getText() + "].");
+                    return true;
                 } catch (TwitterException e) {
-
+                    return false;
                 }
-                return null;
             }
 
             @Override
-            protected void onPostExecute(String url) {
-
+            protected void onPostExecute(Boolean result) {
+                callBacksCreateTweet callback = (callBacksCreateTweet) callBacks.get();
+                callback.callBackTweeting(result);
             }
         };
         task.execute();
@@ -283,7 +279,7 @@ public class TwitterUtils {
                     }
 
                     //追加読込の場合、取得した中の先頭ツイート（前回読込分の最古ツイート）を削除
-                    if(old_status != null){
+                    if (old_status != null) {
                         result.remove(0);
                     }
                     return (ArrayList<twitter4j.Status>) result;

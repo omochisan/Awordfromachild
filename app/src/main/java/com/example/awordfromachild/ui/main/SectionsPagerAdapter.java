@@ -30,7 +30,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         mContext = context;
     }
 
@@ -48,7 +48,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 2:
                 fragment = new fragSearch();
                 break;
-
             case 3:
                 fragment = new fragNoti();
                 break;

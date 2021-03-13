@@ -20,4 +20,13 @@ public class fragNoti extends Fragment {
             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragnoti_layout,container,false);
     }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
 }

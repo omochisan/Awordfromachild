@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 
-public abstract class fragmentBase extends Fragment {
+public class fragmentBase extends Fragment {
     WeakReference<Fragment> weak_fragment;
 
     public void setFragment(Fragment fragment){

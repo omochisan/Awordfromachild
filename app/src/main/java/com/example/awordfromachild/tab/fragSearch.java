@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import twitter4j.QueryResult;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 public class fragSearch extends fragmentBase implements callBacksSearch {
     //画面
@@ -125,5 +126,14 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     {
         super.onDestroy();
         System.out.println("onDestroy");
+    }
+
+    /**
+     * コールバック
+     * TwitterAPIリミット時
+     */
+    @Override
+    public void callBackTwitterLimit(int secondsUntilReset) {
+        ex_twitterAPILimit(secondsUntilReset);
     }
 }

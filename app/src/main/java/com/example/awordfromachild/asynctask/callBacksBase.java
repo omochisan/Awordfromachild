@@ -1,5 +1,10 @@
 package com.example.awordfromachild.asynctask;
 
-public interface callBacksBase {
+import twitter4j.TwitterException;
 
+public interface callBacksBase {
+    /**
+     * TwitterAPIリミット時
+     */
+    public void callBackTwitterLimit(int secondsUntilReset);
 }

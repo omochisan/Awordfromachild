@@ -4,126 +4,148 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/tw_userIcon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp" />
-
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="5dp"
-        android:orientation="vertical">
+        android:id="@+id/tw_linear_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tw_tweetheader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_retweet"
-            android:text="TextView"
-            android:textStyle="bold"
-            android:visibility="gone" />
+        <ImageView
+            android:id="@+id/tw_userIcon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp" />
 
         <LinearLayout
-            android:id="@+id/tw_header"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tw_userName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:ellipsize="marquee"
-                android:paddingStart="0dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="0dp"
-                android:paddingBottom="5dp"
-                android:singleLine="true"
-                android:text="userName"
-                android:textColor="#000"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tw_userID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="1"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:text="userID"
-                android:textColor="@color/tweet_gray" />
-
-            <TextView
-                android:id="@+id/tw_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="1"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:text="date"
-                android:textColor="@color/tweet_gray" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tw_center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tw_main"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:text="@string/sample"
-                android:textColor="@color/tweet_default" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tw_footer"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:layout_marginEnd="3dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tw_reply"
+            <LinearLayout
+                android:id="@+id/tw_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:drawableStart="@drawable/ic_replay"
-                android:text="rep"
-                android:textColor="@color/tweet_gray" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tw_retweet"
+                <TextView
+                    android:id="@+id/tw_userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:ellipsize="marquee"
+                    android:paddingStart="0dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingBottom="5dp"
+                    android:singleLine="true"
+                    android:text="userName"
+                    android:textColor="#000"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tw_userID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:text="userID"
+                    android:textColor="@color/tweet_gray" />
+
+                <TextView
+                    android:id="@+id/tw_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:text="date"
+                    android:textColor="@color/tweet_gray" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tw_center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.3"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tw_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/sample"
+                    android:textColor="@color/tweet_default" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tw_footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tw_reply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:drawableStart="@drawable/ic_replay"
+                    android:text="rep"
+                    android:textColor="@color/tweet_gray" />
+
+                <TextView
+                    android:id="@+id/tw_retweet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:drawableStart="@drawable/ic_retweet"
+                    android:text="ret"
+                    android:textColor="@color/tweet_gray" />
+
+                <TextView
+                    android:id="@+id/tw_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:drawableStart="@drawable/ic_like"
+                    android:text="like"
+                    android:textColor="@color/tweet_gray" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tw_tweetheader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_retweet"
-                android:text="ret"
-                android:textColor="@color/tweet_gray" />
-
-            <TextView
-                android:id="@+id/tw_like"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:drawableStart="@drawable/ic_like"
-                android:text="like"
-                android:textColor="@color/tweet_gray" />
+                android:text="TextView"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tw_linear_"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/tw_addBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Button" />
     </LinearLayout>
 
 </LinearLayout>

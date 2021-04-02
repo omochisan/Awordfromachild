@@ -4,11 +4,16 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.awordfromachild.ApplicationController;
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.TwitterUtils;
+import com.example.awordfromachild.constant.twitterValue;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,11 +23,18 @@ import java.util.List;
 import twitter4j.Status;
 
 public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
+    private final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
     private int mResource;
     private List<twitter4j.Status> mItems;
     private LayoutInflater mInflater;
+    public long maxID = 0;
+    public long sinceID = 0;
 
-    private final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+    //TwitterUtils タイムライン
+    TwitterUtils tu_timeLine;
+    TwitterUtils tu_attention;
+    TwitterUtils tu_search;
+    TwitterUtils tu_noti;
 
     /**
      * コンストラクタ
@@ -48,7 +60,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
         mItems.addAll(items);
     }
 
-
     /**
      * 画面をスクロールし、新しい一行が表示されるたびに呼ばれ、1行のUIを作成する。
      *
@@ -60,6 +71,24 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
+
+        //追加読込ボタンを表示する場合
+        if(position >= 1 && mItems.get(position - 1).getId() == sinceID){
+            Button btn = new Button(ApplicationController.getInstance().getApplicationContext());
+            btn.setText("さらにツイートを表示する");
+
+            //Button button =
+
+            //追加読込
+            btn.setOnClickListener(view1 -> {
+                tu_timeLine.getTimeLine(
+                        twitterValue.HOME, maxID, sinceID, twitterValue.GET_TYPE_EVEN_NEWER,
+                        twitterValue.TWEET_HOW_TO_DISPLAY_MIDDLE_ADD);
+                //ボタン削除
+                parent.removeView(btn);
+            });
+            return btn;
+        }
 
         //再利用できるviewがある場合はそれを使う
         //（表示領域から消えた1行は、スクロールして表
@@ -91,8 +120,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
                 .circleCrop()
                 .into(userIcon);
 
-        //ツイートIDを取得
-        //long tweetID = item.getId();
         //ユーザー名を設定
         TextView userName = (TextView) view.findViewById(R.id.tw_userName);
         userName.setText(item.getUser().getName());
@@ -110,6 +137,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
         String t_datey = ysdf.format(t_date);
         // month
         SimpleDateFormat msdf = new SimpleDateFormat("MM");
+        String n_datem = msdf.format(n_date);
         String t_datem = msdf.format(t_date);
         // day
         SimpleDateFormat dsdf = new SimpleDateFormat("dd");
@@ -117,7 +145,8 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
         String t_dated = dsdf.format(t_date);
 
         if (n_datey.equals(t_datey)) { //年内のもの
-            if ((Integer.parseInt(n_dated) - 3) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
+            if (n_datem == t_datem &&
+                    (Integer.parseInt(n_dated) - 3) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
                 long diffTime = n_date.getTime() - t_date.getTime();
                 SimpleDateFormat timeFormatter = new SimpleDateFormat("HH");
                 String diffTimeStr = timeFormatter.format(new Date(diffTime));
@@ -125,7 +154,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
                 boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;
                 if (moreThanDay) { //24時間以内のもの
                     disp_date = diffTimeStr + "時間前";
-                }else{ //直近3日間以内 and 24時間超えて前のもの
+                } else { //直近3日間以内 and 24時間超えて前のもの
                     disp_date = String.valueOf(Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
                 }
             } else { //年内 and 4日以上前のもの

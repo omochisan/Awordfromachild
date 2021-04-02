@@ -1,10 +1,12 @@
 package com.example.awordfromachild.tab;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
@@ -16,6 +18,7 @@ import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,22 +26,37 @@ import twitter4j.Status;
 
 public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
     //Bundleキー
-    private static final String BUNDLE_KEY_ITEM_LIST = "ft_item_list";
+    // 現在表示している中で、一番古いツイート
+    private static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "ft_item_max_get_id";
+    // 現在のスクロール位置
     private static final String BUNDLE_KEY_ITEM_POSITION = "ft_item_position";
-    //ListViewアダプター
-    SetDefaultTweetAdapter adapter;
     //Twitter処理クラス
     private static TwitterUtils twitterUtils;
-    //最新の読込タイムライン
-    private static ArrayList<Status> latest_status;
+    //現在表示している中の最新？ツイートID
+    private static long latest_maxId;
+    //現在表示している中の最新？ツイートID
+    private static long latest_minId;
     //現在実施中の読込開始ポイント
     private static int now_readPoint = 0;
     //スピナー用
     private static PopupWindow mPopupWindow;
     //onPuase時、ListView復元のため一時保存
     private static Bundle bundle = new Bundle();
-
+    //画面復元実行フラグ
+    private static boolean flg_restore = false;
+    //ListViewアダプター
+    SetDefaultTweetAdapter adapter;
     private ListView listView;
+    //取得ツイートの表示方法
+    private String how_to_display;
+    //追加取得分の割り込み先インデックス
+    private Status toInsertItem;
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        return super.getContext();
+    }
 
     @Nullable
     @Override
@@ -50,14 +68,16 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         //ListViewの復元
-        if (bundle.getSerializable(BUNDLE_KEY_ITEM_LIST) != null && adapter != null) {
-            dispSpinner(mPopupWindow);
+        if (adapter != null) {
+            listView.setAdapter(adapter);
+            restoreListViewSelection();
+            /*dispSpinner(mPopupWindow);
             adapter.clear();
-            setListView((ArrayList<Status>)bundle.getSerializable(BUNDLE_KEY_ITEM_LIST));
-            hideSpinner(mPopupWindow);
+            long maxID = bundle.getLong(BUNDLE_KEY_ITEM_MAX_GET_ID);
+            twitterUtils.getTimeLine(twitterValue.HOME, maxID, twitterValue.GET_TYPE_EVEN_NEWER);*/
         }
     }
 
@@ -72,12 +92,16 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
 
         twitterUtils = new TwitterUtils(this);
         twitterUtils.setTwitterInstance(getContext());
-        //タイムライン取得
-        twitterUtils.getTimeLine(twitterValue.HOME);
+        mPopupWindow = new PopupWindow(getActivity());
+        if (!flg_restore) {
+            //タイムライン取得
+            dispSpinner(mPopupWindow);
+            how_to_display = twitterValue.TWEET_HOW_TO_DISPLAY_REWASH;
+            twitterUtils.getTimeLine(twitterValue.HOME);
+        }
 
         //スクロールイベント
         //ポイントまでスクロールした時、追加で40件読み込み
-        mPopupWindow = new PopupWindow(getActivity());
         listView = getActivity().findViewById(R.id.ft_main);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -94,33 +118,11 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
                     //スピナー表示
                     dispSpinner(mPopupWindow);
                     now_readPoint = readStartCount;
-                    twitterUtils.getTimeLine(twitterValue.HOME, null, latest_status);
+                    how_to_display = twitterValue.TWEET_HOW_TO_DISPLAY_REWASH;
+                    twitterUtils.getTimeLine(twitterValue.HOME, latest_minId, twitterValue.GET_TYPE_OLDER);
                 }
             }
         });
-    }
-
-    /**
-     * ListViewにツイートをセット
-     * @param result
-     */
-    private void setListView(ArrayList<Status> result) {
-        latest_status = result;
-        //カスタマイズしたリストviewに取得結果を表示
-        if (adapter == null) {
-            adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, result);
-        } else {
-            adapter.addItems(result);
-            adapter.notifyDataSetChanged();
-        }
-        //VIEWにアイテムが未登録の場合＝新規登録
-        if(listView.getAdapter() == null){
-            listView.setAdapter(adapter);
-            //（画面復元の場合）スクロール位置を復元
-            if(bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1){
-                listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
-            }
-        }
     }
 
     /**
@@ -128,30 +130,137 @@ public class fragTimeLine extends fragmentBase implements callBacksTimeLine {
      * タイムライン取得後
      */
     @Override
-    public void callBackGetTimeLine(ArrayList<Status> result) {
+    public void callBackGetTimeLine(ArrayList<Status> list) {
         if (checkViewDetach(this)) return;
-        setListView(result);
+        setListView(list);
         hideSpinner(mPopupWindow);
     }
 
     /**
-     * ListViewの保持（Fragment再生成用）
+     * 取得ツイートの追加方式を設定
+     * @param how
+     */
+    @Override
+    public void setHowToDisplay(String how) {
+        how_to_display = how;
+    }
+
+    /**
+     * コールバック
+     * TwitterAPIリミット時
+     */
+    @Override
+    public void callBackTwitterLimit(int secondsUntilReset) {
+        ex_twitterAPILimit(secondsUntilReset);
+        hideSpinner(mPopupWindow);
+    }
+
+    /**
+     * 画面状態の保持（Fragment再生成用）
      */
     @Override
     public void onPause() {
         super.onPause();
-        bundle.putSerializable(BUNDLE_KEY_ITEM_LIST, getItemList(adapter));
-        bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
+        putState();
     }
 
     /**
-     * ListViewの保持（Fragment再生成用）
+     * 画面状態の保持（Fragment再生成用）
      *
      * @param state
      */
     @Override
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        state.putSerializable(BUNDLE_KEY_ITEM_LIST, getItemList(adapter));
+        putState();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+    /**
+     * リストビューのスクロール位置を復元
+     */
+    private void restoreListViewSelection() {
+        if (bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1) {
+            listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
+        }
+    }
+
+    /**
+     * ListViewにツイートをセット
+     *
+     * @param result
+     */
+    private void setListView(ArrayList<Status> result) {
+        //取得ツイートが０の場合、return
+        if (result.size() == 0) {
+            no_result();
+            return;
+        }
+        latest_minId = ((twitter4j.Status) result.get(result.size() - 1)).getId();
+        //カスタマイズしたリストviewに取得結果を表示
+        if (adapter == null) {
+            adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, result);
+        }else{
+            long _sinceID = adapter.getItem(0).getId();
+            switch (how_to_display){
+                case twitterValue.TWEET_HOW_TO_DISPLAY_REWASH: //表示ツイート洗い替え
+                    adapter.clear();
+                    adapter.addItems(result);
+                    adapter.notifyDataSetChanged();
+                    break;
+
+                case twitterValue.TWEET_HOW_TO_DISPLAY_ADD: //先頭に追加
+                    toInsertItem = adapter.getItem(0);
+                    for(int i=0; i < result.size(); i++){
+                        adapter.insert(result.get(i), i);
+                    }
+                    //未取得の最新ツイートがある場合、追加読込ボタン（アイテム）をセット
+                    if (result.get(result.size() - 1).getId() != _sinceID || result.size() >= 2){
+                        adapter.sinceID = _sinceID;
+                        adapter.maxID = result.get(result.size() - 1).getId();
+                    }
+                    adapter.notifyDataSetChanged();
+                    break;
+
+                case twitterValue.TWEET_HOW_TO_DISPLAY_MIDDLE_ADD: //中間に追加
+                    int insertInt = adapter.getPosition(toInsertItem);
+                    for(int i=0; i < result.size(); i++){
+                        adapter.insert(result.get(i), insertInt++);
+                    }
+                    //未取得の最新ツイートがある場合、追加読込ボタン（アイテム）をセット
+                    if (result.get(result.size() - 1).getId() != _sinceID || result.size() >= 2){
+                        adapter.sinceID = _sinceID;
+                        adapter.maxID = result.get(result.size() - 1).getId();
+                    }
+                    adapter.notifyDataSetChanged();
+                    break;
+            }
+        }
+
+        //VIEWにアイテムが未登録の場合、登録
+        if (listView.getAdapter() == null) {
+            listView.setAdapter(adapter);
+            //（画面復元の場合）スクロール位置を復元
+            restoreListViewSelection();
+        }
+    }
+
+    /**
+     * 画面の状態を保存
+     */
+    private void putState() {
+        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        bundle.putLong(BUNDLE_KEY_ITEM_MAX_GET_ID, maxID);
+        bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
+        flg_restore = true;
     }
 }

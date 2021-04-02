@@ -4,11 +4,30 @@
     <string name="app_name">こどものひとこと</string>
     <string name="app_name_en">Awordfromachild</string>
 
+    <!-- 共通 -->
+    <string name="common_check_restore">復元しますか？</string>
+
+    <!-- ダイアログ Twitterログイン確認 -->
+    <string name="dialog_TwitterLoginCheck_title">Twitterへログイン</string>
+    <string name="dialog_TwitterLoginCheck_message">
+        このアプリを利用するには、Twitterアカウントにログインする必要があります。\n
+        OKを押すと、Twitterのログイン画面に遷移します。
+    </string>
+
+    <!-- ダイアログ Twitterログアウト確認 -->
+    <string name="dialog_TwitterLogout_title">ログアウト</string>
+    <string name="dialog_TwitterLogout_message">表示中のユーザーからログアウトします。</string>
+
+
+    <!-- ポップアップ ユーザーアイコン押下時メニュー -->
+    <string name="popup_userMenu1">ログアウト</string>
+    <string name="popup_userMenu2">アカウント画面を開く\n(ブラウザで開きます)</string>
+
     <!-- タブ名 -->
-    <string name="tab_text_1">タイムライン</string>
-    <string name="tab_text_2">注目</string>
-    <string name="tab_text_3">ワード検索</string>
-    <string name="tab_text_4">通知</string>
+    <string name="tab_text_timeline">タイムライン</string>
+    <string name="tab_text_attention">注目</string>
+    <string name="tab_text_search">ワード検索</string>
+    <string name="tab_text_noti">通知</string>
 
     <!-- ヘッダー(hd_) -->
     <string name="hd_title_main">メイン画面</string>

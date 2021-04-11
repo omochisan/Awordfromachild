@@ -1,40 +1,48 @@
 package com.example.awordfromachild.library;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.awordfromachild.ApplicationController;
+import com.example.awordfromachild.MainActivity;
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TwitterUtils;
-import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.asynctask.callBacksBase;
+import com.example.awordfromachild.asynctask.callBacksDefaultTweet;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import androidx.annotation.RequiresApi;
 import twitter4j.Status;
 
-public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
+public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> implements callBacksDefaultTweet {
     private final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+    private final static String ptn_favo = "favo";
+    private final static String ptn_retweet = "ret";
+    //Twitter処理クラス
+    private static TwitterUtils twitterUtils;
     private int mResource;
     private List<twitter4j.Status> mItems;
     private LayoutInflater mInflater;
-    public long maxID = 0;
-    public long sinceID = 0;
-
-    //TwitterUtils タイムライン
-    TwitterUtils tu_timeLine;
-    TwitterUtils tu_attention;
-    TwitterUtils tu_search;
-    TwitterUtils tu_noti;
+    private Context app_context;
+    //ツイート群の現在の状態を保持
+    private List<Map<String, Object>> arr_mItems_status = new ArrayList<Map<String, Object>>();
+    private final static String mapKey_favorite = "favo";
+    private final static String mapKey_retweet = "ret";
 
     /**
      * コンストラクタ
@@ -48,16 +56,71 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
 
         mResource = resource;
         mItems = items;
+        arr_mItems_status.addAll(setNewestStatus(items));
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        //Twitter共通処理クラス生成
+        twitterUtils = new TwitterUtils((callBacksBase) context);
+        twitterUtils.setTwitterInstance(getContext());
+        app_context = ApplicationController.getInstance().getApplicationContext();
     }
 
     /**
-     * リストにセットするツイート一覧を追加設定。
+     * リストにセットするツイート一覧を最後尾に追加設定。
      *
      * @param items
      */
     public void addItems(ArrayList<twitter4j.Status> items) {
         mItems.addAll(items);
+        arr_mItems_status.addAll(setNewestStatus(items));
+    }
+    /**
+     * リストにセットするツイート一覧を先頭に追加設定。
+     *
+     * @param items
+     */
+    public void unShiftItems(ArrayList<twitter4j.Status> items) {
+        mItems.addAll(0, items);
+        arr_mItems_status.addAll(0, setNewestStatus(items));
+    }
+
+    private void setIcon(String ptn, boolean validity, TextView view) {
+        switch (ptn) {
+            case ptn_favo:
+                // アイコンの設定
+                if (validity) {
+                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_favo_already);
+                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                            leftDrawable.getIntrinsicHeight());
+                    view.setCompoundDrawables(leftDrawable, null, null, null);
+                } else {
+                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_favo);
+                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                            leftDrawable.getIntrinsicHeight());
+                    view.setCompoundDrawables(leftDrawable, null, null, null);
+                }
+                break;
+        }
+    }
+
+    /**
+     * 現在のツイート群の状態を保持する
+     * @param items
+     * @return
+     */
+    private List<Map<String, Object>> setNewestStatus(ArrayList<twitter4j.Status> items){
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+        for(int i=0; i < items.size(); i++){
+            twitter4j.Status item = items.get(i);
+            Map<String, Object> _map = new HashMap<String, Object>();
+            //お気に入りの状態
+            _map.put(mapKey_favorite, item.isFavorited());
+            //リツイートの状態
+            _map.put(mapKey_retweet, item.isRetweetedByMe());
+            list.add(_map);
+        }
+        return list;
     }
 
     /**
@@ -68,27 +131,10 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
      * @param parent
      * @return
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
-
-        //追加読込ボタンを表示する場合
-        if(position >= 1 && mItems.get(position - 1).getId() == sinceID){
-            Button btn = new Button(ApplicationController.getInstance().getApplicationContext());
-            btn.setText("さらにツイートを表示する");
-
-            //Button button =
-
-            //追加読込
-            btn.setOnClickListener(view1 -> {
-                tu_timeLine.getTimeLine(
-                        twitterValue.HOME, maxID, sinceID, twitterValue.GET_TYPE_EVEN_NEWER,
-                        twitterValue.TWEET_HOW_TO_DISPLAY_MIDDLE_ADD);
-                //ボタン削除
-                parent.removeView(btn);
-            });
-            return btn;
-        }
 
         //再利用できるviewがある場合はそれを使う
         //（表示領域から消えた1行は、スクロールして表
@@ -102,6 +148,31 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
 
         // リストビューに表示する要素を取得
         twitter4j.Status item = mItems.get(position);
+
+        //お気に入り
+        TextView like = view.findViewById(R.id.tw_like);
+        // お気に入り状態の場合、アイコン変更
+        if ((boolean) arr_mItems_status.get(position).get(mapKey_favorite)) {
+            setIcon(ptn_favo, true, like);
+        } else {
+            setIcon(ptn_favo, false, like);
+        }
+
+        // お気に入りクリックイベント
+        like.setOnClickListener(view1 -> {
+            Status _item = mItems.get(position);
+            boolean st_favo = (boolean) arr_mItems_status.get(position).get(mapKey_favorite);
+            if (!st_favo) {
+                setIcon(ptn_favo, true, like);
+                twitterUtils.createFavorite(_item.getId());
+                arr_mItems_status.get(position).replace(mapKey_favorite, true);
+            } else {
+                setIcon(ptn_favo, false, like);
+                twitterUtils.destroyFavorite(_item.getId());
+                arr_mItems_status.get(position).replace(mapKey_favorite, false);
+            }
+        });
+
         //リツイートの場合、元のツイート情報を取得
         Status origin_item;
         if (item.isRetweet()) {
@@ -123,6 +194,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
         //ユーザー名を設定
         TextView userName = (TextView) view.findViewById(R.id.tw_userName);
         userName.setText(item.getUser().getName());
+
         //ツイート日時を設定
         // 去年以前のもの＝〇年〇月〇日
         // 年内のもの＝〇月〇日
@@ -186,5 +258,39 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> {
         favo.setText(item.getFavoriteCount());*/
 
         return view;
+    }
+
+    @Override
+    public void callBackTwitterLimit(int secondsUntilReset) {
+
+    }
+
+    private void startTranslate() {
+        ImageView view = new ImageView(ApplicationController.getInstance().getApplicationContext());
+        TranslateAnimation translateAnimation;
+        translateAnimation = new TranslateAnimation(
+                Animation.ABSOLUTE, 0.0f,
+                Animation.ABSOLUTE, 500.0f,
+                Animation.ABSOLUTE, 0.0f,
+                Animation.ABSOLUTE, 1200.0f);
+
+        // animation時間 msec
+        translateAnimation.setDuration(2000);
+        // 繰り返し回数
+        translateAnimation.setRepeatCount(0);
+        // animationが終わったそのまま表示にする
+        translateAnimation.setFillAfter(true);
+        //アニメーションの開始
+        view.startAnimation(translateAnimation);
+    }
+
+    @Override
+    public void callBackCreateFavo(Status status) {
+
+    }
+
+    @Override
+    public void callBackDestroyFavo(Status status) {
+
     }
 }

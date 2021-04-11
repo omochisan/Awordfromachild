@@ -6,9 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.example.awordfromachild.MainActivity;
@@ -19,10 +20,8 @@ import com.example.awordfromachild.common.fragmentBase;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import twitter4j.QueryResult;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 
 public class fragSearch extends fragmentBase implements callBacksSearch {
     //画面
@@ -31,8 +30,26 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     private TwitterUtils twitterUtils;
     //Twitter
     private Twitter twitter;
-    //スピナー（プログレスバー）
-    private ProgressBar spinner;
+    //スピナー用
+    private static PopupWindow mPopupWindow;
+
+    //検索ボックス　イベント
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        // SubmitボタンorEnterKeyを押されたら呼び出されるメソッド
+        public boolean onQueryTextSubmit(String searchWord) {
+            //検索実行
+            dispSpinner(mPopupWindow);
+            twitterUtils.search(searchWord);
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            // 入力される度に呼び出される
+            return false;
+        }
+    };
 
     @Override
     public void onStart(){
@@ -56,30 +73,16 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (null != savedInstanceState) {
-            //mUser = savedInstanceState.getSerializable("User");
-        }
-
         fs_view = view;
         twitter = TwitterUtils.getTwitterInstance(getContext());
         //共通Twitter処理クラス
-        MainActivity mainactivity = new MainActivity();
         twitterUtils = new TwitterUtils(this);
-        //スピナー
-        spinner = view.findViewById(R.id.fs_progressBar);
+        //スピナー表示
+        mPopupWindow = new PopupWindow(getActivity());
 
-        //検索ボタン
-        Button search_btn = view.findViewById(R.id.fs_btn_search);
-        search_btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //スピナー表示
-                spinner.setVisibility(android.widget.ProgressBar.VISIBLE);
-                //非同期処理（Twitterへ接続）開始
-                EditText value = view.findViewById(R.id.fs_input_tweet);
-                String str = value.getText().toString();
-                twitterUtils.search(str);
-            }
-        });
+        //検索ボックス イベント設定
+        SearchView searchView = view.findViewById(R.id.fs_input_word);
+        searchView.setOnQueryTextListener(onQueryTextListener);
     }
 
     @Override
@@ -115,17 +118,15 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
             index++;
         }
         //スピナー非表示
-        spinner.setVisibility(android.widget.ProgressBar.INVISIBLE);
+        hideSpinner(mPopupWindow);
         //検索画面非表示
         LinearLayout layout_main = fs_view.findViewById(R.id.fs_linearLayout_main);
         layout_main.setVisibility(View.GONE);
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         super.onDestroy();
-        System.out.println("onDestroy");
     }
 
     /**

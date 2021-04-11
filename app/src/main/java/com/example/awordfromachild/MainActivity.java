@@ -1,5 +1,6 @@
 package com.example.awordfromachild;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,12 +27,14 @@ import com.example.awordfromachild.tab.fragTimeLine;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 import twitter4j.Status;
 import twitter4j.User;
@@ -59,15 +62,11 @@ public class MainActivity extends activityBase implements callBacksMain {
     //Twitter処理クラス
     private TwitterUtils twitterUtils;
     private LinearLayout popup_userMenu;
-    //スピナー用
-    private static PopupWindow mPopupWindow;
-    //表示中のsince ID
-    private long sinceID;
-    //TwitterUtils タイムライン
-    TwitterUtils tu_timeLine;
-    TwitterUtils tu_attention;
-    TwitterUtils tu_search;
-    TwitterUtils tu_noti;
+
+    WeakReference<fragTimeLine> wr_fragTimeLine;
+    WeakReference<fragAttention> wr_fragAttention;
+    WeakReference<fragNoti> wr_fragNoti;
+    WeakReference<fragSearch> wr_fragSearch;
 
     /**
      * ツイートアイコン押下時
@@ -115,23 +114,12 @@ public class MainActivity extends activityBase implements callBacksMain {
     private final View.OnClickListener reloadIconClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            dispSpinner(mPopupWindow);
-
             //新しいツイートをlistViewの先頭に追加
-            //※追加分ツイートが50を超えてある場合、
-            // 1～50を追加／～ツイートを更に表示ボタン～／取得表示済ツイート の順に表示する。
+            //※追加分ツイートが200以上ある場合、洗い替えして表示
             final String tab_text = tabInfo.get(String.valueOf(tabLayout.getSelectedTabPosition()));
             //表示中のフラグメントにより処理を変化
-            Adapter adapter = ((ListView)findViewById(R.id.ft_main)).getAdapter();
-            sinceID = ((twitter4j.Status) adapter.getItem(0)).getId();
             if(tab_text.equals(timeLine)){
-                tu_timeLine.getTimeLine(
-                        twitterValue.HOME,
-                        ((twitter4j.Status) adapter.getItem(0)).getId(),
-                        ((twitter4j.Status) adapter.getItem(5)).getId(),
-                        twitterValue.GET_TYPE_EVEN_NEWER, twitterValue.TWEET_HOW_TO_DISPLAY_ADD);
-                /*tu_timeLine.getTimeLine(twitterValue.HOME, sinceID,
-                        twitterValue.GET_TYPE_EVEN_NEWER, twitterValue.TWEET_HOW_TO_DISPLAY_ADD);*/
+                wr_fragTimeLine.get().addTheLatestTweets();
             }
             else if(tab_text.equals(attention)){
 
@@ -195,20 +183,16 @@ public class MainActivity extends activityBase implements callBacksMain {
     @Override
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof fragTimeLine) {
-            tu_timeLine = new TwitterUtils((callBacksBase) fragment);
-            tu_timeLine.setTwitterInstance(fragment.getContext());
+            wr_fragTimeLine = new WeakReference<>((fragTimeLine) fragment);
         }
         if(fragment instanceof fragAttention){
-            tu_attention = new TwitterUtils((callBacksBase) fragment);
-            tu_attention.setTwitterInstance(fragment.getContext());
+            wr_fragAttention = new WeakReference<>((fragAttention) fragment);
         }
         if(fragment instanceof fragSearch){
-            tu_search = new TwitterUtils((callBacksBase) fragment);
-            tu_search.setTwitterInstance(fragment.getContext());
+            wr_fragSearch = new WeakReference<>((fragSearch) fragment);
         }
         if(fragment instanceof fragNoti){
-            tu_noti = new TwitterUtils((callBacksBase) fragment);
-            tu_noti.setTwitterInstance(fragment.getContext());
+            wr_fragNoti = new WeakReference<>((fragNoti) fragment);
         }
     }
 
@@ -222,7 +206,6 @@ public class MainActivity extends activityBase implements callBacksMain {
         try {
             super.onCreate(savedInstanceState);
 
-            mPopupWindow = new PopupWindow(this);
             setTabInfo();
             twitterUtils = new TwitterUtils(this);
             //Twitter認証用画面よりアクセストークンを取得

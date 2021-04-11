@@ -17,14 +17,9 @@
             android:id="@+id/fs_text1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
+            android:layout_margin="@dimen/set_margin_default"
             android:text="@string/fs_text_1"
-            android:textColor="#222222"
-            app:layout_constraintBottom_toTopOf="@+id/fs_linearLayout1"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="-16dp" />
+            android:textColor="@color/string_default" />
 
         <LinearLayout
             android:id="@+id/fs_linearLayout1"
@@ -32,34 +27,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/fs_text1"
             tools:layout_editor_absoluteX="87dp">
 
-            <EditText
-                android:id="@+id/fs_input_tweet"
-                android:layout_width="264dp"
-                android:layout_height="29dp"
-                android:layout_marginStart="15dp"
-                android:autofillHints=""
-                android:background="@drawable/box_orange"
-                android:ems="10"
-                android:hint="@string/fs_hint_1"
-                android:inputType="textPersonName"
-                android:lines="1"
-                android:textColor="#5A5A5A"
-                android:textColorHint="#555555"
-                android:textColorLink="#302F2F"
-                android:textCursorDrawable="@color/design_default_color_on_secondary"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/fs_btn_search"
-                android:layout_width="0dp"
+            <SearchView
+                android:id="@+id/fs_input_word"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:text="@string/fs_btn_text_1" />
+                android:layout_margin="@dimen/set_margin_default"
+                android:background="@drawable/box_orange" />
 
         </LinearLayout>
 

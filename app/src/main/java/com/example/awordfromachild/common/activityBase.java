@@ -36,7 +36,7 @@ public class activityBase extends AppCompatActivity {
     public void ex_twitterAPILimit(int secondsUntilReset){
         double minutes = Math.ceil(secondsUntilReset / 60);
         Toast.makeText(this, "ごめんなさい、この操作は制限中です。" + minutes +
-                "分後にまた試してみて下さい。", Toast.LENGTH_LONG).show();
+                "分後にまたお試しください。", Toast.LENGTH_LONG).show();
     }
 
     /**

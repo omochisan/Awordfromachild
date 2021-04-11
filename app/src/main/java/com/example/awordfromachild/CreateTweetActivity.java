@@ -18,11 +18,10 @@ import android.widget.Toast;
 
 import com.example.awordfromachild.asynctask.callBacksCreateTweet;
 import com.example.awordfromachild.common.activityBase;
-import com.example.awordfromachild.constant.appSharedPrerence;
+import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
 
-import androidx.appcompat.app.AppCompatActivity;
-import twitter4j.TwitterException;
+import twitter4j.Status;
 
 /**
  * 「こどものひとことをツイート」画面
@@ -120,10 +119,10 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
     private void setDisplay(){
         //preferenceから設定値の呼び出し
         SharedPreferences preferences =
-                this.getSharedPreferences(appSharedPrerence.PREF_NAME, Context.MODE_PRIVATE);
+                this.getSharedPreferences(appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);
         //ツイート作成タイプ（自由入力orフォーム入力）
         String set_dispType =
-                preferences.getString(appSharedPrerence.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
+                preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
         setDisplayType(set_dispType);
     }
 
@@ -204,9 +203,9 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
      * コールバック関数
      * ツイート成功後
      */
-    public void callBackTweeting(Boolean result) {
+    public void callBackTweeting(Status status) {
         if (checkViewDetach(this)) return;
-        if (result) {
+        if (status != null) {
             //ツイート成功時、ホーム画面に戻る
             Intent intent = new Intent(getApplication(), MainActivity.class);
             startActivity(intent);

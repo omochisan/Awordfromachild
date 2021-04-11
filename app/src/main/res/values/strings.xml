@@ -54,7 +54,7 @@
     <string name="ct_hint4">～～と言っていた</string>
     <string name="ct_hint5">お買い物に行く途中、歩道で、お散歩中の犬を見て、～～と言っていた</string>
     <string name="ct_btn_sent">投稿</string>
-    <string name="ct_notes1">※すべてのアカウントが返信できます</string>
+    <string name="ct_notes1">※返信はできません</string>
     <string name="ct_notes2">※投稿時、タグ「#こどものひとこと」が自動で付与されます</string>
 
     <!-- 設定画面(set_) -->

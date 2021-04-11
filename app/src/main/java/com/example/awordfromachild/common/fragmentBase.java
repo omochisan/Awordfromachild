@@ -57,7 +57,7 @@ public class fragmentBase extends Fragment {
         weak_pop.setWidth((int) width);
         weak_pop.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         // 画面に表示
-        weak_pop.showAtLocation(getActivity().findViewById(R.id.view_pager), Gravity.TOP, 0, 0);
+        weak_pop.showAtLocation(getActivity().findViewById(R.id.view_pager), Gravity.BOTTOM, 0, 0);
     }
 
     /**
@@ -104,6 +104,16 @@ public class fragmentBase extends Fragment {
      * 表示ツイートがない場合のトーストを表示
      */
     public void no_result() {
-        Toast.makeText(getContext(), "表示するツイートがありませんでした。", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(),
+                "表示するツイートがありませんでした。", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * チェック例外時、トースト表示
+     */
+    public void fail_result(){
+        Toast.makeText(
+                getContext(), "データの取得に失敗しました。\n後でまたお試しください。",
+                Toast.LENGTH_LONG).show();
     }
 }

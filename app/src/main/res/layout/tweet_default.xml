@@ -117,7 +117,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
-                    android:drawableStart="@drawable/ic_like"
+                    android:drawableStart="@drawable/ic_favo"
                     android:text="like"
                     android:textColor="@color/tweet_gray" />
             </LinearLayout>
@@ -130,6 +130,7 @@
                 android:text="TextView"
                 android:textStyle="bold"
                 android:visibility="gone" />
+
         </LinearLayout>
     </LinearLayout>
 

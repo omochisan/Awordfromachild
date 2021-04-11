@@ -26,8 +26,10 @@ public class twitterValue {
     // 公式RTされた自分のツイートのみのタイムライン
     public static final String RT_OF_ME = "retweeted_of_me";
 
-    //1回の読込で取得するタイムライン数
+    //1回の読込で取得する最大タイムライン数
     public static final Integer GET_COUNT_TIMELINE = 50;
+    //最新ツイート読込で取得する最大タイムライン数
+    public static final Integer GET_COUNT_NEWER_TIMELINE = 200;
 
     //ツイート取得タイプ
     // 最新のツイートを取得
@@ -58,7 +60,7 @@ public class twitterValue {
     //　洗い替え
     public static final String TWEET_HOW_TO_DISPLAY_REWASH = "rewash";
     //　先頭に追加
-    public static final String TWEET_HOW_TO_DISPLAY_ADD = "add";
-    //　中間に追加
-    public static final String TWEET_HOW_TO_DISPLAY_MIDDLE_ADD = "middleAdd";
+    public static final String TWEET_HOW_TO_DISPLAY_UNSHIFT = "add";
+    //　末尾に追加
+    public static final String TWEET_HOW_TO_DISPLAY_PUSH = "push";
 }

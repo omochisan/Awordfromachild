@@ -66,6 +66,14 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     }
 
     /**
+     * リストにセットするツイートを最後尾に追加設定。
+     * @param item
+     */
+    public void addItem(Status item){
+        mItems.add(item);
+        arr_mItems_status.addAll(setNewestStatus(item));
+    }
+    /**
      * リストにセットするツイート一覧を最後尾に追加設定。
      *
      * @param items
@@ -105,14 +113,27 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     /**
      * 現在のツイート群の状態を保持する
-     * @param items
+     * @param target
      * @return
      */
-    private List<Map<String, Object>> setNewestStatus(ArrayList<twitter4j.Status> items){
+    private List<Map<String, Object>> setNewestStatus(Object target){
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
-        for(int i=0; i < items.size(); i++){
-            twitter4j.Status item = items.get(i);
+        //複数ツイートを保持
+        if(target instanceof ArrayList){
+            ArrayList<Status> items = (ArrayList<Status>)target;
+            for(int i=0; i < items.size(); i++){
+                twitter4j.Status item = items.get(i);
+                Map<String, Object> _map = new HashMap<String, Object>();
+                //お気に入りの状態
+                _map.put(mapKey_favorite, item.isFavorited());
+                //リツイートの状態
+                _map.put(mapKey_retweet, item.isRetweetedByMe());
+                list.add(_map);
+            }
+        }else if(target instanceof Status){
+            //単数ツイートを保持
+            Status item = (Status)target;
             Map<String, Object> _map = new HashMap<String, Object>();
             //お気に入りの状態
             _map.put(mapKey_favorite, item.isFavorited());
@@ -120,6 +141,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             _map.put(mapKey_retweet, item.isRetweetedByMe());
             list.add(_map);
         }
+
         return list;
     }
 
@@ -209,8 +231,8 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         String t_datey = ysdf.format(t_date);
         // month
         SimpleDateFormat msdf = new SimpleDateFormat("MM");
-        String n_datem = msdf.format(n_date);
-        String t_datem = msdf.format(t_date);
+        int n_datem = Integer.parseInt(msdf.format(n_date));
+        int t_datem = Integer.parseInt(msdf.format(t_date));
         // day
         SimpleDateFormat dsdf = new SimpleDateFormat("dd");
         String n_dated = dsdf.format(n_date);
@@ -218,10 +240,10 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
         if (n_datey.equals(t_datey)) { //年内のもの
             if (n_datem == t_datem &&
-                    (Integer.parseInt(n_dated) - 3) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
+                    (Integer.parseInt(n_dated) - 2) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
                 long diffTime = n_date.getTime() - t_date.getTime();
                 SimpleDateFormat timeFormatter = new SimpleDateFormat("HH");
-                String diffTimeStr = timeFormatter.format(new Date(diffTime));
+                int diffTimeStr = Integer.parseInt(timeFormatter.format(new Date(diffTime)));
 
                 boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;
                 if (moreThanDay) { //24時間以内のもの
@@ -262,6 +284,16 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     @Override
     public void callBackTwitterLimit(int secondsUntilReset) {
+
+    }
+
+    @Override
+    public void callBackStreamAddList(Status status) {
+
+    }
+
+    @Override
+    public void callBackException() {
 
     }
 

@@ -21,6 +21,7 @@ import com.example.awordfromachild.common.fragmentBase;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import twitter4j.QueryResult;
+import twitter4j.Status;
 import twitter4j.Twitter;
 
 public class fragSearch extends fragmentBase implements callBacksSearch {
@@ -40,7 +41,7 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
         public boolean onQueryTextSubmit(String searchWord) {
             //検索実行
             dispSpinner(mPopupWindow);
-            twitterUtils.search(searchWord);
+            //twitterUtils.search(searchWord);
             return false;
         }
 
@@ -136,5 +137,19 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     @Override
     public void callBackTwitterLimit(int secondsUntilReset) {
         ex_twitterAPILimit(secondsUntilReset);
+    }
+
+    @Override
+    public void callBackStreamAddList(Status status) {
+
+    }
+
+    /**
+     * コールバック
+     * 非チェック例外発生時
+     */
+    @Override
+    public void callBackException() {
+        fail_result();
     }
 }

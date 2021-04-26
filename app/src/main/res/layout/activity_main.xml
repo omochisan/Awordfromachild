@@ -144,7 +144,9 @@
                         android:background="#FDE4C7"
                         app:tabIconTint="#4B4B4B"
                         app:tabIndicatorColor="#F98A0F"
+                        app:tabMode="fixed"
                         app:tabSelectedTextColor="#EF410A"
+                        app:tabTextAppearance="@style/TextAppearance.AppCompat.Small"
                         app:tabTextColor="#4B4B4B" />
                 </LinearLayout>
             </HorizontalScrollView>

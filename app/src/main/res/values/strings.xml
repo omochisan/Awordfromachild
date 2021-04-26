@@ -26,7 +26,8 @@
     <!-- タブ名 -->
     <string name="tab_text_timeline">タイムライン</string>
     <string name="tab_text_attention">注目</string>
-    <string name="tab_text_search">ワード検索</string>
+    <string name="tab_text_search">検索</string>
+    <string name="tab_text_favorite">いいね</string>
     <string name="tab_text_noti">通知</string>
 
     <!-- ヘッダー(hd_) -->
@@ -41,7 +42,7 @@
 
     <string name="tweet_hint_1">例）散歩中、子供が～～を見て「～～」と言っていた。</string>
 
-    <!-- ワード検索タブ(fs_) -->
+    <!-- 検索タブ(fs_) -->
     <string name="fs_text_1">検索したいワードを入力してください。</string>
     <string name="fs_hint_1"> ワード入力</string>
     <string name="fs_btn_text_1">検索</string>

@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.tab.fragAttention;
+import com.example.awordfromachild.tab.fragFavorite;
 import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.tab.fragTimeLine;
@@ -22,9 +23,10 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
     private static final int[] TAB_TITLES = new int[]{
-            R.string.tab_text_timeline,
             R.string.tab_text_attention,
+            R.string.tab_text_timeline,
             R.string.tab_text_search,
+            R.string.tab_text_favorite,
             R.string.tab_text_noti
     };
     private final Context mContext;
@@ -40,15 +42,18 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         Fragment fragment = null;
         switch (position){
             case 0:
-                fragment = new fragTimeLine();
+                fragment = new fragAttention();
                 break;
             case 1:
-                fragment = new fragAttention();
+                fragment = new fragTimeLine();
                 break;
             case 2:
                 fragment = new fragSearch();
                 break;
             case 3:
+                fragment = new fragFavorite();
+                break;
+            case 4:
                 fragment = new fragNoti();
                 break;
         }
@@ -63,7 +68,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 4 total pages.
-        return 4;
+        // Show 5 total pages.
+        return 5;
     }
 }

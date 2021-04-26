@@ -27,6 +27,15 @@
             android:layout_marginBottom="5dp"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/tw_tweetheader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_retweet"
+                android:text="TextView"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/tw_header"
                 android:layout_width="wrap_content"
@@ -121,15 +130,6 @@
                     android:text="like"
                     android:textColor="@color/tweet_gray" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tw_tweetheader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_retweet"
-                android:text="TextView"
-                android:textStyle="bold"
-                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>

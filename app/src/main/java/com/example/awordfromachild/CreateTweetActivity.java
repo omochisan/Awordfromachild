@@ -224,4 +224,14 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
     public void callBackTwitterLimit(int secondsUntilReset) {
         ex_twitterAPILimit(secondsUntilReset);
     }
+
+    @Override
+    public void callBackStreamAddList(Status status) {
+
+    }
+
+    @Override
+    public void callBackException() {
+        fail_result();
+    }
 }

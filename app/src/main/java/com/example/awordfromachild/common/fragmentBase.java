@@ -1,5 +1,6 @@
 package com.example.awordfromachild.common;
 
+import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.WindowManager;
@@ -8,12 +9,18 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import androidx.fragment.app.Fragment;
+import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
 public class fragmentBase extends Fragment {
@@ -85,6 +92,23 @@ public class fragmentBase extends Fragment {
             statusList.add(adapter.getItem(i));
         }
         return statusList;
+    }
+
+    /**
+     * アプリ用ハッシュタグを含むツイートを抽出する。
+     * @param list
+     * @return
+     */
+    public ArrayList<Status> filterList(ArrayList<Status> list, String queryStr){
+        HashtagEntity[] hashTags;
+        ArrayList<Status> returnList = new ArrayList<>();
+        for(Status status: list){
+            hashTags = status.getHashtagEntities();
+            if(Arrays.asList(hashTags).contains(twitterValue.APP_HASH_TAG)){
+                returnList.add(status);
+            }
+        }
+        return returnList;
     }
 
     /**

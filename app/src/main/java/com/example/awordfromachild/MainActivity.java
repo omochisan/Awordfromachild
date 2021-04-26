@@ -21,6 +21,7 @@ import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.GlideApp;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 import com.example.awordfromachild.tab.fragAttention;
+import com.example.awordfromachild.tab.fragFavorite;
 import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.tab.fragTimeLine;
@@ -50,12 +51,14 @@ public class MainActivity extends activityBase implements callBacksMain {
             R.drawable.main_ic_timeline,
             R.drawable.main_ic_attention,
             R.drawable.main_ic_search,
+            R.drawable.main_ic_favorite,
             R.drawable.main_ic_noti
     };
     //タブのタイトル
     private String timeLine;
     private String attention;
     private String search;
+    private String favorite;
     private String noti;
     //タブ
     private TabLayout tabLayout;
@@ -66,6 +69,7 @@ public class MainActivity extends activityBase implements callBacksMain {
     WeakReference<fragTimeLine> wr_fragTimeLine;
     WeakReference<fragAttention> wr_fragAttention;
     WeakReference<fragNoti> wr_fragNoti;
+    WeakReference<fragFavorite> wr_fragFavorite;
     WeakReference<fragSearch> wr_fragSearch;
 
     /**
@@ -102,8 +106,7 @@ public class MainActivity extends activityBase implements callBacksMain {
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    })
-                    .show();
+                    }).show();
             return false;
         }
     };
@@ -125,6 +128,9 @@ public class MainActivity extends activityBase implements callBacksMain {
 
             }
             else if(tab_text.equals(search)){
+
+            }
+            else if(tab_text.equals(favorite)){
 
             }
             else if(tab_text.equals(noti)){
@@ -191,6 +197,9 @@ public class MainActivity extends activityBase implements callBacksMain {
         if(fragment instanceof fragSearch){
             wr_fragSearch = new WeakReference<>((fragSearch) fragment);
         }
+        if(fragment instanceof fragFavorite){
+            wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
+        }
         if(fragment instanceof fragNoti){
             wr_fragNoti = new WeakReference<>((fragNoti) fragment);
         }
@@ -252,15 +261,17 @@ public class MainActivity extends activityBase implements callBacksMain {
      * ・タブ順
      */
     private void setTabInfo(){
-        timeLine = getResources().getString(R.string.tab_text_timeline);
         attention = getResources().getString(R.string.tab_text_attention);
+        timeLine = getResources().getString(R.string.tab_text_timeline);
         search = getResources().getString(R.string.tab_text_search);
+        favorite = getResources().getString(R.string.tab_text_favorite);
         noti = getResources().getString(R.string.tab_text_noti);
 
-        tabInfo.put("0", timeLine);
-        tabInfo.put("1", attention);
+        tabInfo.put("0", attention);
+        tabInfo.put("1", timeLine);
         tabInfo.put("2", search);
-        tabInfo.put("3", noti);
+        tabInfo.put("3", favorite);
+        tabInfo.put("4", noti);
     }
 
     /**
@@ -316,6 +327,7 @@ public class MainActivity extends activityBase implements callBacksMain {
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         tabLayout.getTabAt(2).setIcon(tabIcons[2]);
         tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+        tabLayout.getTabAt(4).setIcon(tabIcons[4]);
         //初期選択タブ
         tabLayout.getTabAt(0).select();
     }
@@ -327,5 +339,19 @@ public class MainActivity extends activityBase implements callBacksMain {
     @Override
     public void callBackTwitterLimit(int secondsUntilReset) {
         ex_twitterAPILimit(secondsUntilReset);
+    }
+
+    @Override
+    public void callBackStreamAddList(Status status) {
+
+    }
+
+    /**
+     * コールバック
+     * 非チェック例外発生時
+     */
+    @Override
+    public void callBackException() {
+        fail_result();
     }
 }

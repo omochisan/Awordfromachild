@@ -2,11 +2,14 @@ package com.example.awordfromachild.constant;
 
 import com.example.awordfromachild.R;
 
+import java.net.URL;
+
 public class twitterValue {
-    //TwitterAPI呼出回数制限
-    // ※2021/3現在　ユーザー単位は75回、アプリ単位で300回の呼出制限がある。15分毎にリセットされる。
-    // 余裕を持たせて、当アプリは70回で呼出制限が掛かるようにする
-    public static final int TwitterAPI_LIMITS = 70;
+    //アプリのハッシュタグ
+    public static final String APP_HASH_TAG = "#こどものひとこと";
+    public static final String APP_TAG = "こどものひとこと";
+    //TwitterAPI RATE制限　エラーコード
+    public static final int TwitterAPI_RATE_ERRORCODE = 429;
 
     //タイムライン種別
     // 公開タイムライン
@@ -26,18 +29,47 @@ public class twitterValue {
     // 公式RTされた自分のツイートのみのタイムライン
     public static final String RT_OF_ME = "retweeted_of_me";
 
-    //1回の読込で取得する最大タイムライン数
-    public static final Integer GET_COUNT_TIMELINE = 50;
-    //最新ツイート読込で取得する最大タイムライン数
-    public static final Integer GET_COUNT_NEWER_TIMELINE = 200;
+    /**
+     * ツイートの数管理
+     * （1度に取得する数、最大取得数等）
+     */
+    public static class tweetCounts {
+        //1回の読込で表示するツイート数
+        public static final Integer ONE_TIME_DISPLAY_TWEET = 50;
+        //最新ツイート読込で取得する最大タイムライン数
+        public static final Integer GET_COUNT_NEWER_TIMELINE = 200;
+        //1回で取得する最大フォローユーザー数
+        public static final Integer GET_FOLLOW_LIST = 200;
+    }
 
-    //ツイート取得タイプ
-    // 最新のツイートを取得
-    public static final String GET_TYPE_NEWEST = "newest";
-    // 対象のツイートより古いツイート
-    public static final String GET_TYPE_OLDER = "older";
-    // 対象のツイートより新しいツイート
-    public static final String GET_TYPE_EVEN_NEWER = "even_newer";
+    /**
+     * HTTP通信に関する定数
+     */
+    public static class httpConnection {
+        //接続タイムアウト
+        public static final int CONNECTION_TIMEOUT = 10000;
+        //読込タイムアウト
+        public static final int READ_TIMEOUT = 10000;
+    }
+
+    /**
+     * TwitterAPI　エンドポイント
+     */
+    public static class TwitterAPIEndPoint {
+        public static final String search = "https://api.twitter.com/1.1/search/tweets.json";
+    }
+
+    /**
+     * Twitter取得ツイートタイプ
+     */
+    public static class resultType{
+        //人気のツイート
+        public static final String POPULAR = "popular";
+        //最新のツイート。
+        public static final String RECENT = "recent";
+        //全てのツイート。
+        public static final String mixed = "MIXED";
+    }
 
     //ツイート文字数制限（自由入力パターン）
     public static final int CHARALIMIT_FREE = 131;

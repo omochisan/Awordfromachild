@@ -34,9 +34,20 @@ public class activityBase extends AppCompatActivity {
      * TwitterAPIのレート制限発生
      */
     public void ex_twitterAPILimit(int secondsUntilReset){
-        double minutes = Math.ceil(secondsUntilReset / 60);
-        Toast.makeText(this, "ごめんなさい、この操作は制限中です。" + minutes +
-                "分後にまたお試しください。", Toast.LENGTH_LONG).show();
+        double minutes = Math.ceil(secondsUntilReset / 60) + 1;
+        String minutes_str = String.valueOf(minutes);
+        Toast.makeText(this, "ごめんなさい、この操作は制限中です。\n" +
+                minutes_str.substring(0, minutes_str.indexOf(".")) +
+                "分後に解除されます。", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * チェック例外時、トースト表示
+     */
+    public void fail_result(){
+        Toast.makeText(
+                this, "データの取得に失敗しました。\n後でまたお試しください。",
+                Toast.LENGTH_LONG).show();
     }
 
     /**

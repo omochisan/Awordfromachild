@@ -6,14 +6,12 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.awordfromachild.ApplicationController;
-import com.example.awordfromachild.MainActivity;
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
@@ -21,10 +19,12 @@ import com.example.awordfromachild.asynctask.callBacksDefaultTweet;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
 import twitter4j.Status;
@@ -43,6 +43,8 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     private List<Map<String, Object>> arr_mItems_status = new ArrayList<Map<String, Object>>();
     private final static String mapKey_favorite = "favo";
     private final static String mapKey_retweet = "ret";
+    //表示ツイート打ち止め
+    public boolean frg_end = false;
 
     /**
      * コンストラクタ
@@ -51,7 +53,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param resource リソースID
      * @param items    リストビューの要素
      */
-    public SetDefaultTweetAdapter(Context context, int resource, ArrayList<Status> items) {
+    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items) {
         super(context, resource, items);
 
         mResource = resource;
@@ -66,19 +68,11 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     }
 
     /**
-     * リストにセットするツイートを最後尾に追加設定。
-     * @param item
-     */
-    public void addItem(Status item){
-        mItems.add(item);
-        arr_mItems_status.addAll(setNewestStatus(item));
-    }
-    /**
      * リストにセットするツイート一覧を最後尾に追加設定。
      *
      * @param items
      */
-    public void addItems(ArrayList<twitter4j.Status> items) {
+    public void addItems(List<Status> items) {
         mItems.addAll(items);
         arr_mItems_status.addAll(setNewestStatus(items));
     }
@@ -87,11 +81,17 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items
      */
-    public void unShiftItems(ArrayList<twitter4j.Status> items) {
+    public void unShiftItems(List<Status> items) {
         mItems.addAll(0, items);
         arr_mItems_status.addAll(0, setNewestStatus(items));
     }
 
+    /**
+     * アイコンを設定
+     * @param ptn
+     * @param validity
+     * @param view
+     */
     private void setIcon(String ptn, boolean validity, TextView view) {
         switch (ptn) {
             case ptn_favo:
@@ -103,6 +103,20 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 } else {
                     Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_favo);
+                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                            leftDrawable.getIntrinsicHeight());
+                    view.setCompoundDrawables(leftDrawable, null, null, null);
+                }
+                break;
+
+            case ptn_retweet:
+                if (validity) {
+                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_retweet_already);
+                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                            leftDrawable.getIntrinsicHeight());
+                    view.setCompoundDrawables(leftDrawable, null, null, null);
+                } else {
+                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_retweet);
                     leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
@@ -168,6 +182,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             view = mInflater.inflate(mResource, null);
         }
 
+        //表示ツイート打ち止めの場合
+        LinearLayout l = view.findViewById(R.id.tw_linear_);
+        if(frg_end && mItems.size() == position + 1){
+            l.setVisibility(View.VISIBLE);
+        }
+        else{
+            l.setVisibility(View.GONE);
+        }
+
         // リストビューに表示する要素を取得
         twitter4j.Status item = mItems.get(position);
 
@@ -179,7 +202,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         } else {
             setIcon(ptn_favo, false, like);
         }
-
         // お気に入りクリックイベント
         like.setOnClickListener(view1 -> {
             Status _item = mItems.get(position);
@@ -195,6 +217,23 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             }
         });
 
+        //リツイート
+        TextView ret = view.findViewById(R.id.tw_retweet);
+        // リツイートクリックイベント
+        ret.setOnClickListener(view1 -> {
+            Status _item = mItems.get(position);
+            boolean st_ret = (boolean) arr_mItems_status.get(position).get(mapKey_retweet);
+            if (!st_ret) {
+                setIcon(ptn_retweet, true, ret);
+                twitterUtils.createReTweet(_item.getId());
+                arr_mItems_status.get(position).replace(mapKey_retweet, true);
+            } else {
+                setIcon(ptn_retweet, false, ret);
+                twitterUtils.destroyReTweet(_item.getId());
+                arr_mItems_status.get(position).replace(mapKey_retweet, false);
+            }
+        });
+
         //リツイートの場合、元のツイート情報を取得
         Status origin_item;
         if (item.isRetweet()) {
@@ -206,22 +245,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         }
 
         // ユーザーアイコンを設定
-        ImageView userIcon = (ImageView) view.findViewById(R.id.tw_userIcon);
-        String getUrl = item.getUser().getProfileImageURLHttps();
-        GlideApp.with(view)
-                .load(getUrl)
-                .circleCrop()
-                .into(userIcon);
-
-        //ユーザー名を設定
-        TextView userName = (TextView) view.findViewById(R.id.tw_userName);
-        userName.setText(item.getUser().getName());
+        setUserIcon(view, item, R.id.tw_userIcon, R.id.tw_userName);
 
         //ツイート日時を設定
         // 去年以前のもの＝〇年〇月〇日
         // 年内のもの＝〇月〇日
         // 直近3日間以内のもの＝〇日前
         // 24時間以内のもの＝〇時間前
+        // 1時間以内のもの＝〇分前
+        // 1分以内のもの＝〇秒前
         String disp_date = "";
         Date n_date = new Date();
         Date t_date = item.getCreatedAt();
@@ -237,6 +269,14 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         SimpleDateFormat dsdf = new SimpleDateFormat("dd");
         String n_dated = dsdf.format(n_date);
         String t_dated = dsdf.format(t_date);
+        // hour
+        SimpleDateFormat hsdf = new SimpleDateFormat("HH");
+        String n_dateh = hsdf.format(n_date);
+        String t_dateh = hsdf.format(t_date);
+        // minutes
+        SimpleDateFormat misdf = new SimpleDateFormat("mm");
+        String n_datemi = misdf.format(n_date);
+        String t_datemi = misdf.format(t_date);
 
         if (n_datey.equals(t_datey)) { //年内のもの
             if (n_datem == t_datem &&
@@ -247,7 +287,17 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
                 boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;
                 if (moreThanDay) { //24時間以内のもの
-                    disp_date = diffTimeStr + "時間前";
+                    long diff_sec = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime());
+                    long diff_min = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime()) / 60;
+                    if(diff_min < 60){
+                        if(diff_sec < 60){
+                            disp_date = diff_sec + "秒前";
+                        }else{
+                            disp_date = diff_min + "分前";
+                        }
+                    }else{
+                        disp_date = diffTimeStr + "時間前";
+                    }
                 } else { //直近3日間以内 and 24時間超えて前のもの
                     disp_date = String.valueOf(Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
                 }
@@ -270,16 +320,29 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         tweet.setText(item.getText());
         //お気に入りを設定
         TextView favo = (TextView) view.findViewById(R.id.tw_like);
-        favo.setText(String.valueOf(item.getFavoriteCount()));
+        favo.setText(" " + String.valueOf(item.getFavoriteCount()));
         //リツイートを設定
         TextView retweet = (TextView) view.findViewById(R.id.tw_retweet);
-        retweet.setText(String.valueOf(item.getRetweetCount()));
+        retweet.setText(" " + String.valueOf(item.getRetweetCount()));
         //リプライを取得・設定
-        /*Status s = twitter.showStatus(status.getInReplyToStatusId());
-        TextView favo = (TextView)view.findViewById(R.id.tw_like);
-        favo.setText(item.getFavoriteCount());*/
+        TextView rep = (TextView)view.findViewById(R.id.tw_reply);
+        rep.setText(item.getInReplyToScreenName());
 
         return view;
+    }
+
+    public static void setUserIcon(View view, Status item, int vid_userIcon, int vid_userName){
+        // ユーザーアイコンを設定
+        ImageView userIcon = (ImageView) view.findViewById(vid_userIcon);
+        String getUrl = item.getUser().getProfileImageURLHttps();
+        GlideApp.with(view)
+                .load(getUrl)
+                .circleCrop()
+                .into(userIcon);
+
+        //ユーザー名を設定
+        TextView userName = (TextView) view.findViewById(vid_userName);
+        userName.setText(item.getUser().getName());
     }
 
     @Override
@@ -297,23 +360,9 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     }
 
-    private void startTranslate() {
-        ImageView view = new ImageView(ApplicationController.getInstance().getApplicationContext());
-        TranslateAnimation translateAnimation;
-        translateAnimation = new TranslateAnimation(
-                Animation.ABSOLUTE, 0.0f,
-                Animation.ABSOLUTE, 500.0f,
-                Animation.ABSOLUTE, 0.0f,
-                Animation.ABSOLUTE, 1200.0f);
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
 
-        // animation時間 msec
-        translateAnimation.setDuration(2000);
-        // 繰り返し回数
-        translateAnimation.setRepeatCount(0);
-        // animationが終わったそのまま表示にする
-        translateAnimation.setFillAfter(true);
-        //アニメーションの開始
-        view.startAnimation(translateAnimation);
     }
 
     @Override

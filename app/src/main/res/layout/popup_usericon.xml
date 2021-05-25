@@ -10,8 +10,77 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <LinearLayout
-        android:id="@+id/p_item_logout"
+        android:id="@+id/p_item_myTweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/space_item_item"
+        android:layout_marginTop="@dimen/space_item_item"
+        android:background="#FFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/p_ic_myTweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/popup_ic_mytweet" />
+
+        <TextView
+            android:id="@+id/p_text_myTweet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/space_icons_chara"
+            android:background="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:text="@string/popup_userMenu3" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view2"
         android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F98A0F" />
+
+    <LinearLayout
+        android:id="@+id/p_item_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/space_item_item"
+        android:background="#FFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:srcCompat="@drawable/popup_ic_browser" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_icons_chara"
+            android:background="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:text="@string/popup_userMenu2" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F98A0F"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/p_item_logout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/space_item_item"
         android:layout_marginTop="@dimen/space_item_item"
@@ -34,39 +103,6 @@
             android:background="#FFFFFF"
             android:backgroundTint="#FFFFFF"
             android:text="@string/popup_userMenu1" />
-
-    </LinearLayout>
-
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#F98A0F" />
-
-    <LinearLayout
-        android:id="@+id/p_item_account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/space_item_item"
-        android:background="#FFFFFF"
-        android:backgroundTint="#FFFFFF"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            app:srcCompat="@drawable/popup_ic_browser" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_icons_chara"
-            android:background="#FFFFFF"
-            android:backgroundTint="#FFFFFF"
-            android:text="@string/popup_userMenu2" />
 
     </LinearLayout>
 

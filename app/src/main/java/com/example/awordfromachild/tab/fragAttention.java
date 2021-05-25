@@ -12,6 +12,7 @@ import com.example.awordfromachild.common.fragmentBase;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import twitter4j.QueryResult;
 import twitter4j.Status;
 
 public class fragAttention extends fragmentBase implements callBacksAttention {
@@ -46,5 +47,10 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
     @Override
     public void callBackException() {
         fail_result();
+    }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
     }
 }

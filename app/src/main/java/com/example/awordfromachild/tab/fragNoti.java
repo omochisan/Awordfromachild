@@ -51,4 +51,9 @@ public class fragNoti extends fragmentBase implements callBacksBase {
     public void callBackException() {
         fail_result();
     }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
+    }
 }

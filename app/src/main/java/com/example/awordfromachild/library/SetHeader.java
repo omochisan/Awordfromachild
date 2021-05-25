@@ -73,6 +73,11 @@ public class SetHeader extends LinearLayout {
                 title.setText("設定");
                 ((ImageView) layout.findViewById(R.id.hd_icon)).setImageResource(R.drawable.main_ic_home);
                 break;
+
+            case activityClassName.activity_myTweets:
+                title.setText("じぶんの投稿一覧");
+                ((ImageView) layout.findViewById(R.id.hd_icon)).setImageResource(R.drawable.main_ic_setting);
+                break;
         }
     }
 
@@ -91,6 +96,7 @@ public class SetHeader extends LinearLayout {
                     break;
 
                 case activityClassName.activity_createTweet:
+                case activityClassName.activity_myTweets:
                 case activityClassName.activity_setting:
                     Intent intent = new Intent(getContext().getApplicationContext(), MainActivity.class);
                     getContext().startActivity(intent);
@@ -109,6 +115,7 @@ public class SetHeader extends LinearLayout {
                 case activityClassName.activity_main:
                 case activityClassName.activity_contextThemeWrapper:
                 case activityClassName.activity_createTweet:
+                case activityClassName.activity_myTweets:
                     Intent intent1 = new Intent(getContext().getApplicationContext(), SettingActivity.class);
                     getContext().startActivity(intent1);
                     break;

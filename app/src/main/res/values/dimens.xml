@@ -13,6 +13,7 @@
     <dimen name="set_stSize_explain">16sp</dimen>
     <dimen name="set_stSize_explain2">16sp</dimen>
     <dimen name="set_stSize_btn">16sp</dimen>
+    <dimen name="set_stSize_big">18sp</dimen>
 
     <dimen name="set_margin_default">10dp</dimen>
     <dimen name="set_margin_long">20dp</dimen>

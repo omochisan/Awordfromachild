@@ -1,24 +1,62 @@
 package com.example.awordfromachild.common;
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.TwitterUtils;
+import com.example.awordfromachild.asynctask.callBacksBase;
+import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import twitter4j.Status;
 import twitter4j.TwitterException;
 
 public class activityBase extends AppCompatActivity {
     WeakReference<Activity> weak_activity;
+
+    //ListViewアダプター
+    protected SetDefaultTweetAdapter adapter;
+    protected ListView listView;
+
+    //onPuase時、ListView復元のため一時保存
+    protected static Bundle bundle = new Bundle();
+    //Bundleキー
+    // 現在表示している中で、一番古いツイート
+    protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
+    // 現在のスクロール位置
+    protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
+
+    //エラーハンドリング
+    protected exceptionHandling errHand;
+
+    //Twitter処理クラス
+    protected static TwitterUtils twitterUtils;
+    //現在実施中の読込開始ポイント
+    protected static int now_readPoint = 0;
+    //スピナー用
+    protected static PopupWindow mPopupWindow;
+    //外部からview操作するためHandlerを利用
+    final Handler handler = new Handler();
 
     public Boolean checkViewDetach(Activity base){
         weak_activity = new WeakReference<Activity>(base);
@@ -55,7 +93,7 @@ public class activityBase extends AppCompatActivity {
      *
      * @param mPopupWindow
      */
-    public void dispSpinner(PopupWindow mPopupWindow) {
+    public void dispSpinner(PopupWindow mPopupWindow, int viewID) {
         WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
         PopupWindow weak_pop = _popupWindow.get();
         //スピナー表示
@@ -68,7 +106,7 @@ public class activityBase extends AppCompatActivity {
         weak_pop.setWidth((int) width);
         weak_pop.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         // 画面下に表示
-        weak_pop.showAtLocation(findViewById(R.id.ft_layout), Gravity.BOTTOM, 0, 0);
+        weak_pop.showAtLocation(findViewById(viewID), Gravity.BOTTOM, 0, 0);
     }
 
     /**
@@ -82,6 +120,127 @@ public class activityBase extends AppCompatActivity {
         //スピナー退出
         if (weak_pop != null && weak_pop.isShowing()) {
             weak_pop.dismiss();
+        }
+    }
+
+    /**
+     * 表示ツイートがない場合のトーストを表示
+     */
+    protected void no_result() {
+        Toast.makeText(getApplicationContext(),
+                "表示するツイートがありませんでした。", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * 表示中ツイートの中で、最後尾のツイートのIDを返却
+     * @return
+     */
+    protected long returnLastID(){
+        return adapter.getItem(adapter.getCount() - 1).getId();
+    }
+
+    /**
+     * ListViewにツイートをセット
+     *
+     * @param result
+     */
+    protected void setListView(List<Status> result, String how_to_display) {
+        //取得ツイートが０の場合
+        if (result.size() == 0) {
+            no_result();
+        }
+
+        //カスタマイズしたlistViewに取得結果を表示
+        if (adapter == null) {
+            adapter = new SetDefaultTweetAdapter(this, R.layout.tweet_default, result);
+        } else {
+            //最新ツイートを先頭に追加する＆一定以上の取得数の場合、追加ではなく洗い替えに変更
+            //（古い順から取得ができないため）
+            if (how_to_display.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT) &&
+                    result.size() >= twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE) {
+                how_to_display = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
+            }
+            switch (how_to_display) {
+                case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH: //表示ツイート洗い替え
+                    adapter.clear();
+                    adapter.addItems(result);
+                    adapter.notifyDataSetChanged();
+                    break;
+
+                case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT: //先頭に追加
+                    putState(); //追加前に画面表示状態保持
+                    adapter.unShiftItems(result);
+                    try {
+                        adapter.notifyDataSetChanged();
+                    }catch (Exception e){
+                        System.out.println(e);
+                    }
+                    restoreListViewSelection();
+                    //スクロール位置復元
+                    restoreListViewSelection();
+                    break;
+
+                case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH: //末尾に追加
+                    putState(); //追加前に画面表示状態保持
+
+                    result.remove(result.size() - 1);
+                    adapter.addItems(result);
+                    adapter.notifyDataSetChanged();
+                    restoreListViewSelection();
+                    //位置復元
+                    restoreListViewSelection();
+                    break;
+            }
+        }
+
+        if(result.size() == 0 || result.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+            adapter.frg_end = true;
+        }
+
+        //VIEWにアイテムが未登録の場合、登録
+        if (listView.getAdapter() == null) {
+            listView.setAdapter(adapter);
+        }
+    }
+
+    /**
+     * 最新ツイートを追加
+     */
+    protected void addTheLatestTweets(WeakReference<callBacksBase> callBacks, int viewID) {
+        //API制限中かチェック
+        try {
+            twitterUtils.checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
+        } catch (ParseException e) {
+            errHand.exceptionHand(e, callBacks);
+        } catch (TwitterException e) {
+            errHand.exceptionHand(e, callBacks);
+        }
+
+        dispSpinner(mPopupWindow, viewID);
+        long sinceID = ((Status) adapter.getItem(0)).getId();
+        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        twitterUtils.getTimeLine(
+                twitterValue.timeLineType.HOME, sinceID, maxID, twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE,
+                twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+    }
+
+    /**
+     * 画面の状態を保存
+     */
+    protected void putState() {
+        if (adapter == null || adapter.getCount() == 0) return;
+
+        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        bundle.putLong(BUNDLE_KEY_ITEM_MAX_GET_ID, maxID);
+        bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
+    }
+
+    /**
+     * リストビューのスクロール位置を復元
+     */
+    protected void restoreListViewSelection() {
+        if (bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1) {
+            listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
         }
     }
 

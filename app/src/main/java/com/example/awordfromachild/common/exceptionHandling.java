@@ -1,5 +1,7 @@
 package com.example.awordfromachild.common;
 
+import android.util.Log;
+
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.constant.twitterValue;
@@ -40,6 +42,7 @@ public class exceptionHandling {
         } else {
             //非チェック例外
             callBacks.get().callBackException();
+            Log.e("実行エラー",err.toString());
         }
     }
 }

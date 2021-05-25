@@ -40,4 +40,9 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
     public void callBackException() {
 
     }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
+    }
 }

@@ -3,20 +3,17 @@ package com.example.awordfromachild;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.util.Base64;
 
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksCreateTweet;
 import com.example.awordfromachild.asynctask.callBacksMain;
-import com.example.awordfromachild.asynctask.callBacksSearch;
-import com.example.awordfromachild.asynctask.callBacksTimeLine;
+import com.example.awordfromachild.asynctask.callBacksNewArrival;
 import com.example.awordfromachild.common.exceptionHandling;
+import com.example.awordfromachild.common.httpConnection;
 import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
-import com.example.awordfromachild.common.httpConnection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,28 +27,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
 import twitter4j.FilterQuery;
-import twitter4j.HttpRequest;
-import twitter4j.HttpResponse;
-import twitter4j.IDs;
 import twitter4j.PagableResponseList;
 import twitter4j.Paging;
 import twitter4j.Query;
@@ -66,20 +53,14 @@ import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
-import twitter4j.UserStreamAdapter;
 import twitter4j.auth.AccessToken;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * Twitterの機能実装クラス（検索、ツイート等）
  */
 public class TwitterUtils {
-    public String howToDisplay;
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
-    //コールバック先クラス名
-    private String callBackClassName;
     private Twitter twitter;
     private ResponseList<Status> responseList;
     private Calendar calendar = Calendar.getInstance();
@@ -96,7 +77,6 @@ public class TwitterUtils {
      */
     public TwitterUtils(callBacksBase callBacks) {
         this.callBacks = new WeakReference<>(callBacks);
-        this.callBackClassName = callBacks.getClass().getName();
         errHand = new exceptionHandling();
     }
 
@@ -189,7 +169,6 @@ public class TwitterUtils {
      * 指定ツイートをいいねする
      *
      * @param id
-     *
      */
     public void createFavorite(long id) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
@@ -198,7 +177,7 @@ public class TwitterUtils {
             protected Object doInBackground(Void... aVoid) {
                 try {
                     //API制限中かチェック
-                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
 
                     twitter4j.Status status = twitter.createFavorite(id);
                     return status;
@@ -214,7 +193,7 @@ public class TwitterUtils {
             @Override
             protected void onPostExecute(Object status) {
                 //API制限チェック
-                checkAPIRate(((twitter4j.Status)status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
             }
 
             @Override
@@ -237,7 +216,7 @@ public class TwitterUtils {
             protected Object doInBackground(Void... aVoid) {
                 try {
                     //API制限中かチェック
-                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_DES_FAVORITE);
 
                     twitter4j.Status status = twitter.destroyFavorite(id);
                     return status;
@@ -253,7 +232,85 @@ public class TwitterUtils {
             @Override
             protected void onPostExecute(Object status) {
                 //API制限チェック
-                checkAPIRate(((twitter4j.Status)status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_DES_FAVORITE);
+            }
+
+            @Override
+            protected void onCancelled(Object err) {
+                errHand.exceptionHand(err, callBacks);
+            }
+        };
+        task.execute();
+    }
+
+    /**
+     * 指定ツイートをリツイートする
+     *
+     * @param id
+     */
+    public void createReTweet(long id) {
+        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected Object doInBackground(Void... aVoid) {
+                try {
+                    //API制限中かチェック
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_PUT_RETWEET);
+
+                    twitter4j.Status status = twitter.retweetStatus(id);
+                    return status;
+                } catch (TwitterException e) {
+                    cancel(true);
+                    return e;
+                } catch (ParseException e) {
+                    cancel(true);
+                    return e;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Object status) {
+                //API制限チェック
+                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_PUT_RETWEET);
+            }
+
+            @Override
+            protected void onCancelled(Object err) {
+                errHand.exceptionHand(err, callBacks);
+            }
+        };
+        task.execute();
+    }
+
+    /**
+     * 指定ツイートのリツイートを取り消す
+     *
+     * @param id
+     */
+    public void destroyReTweet(long id) {
+        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected Object doInBackground(Void... aVoid) {
+                try {
+                    //API制限中かチェック
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_DES_RETWEET);
+
+                    twitter4j.Status status = twitter.unRetweetStatus(id);
+                    return status;
+                } catch (TwitterException e) {
+                    cancel(true);
+                    return e;
+                } catch (ParseException e) {
+                    cancel(true);
+                    return e;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Object status) {
+                //API制限チェック
+                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_DES_RETWEET);
             }
 
             @Override
@@ -293,10 +350,10 @@ public class TwitterUtils {
             @Override
             protected void onPostExecute(Object user) {
                 //API制限チェック
-                checkAPIRate(((User)user).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
+                checkAPIRate(((User) user).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
                 //取得情報返却
                 callBacksMain callback = (callBacksMain) callBacks.get();
-                callback.callBackGetUser(((User)user));
+                callback.callBackGetUser(((User) user));
             }
 
             @Override
@@ -308,23 +365,46 @@ public class TwitterUtils {
     }
 
     /**
-     * 検索（部分一致）
-     *
-     * @param str
+     * オーバーロード
+     * search
+     * @param q_str
+     * @param howToDisplay
      */
-    public void search(Map<String, String> str) {
+    public void search(String q_str, String howToDisplay) {
+        search(q_str, null, null, howToDisplay);
+    }
+    /**
+     * オーバーロード
+     * search
+     * @param q_str
+     * @param maxID
+     * @param howToDisplay
+     */
+    public void search(String q_str, Long maxID, String howToDisplay) {
+        search(q_str, null, maxID, howToDisplay);
+    }
+    /**
+     * ツイート検索
+     *
+     * @param q_str
+     */
+    public void search(String q_str, Long sinceID, Long maxID, String howToDisplay) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @SuppressLint("StaticFieldLeak")
             @Override
             protected Object doInBackground(Void... aVoid) {
                 try {
                     //API制限中かチェック
                     checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_SEARCH);
-                    //twitter4jで利用できない検索コマンドあるため(filter:follows)
-                    //直接HTTP通信を実装し検索実行
-                    JSONObject get_json = getHttpRequest(twitterValue.TwitterAPIEndPoint.search, str);
-                    return get_json;
+
+                    Query query = new Query();
+                    if(sinceID != null) query.setSinceId(sinceID);
+                    if(maxID != null) query.setMaxId(maxID);
+                    query.setCount(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
+                    query.setQuery(q_str);
+                    query.setResultType(Query.ResultType.recent);
+                    // 検索実行
+                    QueryResult result = twitter.search(query);
+                    return result;
                 } catch (TwitterException e) {
                     cancel(true);
                     return e;
@@ -336,17 +416,11 @@ public class TwitterUtils {
             }
 
             @Override
-            protected void onPostExecute(Object get_json) {
-                JSONObject json = (JSONObject)get_json;
-                try {
-                    ArrayList<twitter4j.Status> result = (ArrayList<twitter4j.Status>)json.get("statuses");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            protected void onPostExecute(Object result) {
+                QueryResult q_result = (QueryResult)result;
                 //API制限チェック
-                /*checkAPIRate(((QueryResult)arr_view).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_SEARCH);
-                callBacksSearch callback = (callBacksSearch) callBacks.get();
-                callback.callBackGetSearch((QueryResult)arr_view);*/
+                checkAPIRate(q_result.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_SEARCH);
+                callBacks.get().callBackGetTweets(q_result, howToDisplay);
             }
 
             @Override
@@ -359,6 +433,7 @@ public class TwitterUtils {
 
     /**
      * HTTP通信（GET)
+     *
      * @param endpoint
      * @return
      * @throws IOException
@@ -374,13 +449,13 @@ public class TwitterUtils {
         }*/
 
         httpConnection createHttpConnection = new httpConnection();
-        try{
-        // ヘッダに設定する文字列を取得
-        String headerString = createHttpConnection.generateHeaderString(map_q_word, "GET", endpoint);
+        try {
+            // ヘッダに設定する文字列を取得
+            String headerString = createHttpConnection.generateHeaderString(map_q_word, "GET", endpoint);
             // ベースURLとパラメータからURIを生成
             URL url = new URL(createHttpConnection.createUrlString(endpoint, map_q_word));
             // リクエストを生成する
-            httpConn = (HttpURLConnection)url.openConnection();// 接続用HttpURLConnectionオブジェクト作成
+            httpConn = (HttpURLConnection) url.openConnection();// 接続用HttpURLConnectionオブジェクト作成
             httpConn.setRequestMethod("GET"); // リクエストメソッドの設定
             httpConn.setInstanceFollowRedirects(false);// リダイレクトを自動で許可しない設定
             httpConn.setDoInput(true); // URL接続からデータを読み取る場合はtrue
@@ -388,7 +463,7 @@ public class TwitterUtils {
             httpConn.setConnectTimeout(twitterValue.httpConnection.CONNECTION_TIMEOUT);// 接続にかかる時間
             httpConn.setReadTimeout(twitterValue.httpConnection.READ_TIMEOUT);//データの読み込みにかかる時間
             httpConn.setRequestProperty("Authorization", headerString);
-        } catch(IOException ioe){
+        } catch (IOException ioe) {
             httpConn.disconnect();
         }
 
@@ -399,7 +474,7 @@ public class TwitterUtils {
         StringBuffer sb = new StringBuffer();
         String st = "";
         BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        while((st = br.readLine()) != null) {
+        while ((st = br.readLine()) != null) {
             sb.append(st);
         }
         st = sb.toString();
@@ -449,11 +524,11 @@ public class TwitterUtils {
             @Override
             protected void onPostExecute(Object status) {
                 //API制限チェック
-                checkAPIRate(((twitter4j.Status)status).getRateLimitStatus(),
+                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(),
                         appSharedPreferences.API_RATE_DATE_GET_POST_TWEET);
 
                 callBacksCreateTweet callback = (callBacksCreateTweet) callBacks.get();
-                callback.callBackTweeting(((twitter4j.Status)status));
+                callback.callBackTweeting(((twitter4j.Status) status));
             }
 
             @Override
@@ -476,61 +551,9 @@ public class TwitterUtils {
                 loadAccessToken(ApplicationController.getInstance().getApplicationContext()));
         twStream.addListener(new MyTweetListener());
         FilterQuery filterQuery = new FilterQuery();
-        if(arr_strFilter != null) filterQuery.track(arr_strFilter);
-        if(arr_follow != null) filterQuery.follow(arr_follow);
+        if (arr_strFilter != null) filterQuery.track(arr_strFilter);
+        if (arr_follow != null) filterQuery.follow(arr_follow);
         twStream.filter(filterQuery);
-    }
-
-    /**
-     * streaming用クラス
-     */
-    class MyTweetListener extends StatusAdapter {
-        // view操作するためHandlerを利用
-        final Handler handler = new Handler();
-
-        /**
-         * ツイートが追加されたとき
-         * @param status
-         */
-        @Override
-        public void onStatus(Status status) {
-            super.onStatus(status);
-
-            //以下条件にハマる場合、除外
-            // ハッシュタグが含まれてない OR
-            // (リツイート AND リツイートしたユーザーIDがフォローユーザーじゃない) OR
-            // (リプライ AND リプライしたユーザーIDがフォローユーザーじゃない)
-            if(/*!Arrays.asList(status.getHashtagEntities()).contains(twitterValue.APP_TAG)
-            ||*/ (status.isRetweet() && !Arrays.asList(friendIDs_list).contains(status.getUser().getId()))
-            || (status.getInReplyToStatusId() != -1 && !Arrays.asList(friendIDs_list).contains(status.getUser().getId()))){
-                return;
-            }
-
-            callBacksTimeLine callback = (callBacksTimeLine) callBacks.get();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.callBackStreamAddList(status);
-                }
-            });
-            //API制限掛かったかチェック
-            checkAPIRate(responseList.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_STREAM);
-        }
-
-        /**
-         * エラー発生時
-         * @param err
-         */
-        @Override
-        public void onException(Exception err) {
-            super.onException(err);
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    errHand.exceptionHand(err, callBacks);
-                }
-            });
-        }
     }
 
     /**
@@ -567,7 +590,7 @@ public class TwitterUtils {
                         appSharedPreferences.API_RATE_DATE_GET_FRIEND_LIST);
 
                 //フォローユーザーIDリストを生成
-                for(User user: result_list){
+                for (User user : result_list) {
                     friendIDs_list.add(user.getId());
                 }
 
@@ -576,8 +599,6 @@ public class TwitterUtils {
 
             @Override
             protected void onPostExecute(Object followerIDs) {
-                callBacksTimeLine callback = (callBacksTimeLine) callBacks.get();
-                callback.callBackGetFriends((ArrayList<User>) followerIDs);
             }
 
             @Override
@@ -599,19 +620,19 @@ public class TwitterUtils {
     private ResponseList<twitter4j.Status> runGetTimeLine(String pattern, Paging p) throws TwitterException {
         ResponseList<twitter4j.Status> result = null;
         switch (pattern) {
-            case twitterValue.HOME:
+            case twitterValue.timeLineType.HOME:
                 result = twitter.getHomeTimeline(p);
                 break;
 
-            case twitterValue.USER:
+            case twitterValue.timeLineType.USER:
                 result = twitter.getUserTimeline(p);
                 break;
 
-            case twitterValue.MENTIONS:
+            case twitterValue.timeLineType.MENTIONS:
                 result = twitter.getMentionsTimeline(p);
                 break;
 
-            case twitterValue.RT_OF_ME:
+            case twitterValue.timeLineType.RT_OF_ME:
                 result = twitter.getRetweetsOfMe(p);
                 break;
 
@@ -638,13 +659,32 @@ public class TwitterUtils {
      * オーバーロード
      * getTimeLine
      *
-     * @param pattern
+     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
      */
     public void getTimeLine(String pattern) {
         getTimeLine(pattern, 0, 0, 0, null);
     }
 
+    /**
+     * オーバーロード
+     * getTimeLine
+     *
+     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
+     * @param maxID   取得ツイートのカーソル（～まで）
+     */
     public void getTimeLine(String pattern, long maxID) {
+        getTimeLine(pattern, maxID, 0, 0, null);
+    }
+
+    /**
+     * オーバーロード
+     * getTimeLine
+     *
+     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
+     * @param maxID   取得ツイートのカーソル（～まで）
+     * @param how     取得ツイートの追加方式
+     */
+    public void getTimeLine(String pattern, long maxID, String how) {
         getTimeLine(pattern, maxID, 0, 0, null);
     }
 
@@ -664,12 +704,6 @@ public class TwitterUtils {
                 try {
                     //API制限中かチェック
                     checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
-
-                    if (how == null) {
-                        howToDisplay = twitterValue.TWEET_HOW_TO_DISPLAY_REWASH;
-                    } else {
-                        howToDisplay = how;
-                    }
 
                     //ページング設定
                     Paging p = new Paging();
@@ -703,8 +737,13 @@ public class TwitterUtils {
              * 2　Boolean（全件取得完了フラグ）
              */
             protected void onPostExecute(Object list) {
-                callBacksTimeLine callback = (callBacksTimeLine) callBacks.get();
-                callback.callBackGetTimeLine((ArrayList<twitter4j.Status>)list, how);
+                String howToDisplay = "";
+                if (how == null) {
+                    howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
+                } else {
+                    howToDisplay = how;
+                }
+                callBacks.get().callBackGetTweets(list, how);
                 //API制限掛かったかチェック
                 checkAPIRate(responseList.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
             }
@@ -776,7 +815,51 @@ public class TwitterUtils {
             calendar.setTime(untilReset_date);
             //制限解除までの秒数を返却
             long diff = calendar.getTimeInMillis() - now_calendar.getTimeInMillis();
-            throw new TwitterException(String.valueOf (TimeUnit.MILLISECONDS.toSeconds(diff) + 1));
+            throw new TwitterException(String.valueOf(TimeUnit.MILLISECONDS.toSeconds(diff) + 1));
+        }
+    }
+
+    /**
+     * streaming用クラス
+     */
+    class MyTweetListener extends StatusAdapter {
+        //外部からview操作するためHandlerを利用
+        final Handler handler = new Handler();
+
+        /**
+         * ツイートが追加されたとき
+         *
+         * @param status
+         */
+        @Override
+        public void onStatus(Status status) {
+            super.onStatus(status);
+
+            callBacksNewArrival callback = (callBacksNewArrival) callBacks.get();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.callBackStreamAddList(status);
+                }
+            });
+            //API制限掛かったかチェック
+            checkAPIRate(responseList.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_STREAM);
+        }
+
+        /**
+         * エラー発生時
+         *
+         * @param err
+         */
+        @Override
+        public void onException(Exception err) {
+            super.onException(err);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    errHand.exceptionHand(err, callBacks);
+                }
+            });
         }
     }
 }

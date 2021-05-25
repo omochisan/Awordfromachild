@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/tw_linear_main"
@@ -20,6 +20,7 @@
             android:layout_marginBottom="10dp" />
 
         <LinearLayout
+            android:id="@+id/tw_linear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -138,15 +139,19 @@
         android:id="@+id/tw_linear_"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/set_margin_default"
+        android:layout_marginTop="@dimen/set_margin_long"
+        android:layout_marginEnd="@dimen/set_margin_default"
+        android:layout_marginBottom="@dimen/set_margin_default"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone" >
 
-        <Button
-            android:id="@+id/tw_addBtn"
+        <TextView
+            android:id="@+id/tw_notweet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="@string/common_no_tweet" />
     </LinearLayout>
 
 </LinearLayout>

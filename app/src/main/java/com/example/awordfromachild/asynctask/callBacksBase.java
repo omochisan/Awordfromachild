@@ -1,5 +1,6 @@
 package com.example.awordfromachild.asynctask;
 
+import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
@@ -16,4 +17,10 @@ public interface callBacksBase {
     public void callBackStreamAddList(Status status);
 
     public void callBackException();
+
+    /**
+     * ツイート取得時
+     * @param list 取得タイムライン
+     */
+    public void callBackGetTweets(Object list, String howToDisplay);
 }

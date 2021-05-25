@@ -1,33 +1,60 @@
 package com.example.awordfromachild.constant;
 
-import com.example.awordfromachild.R;
-
-import java.net.URL;
-
 public class twitterValue {
     //アプリのハッシュタグ
     public static final String APP_HASH_TAG = "#こどものひとこと";
     public static final String APP_TAG = "こどものひとこと";
     //TwitterAPI RATE制限　エラーコード
     public static final int TwitterAPI_RATE_ERRORCODE = 429;
+    //ツイート文字数制限（自由入力パターン）
+    public static final int CHARALIMIT_FREE = 131;
+    //ツイート文字数制限（フォーム入力パターン）
+    public static final int CHARALIMIT_FORM = 131;
+    //デフォルトのツイート作成画面
+    public static final String DEFAULT_TYPE_OF_TWEET_CREATION = "free";
+    //ツイート作成画面タイプ（自由入力）
+    public static final String TYPE_OF_TWEET_CREATION_FREE = "free";
+    //ツイート作成画面タイプ（フォーム入力）
+    public static final String TYPE_OF_TWEET_CREATION_FORM = "form";
+    //注目タブ（一定のいいね＆リツイートがされているツイートが表示される）
+    // デフォルトのいいね数
+    public static final String DEFAULT_LIKES = "10";
+    // デフォルトのリツイート数
+    public static final String DEFAULT_RETWEET = "10";
 
-    //タイムライン種別
-    // 公開タイムライン
-    public static final String PUBLIC = "public_timeline";
-    // 自分のデフォルトタイムライン
-    public static final String HOME = "home_timeline";
-    // （公式RTを含まない）デフォルトタイムライン
-    public static final String FRIEND = "friend_timeline";
-    // 自分のツイートのみのタイムライン
-    public static final String USER = "user_timeline";
-    // 自分のIDが含まれたツイートをまとめたタイムライン
-    public static final String MENTIONS = "mentions";
-    // 自分がした公式RTツイートのみのタイムライン
-    public static final String RT_BY_ME = "retweeted_by_me";
-    // 自分がフォローしているユーザーがした公式RTのみのタイムライン
-    public static final String RT_TO_ME = "retweeted_to_me";
-    // 公式RTされた自分のツイートのみのタイムライン
-    public static final String RT_OF_ME = "retweeted_of_me";
+    /**
+     * 取得ツイートの表示方法
+     */
+    public static class howToDisplayTweets {
+        //　洗い替え
+        public static final String TWEET_HOW_TO_DISPLAY_REWASH = "rewash";
+        //　先頭に追加
+        public static final String TWEET_HOW_TO_DISPLAY_UNSHIFT = "add";
+        //　末尾に追加
+        public static final String TWEET_HOW_TO_DISPLAY_PUSH = "push";
+    }
+
+    /**
+     * タイムライン種別
+     */
+    public static class timeLineType {
+        // 公開タイムライン
+        public static final String PUBLIC = "public_timeline";
+        // 自分のデフォルトタイムライン
+        public static final String HOME = "home_timeline";
+        // （公式RTを含まない）デフォルトタイムライン
+        public static final String FRIEND = "friend_timeline";
+        // 自分のツイートのみのタイムライン
+        public static final String USER = "user_timeline";
+        // 自分のIDが含まれたツイートをまとめたタイムライン
+        public static final String MENTIONS = "mentions";
+        // 自分がした公式RTツイートのみのタイムライン
+        public static final String RT_BY_ME = "retweeted_by_me";
+        // 自分がフォローしているユーザーがした公式RTのみのタイムライン
+        public static final String RT_TO_ME = "retweeted_to_me";
+        // 公式RTされた自分のツイートのみのタイムライン
+        public static final String RT_OF_ME = "retweeted_of_me";
+    }
 
     /**
      * ツイートの数管理
@@ -62,7 +89,7 @@ public class twitterValue {
     /**
      * Twitter取得ツイートタイプ
      */
-    public static class resultType{
+    public static class resultType {
         //人気のツイート
         public static final String POPULAR = "popular";
         //最新のツイート。
@@ -70,29 +97,4 @@ public class twitterValue {
         //全てのツイート。
         public static final String mixed = "MIXED";
     }
-
-    //ツイート文字数制限（自由入力パターン）
-    public static final int CHARALIMIT_FREE = 131;
-    //ツイート文字数制限（フォーム入力パターン）
-    public static final int CHARALIMIT_FORM = 131;
-
-    //デフォルトのツイート作成画面
-    public static final String DEFAULT_TYPE_OF_TWEET_CREATION = "free";
-    //ツイート作成画面タイプ（自由入力）
-    public static final String TYPE_OF_TWEET_CREATION_FREE = "free";
-    //ツイート作成画面タイプ（フォーム入力）
-    public static final String TYPE_OF_TWEET_CREATION_FORM = "form";
-    //注目タブ（一定のいいね＆リツイートがされているツイートが表示される）
-    // デフォルトのいいね数
-    public static final String DEFAULT_LIKES = "10";
-    // デフォルトのリツイート数
-    public static final String DEFAULT_RETWEET = "10";
-
-    //取得ツイートの表示方法
-    //　洗い替え
-    public static final String TWEET_HOW_TO_DISPLAY_REWASH = "rewash";
-    //　先頭に追加
-    public static final String TWEET_HOW_TO_DISPLAY_UNSHIFT = "add";
-    //　末尾に追加
-    public static final String TWEET_HOW_TO_DISPLAY_PUSH = "push";
 }

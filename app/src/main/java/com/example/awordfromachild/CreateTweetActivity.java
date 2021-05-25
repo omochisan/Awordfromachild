@@ -21,6 +21,7 @@ import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
 
+import twitter4j.QueryResult;
 import twitter4j.Status;
 
 /**
@@ -103,8 +104,6 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         }
     };
-
-
 
     @Override
     public void onResume() {
@@ -233,5 +232,10 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
     @Override
     public void callBackException() {
         fail_result();
+    }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
     }
 }

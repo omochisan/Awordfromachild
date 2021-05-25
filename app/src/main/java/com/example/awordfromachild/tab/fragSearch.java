@@ -152,4 +152,9 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
     public void callBackException() {
         fail_result();
     }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
+    }
 }

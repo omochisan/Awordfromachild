@@ -16,6 +16,12 @@ public class appSharedPreferences {
     public static final String API_RATE_DATE_GET_TIMELINE = "apiRate_getTimeline";
     // お気に入り系
     public static final String API_RATE_DATE_GET_FAVORITE = "apiRate_getFavorite";
+    public static final String API_RATE_DATE_PUT_FAVORITE = "apiRate_putFavorite";
+    public static final String API_RATE_DATE_DES_FAVORITE = "apiRate_desFavorite";
+    // リツイート系
+    public static final String API_RATE_DATE_PUT_RETWEET = "apiRate_putReTweet";
+    public static final String API_RATE_DATE_DES_RETWEET = "apiRate_desReTweet";
+
     // 検索系
     public static final String API_RATE_DATE_GET_SEARCH = "apiRate_getSearch";
     // 投稿系

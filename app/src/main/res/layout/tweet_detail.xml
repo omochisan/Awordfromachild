@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/twd_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <LinearLayout
+            android:id="@+id/twd_linear_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/twd_userIcon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp" />
+
+            <LinearLayout
+                android:id="@+id/twd_linear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="3dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/twd_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/twd_userName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:ellipsize="marquee"
+                        android:paddingStart="0dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="0dp"
+                        android:paddingBottom="5dp"
+                        android:singleLine="true"
+                        android:text="userName"
+                        android:textColor="#000"
+                        android:textSize="@dimen/set_stSize_heading"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/twd_userID"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:ellipsize="marquee"
+                        android:singleLine="true"
+                        android:text="userID"
+                        android:textColor="@color/tweet_gray"
+                        android:textSize="@dimen/set_stSize_heading" />
+
+                    <TextView
+                        android:id="@+id/twd_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:ellipsize="marquee"
+                        android:singleLine="true"
+                        android:text="date"
+                        android:textColor="@color/tweet_gray"
+                        android:textSize="@dimen/set_stSize_heading" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/twd_center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/twd_main"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/sample"
+                        android:textColor="@color/tweet_default"
+                        android:textSize="@dimen/set_stSize_big" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/twd_footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/twd_reply"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.3"
+                        android:drawableStart="@drawable/ic_replay"
+                        android:text="rep"
+                        android:textColor="@color/tweet_gray" />
+
+                    <TextView
+                        android:id="@+id/twd_retweet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.3"
+                        android:drawableStart="@drawable/ic_retweet"
+                        android:text="ret"
+                        android:textColor="@color/tweet_gray" />
+
+                    <TextView
+                        android:id="@+id/twd_like"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.3"
+                        android:drawableStart="@drawable/ic_favo"
+                        android:text="like"
+                        android:textColor="@color/tweet_gray" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/twd_tweetheader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_retweet"
+                    android:text="TextView"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/twd_replay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

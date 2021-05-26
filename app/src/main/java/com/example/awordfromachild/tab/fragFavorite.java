@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 
 public class fragFavorite extends fragmentBase implements callBacksFavorite {
+
     @Nullable
     @Override
     public View onCreateView(

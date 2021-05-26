@@ -1,18 +1,26 @@
 package com.example.awordfromachild.library;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.awordfromachild.ApplicationController;
+import com.example.awordfromachild.MyTweetActivity;
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksDefaultTweet;
@@ -194,45 +202,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         // リストビューに表示する要素を取得
         twitter4j.Status item = mItems.get(position);
 
-        //お気に入り
-        TextView like = view.findViewById(R.id.tw_like);
-        // お気に入り状態の場合、アイコン変更
-        if ((boolean) arr_mItems_status.get(position).get(mapKey_favorite)) {
-            setIcon(ptn_favo, true, like);
-        } else {
-            setIcon(ptn_favo, false, like);
-        }
-        // お気に入りクリックイベント
-        like.setOnClickListener(view1 -> {
-            Status _item = mItems.get(position);
-            boolean st_favo = (boolean) arr_mItems_status.get(position).get(mapKey_favorite);
-            if (!st_favo) {
-                setIcon(ptn_favo, true, like);
-                twitterUtils.createFavorite(_item.getId());
-                arr_mItems_status.get(position).replace(mapKey_favorite, true);
-            } else {
-                setIcon(ptn_favo, false, like);
-                twitterUtils.destroyFavorite(_item.getId());
-                arr_mItems_status.get(position).replace(mapKey_favorite, false);
-            }
-        });
 
-        //リツイート
-        TextView ret = view.findViewById(R.id.tw_retweet);
-        // リツイートクリックイベント
-        ret.setOnClickListener(view1 -> {
-            Status _item = mItems.get(position);
-            boolean st_ret = (boolean) arr_mItems_status.get(position).get(mapKey_retweet);
-            if (!st_ret) {
-                setIcon(ptn_retweet, true, ret);
-                twitterUtils.createReTweet(_item.getId());
-                arr_mItems_status.get(position).replace(mapKey_retweet, true);
-            } else {
-                setIcon(ptn_retweet, false, ret);
-                twitterUtils.destroyReTweet(_item.getId());
-                arr_mItems_status.get(position).replace(mapKey_retweet, false);
-            }
-        });
 
         //リツイートの場合、元のツイート情報を取得
         Status origin_item;
@@ -331,6 +301,13 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         return view;
     }
 
+    /**
+     * ユーザーアイコンをセット
+     * @param view
+     * @param item ツイート
+     * @param vid_userIcon ユーザーアイコンのviewID
+     * @param vid_userName ユーザーネームボックスのviewID
+     */
     public static void setUserIcon(View view, Status item, int vid_userIcon, int vid_userName){
         // ユーザーアイコンを設定
         ImageView userIcon = (ImageView) view.findViewById(vid_userIcon);
@@ -343,6 +320,10 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         //ユーザー名を設定
         TextView userName = (TextView) view.findViewById(vid_userName);
         userName.setText(item.getUser().getName());
+    }
+
+    public static void setFooterIcon(){
+
     }
 
     @Override

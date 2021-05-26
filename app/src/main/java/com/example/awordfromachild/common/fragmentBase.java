@@ -1,21 +1,21 @@
 package com.example.awordfromachild.common;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
@@ -27,39 +27,116 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import twitter4j.HashtagEntity;
+import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
-public class fragmentBase extends Fragment {
-    WeakReference<Fragment> weak_fragment;
-    //ListViewアダプター
-    protected SetDefaultTweetAdapter adapter;
-    protected ListView listView;
-
-    //onPuase時、ListView復元のため一時保存
-    protected static Bundle bundle = new Bundle();
+public abstract class fragmentBase extends Fragment implements callBacksBase {
     //Bundleキー
     // 現在表示している中で、一番古いツイート
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
-
-    //エラーハンドリング
-    protected exceptionHandling errHand;
-
+    //onPuase時、ListView復元のため一時保存
+    protected static Bundle bundle = new Bundle();
     //Twitter処理クラス
     protected static TwitterUtils twitterUtils;
     //現在実施中の読込開始ポイント
     protected static int now_readPoint = 0;
     //スピナー用
-    protected static PopupWindow mPopupWindow;
-    //外部からview操作するためHandlerを利用
-    final Handler handler = new Handler();
+    public static PopupWindow mPopupWindow;
+    //ListViewアダプター
+    protected SetDefaultTweetAdapter adapter;
+    protected ListView listView;
+    //エラーハンドリング
+    protected exceptionHandling errHand;
+    //検索クエリ
+    protected String query;
+    WeakReference<Fragment> weak_fragment;
+
+    /**
+     * 画面状態の保持（Fragment再生成用）
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+        putState();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        twitterUtils = new TwitterUtils(this);
+        twitterUtils.setTwitterInstance(getContext());
+        errHand = new exceptionHandling();
+        listView = getActivity().findViewById(R.id.fn_main);
+
+
+        //リストビューイベント
+        //　スクロール
+        //　ポイントまでスクロールした時、追加で40件読み込み
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(final AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                //追加読込を始める位置 ＝ トータルアイテム数-(一回のツイート読込数 / 4)
+                int readStartCount = totalItemCount - (twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET / 4);
+                //スクロール位置が追加読込ポイント（最終から10行前）の場合、追加読込開始
+                if (firstVisibleItem == readStartCount && now_readPoint != readStartCount) {
+                    //スピナー表示
+                    dispSpinner(mPopupWindow);
+                    now_readPoint = readStartCount;
+                    twitterUtils.search(twitterValue.timeLineType.HOME, returnLastID(),
+                            twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                }
+            }
+        });
+
+        // 行選択イベント
+        listView.setOnItemClickListener(new AbsListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ListView _listView = (ListView) adapterView;
+                if(!(_listView.getItemAtPosition(i) instanceof Status)){
+                    return;
+                }
+                Status status = (Status) _listView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(), TweetDetailActivity.class);
+                intent.putExtra("DATA", status);
+                startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * 画面状態の保持（Fragment再生成用）
+     *
+     * @param state
+     */
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        putState();
+    }
+
+    /**
+     * ストリーミングのフィルタ条件を設定し、ストリーミング開始
+     *
+     * @param arr_str    フィルタ条件（文字列）
+     * @param arr_follow フィルタ条件（フォローユーザー）
+     */
+    public void startStreaming(String[] arr_str, long[] arr_follow) {
+        twitterUtils.startStream(arr_str, arr_follow);
+    }
 
     /**
      * フラグメントが破棄されたかチェック
@@ -80,7 +157,6 @@ public class fragmentBase extends Fragment {
     /**
      * スピナーを表示
      *
-     * @param mPopupWindow
      */
     public void dispSpinner(PopupWindow mPopupWindow) {
         WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
@@ -101,7 +177,6 @@ public class fragmentBase extends Fragment {
     /**
      * スピナー非表示
      *
-     * @param mPopupWindow
      */
     public void hideSpinner(PopupWindow mPopupWindow) {
         WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
@@ -110,6 +185,15 @@ public class fragmentBase extends Fragment {
         if (weak_pop != null && weak_pop.isShowing()) {
             weak_pop.dismiss();
         }
+    }
+
+    /**
+     * ツイート検索実行
+     * @param query
+     */
+    public void runSearch(String query){
+        //dispSpinner(mPopupWindow);
+        twitterUtils.search(query, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
     }
 
     /**
@@ -127,15 +211,16 @@ public class fragmentBase extends Fragment {
 
     /**
      * アプリ用ハッシュタグを含むツイートを抽出する。
+     *
      * @param list
      * @return
      */
-    public ArrayList<Status> filterList(ArrayList<Status> list, String queryStr){
+    public ArrayList<Status> filterList(ArrayList<Status> list, String queryStr) {
         HashtagEntity[] hashTags;
         ArrayList<Status> returnList = new ArrayList<>();
-        for(Status status: list){
+        for (Status status : list) {
             hashTags = status.getHashtagEntities();
-            if(Arrays.asList(hashTags).contains(twitterValue.APP_HASH_TAG)){
+            if (Arrays.asList(hashTags).contains(twitterValue.APP_HASH_TAG)) {
                 returnList.add(status);
             }
         }
@@ -166,7 +251,7 @@ public class fragmentBase extends Fragment {
     /**
      * チェック例外時、トースト表示
      */
-    protected void fail_result(){
+    protected void fail_result() {
         Toast.makeText(
                 getContext(), "データの取得に失敗しました。\n後でまたお試しください。",
                 Toast.LENGTH_LONG).show();
@@ -174,9 +259,10 @@ public class fragmentBase extends Fragment {
 
     /**
      * 表示中ツイートの中で、最後尾のツイートのIDを返却
+     *
      * @return
      */
-    protected long returnLastID(){
+    protected long returnLastID() {
         return adapter.getItem(adapter.getCount() - 1).getId();
     }
 
@@ -213,7 +299,7 @@ public class fragmentBase extends Fragment {
                     adapter.unShiftItems(result);
                     try {
                         adapter.notifyDataSetChanged();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         System.out.println(e);
                     }
                     restoreListViewSelection();
@@ -234,7 +320,7 @@ public class fragmentBase extends Fragment {
             }
         }
 
-        if(result.size() == 0 || result.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+        if (result.size() == 0 || result.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
             adapter.frg_end = true;
         }
 
@@ -283,5 +369,53 @@ public class fragmentBase extends Fragment {
         if (bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1) {
             listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
         }
+    }
+
+    /**
+     * コールバック
+     * Streamでの追跡結果を画面に追加する
+     *
+     * @param status
+     */
+    @Override
+    public void callBackStreamAddList(Status status) {
+        if (checkViewDetach(this)) return;
+
+        ArrayList<Status> list = new ArrayList<>();
+        list.add(status);
+        setListView(list, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+        hideSpinner(mPopupWindow);
+    }
+
+    /**
+     * コールバック
+     * TwitterAPIリミット時
+     */
+    @Override
+    public void callBackTwitterLimit(int secondsUntilReset) {
+        ex_twitterAPILimit(secondsUntilReset);
+    }
+
+    /**
+     * コールバック
+     * ツイート取得後
+     */
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+        if (checkViewDetach(this)) return;
+
+        QueryResult queryResult = (QueryResult) list;
+        List<Status> s_list = ((QueryResult) list).getTweets();
+        setListView(s_list, howToDisplay);
+        //hideSpinner(mPopupWindow);
+    }
+
+    /**
+     * コールバック
+     * 非チェック例外発生時
+     */
+    @Override
+    public void callBackException() {
+        fail_result();
     }
 }

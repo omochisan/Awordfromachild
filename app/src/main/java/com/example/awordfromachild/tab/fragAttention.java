@@ -16,6 +16,7 @@ import twitter4j.QueryResult;
 import twitter4j.Status;
 
 public class fragAttention extends fragmentBase implements callBacksAttention {
+
     @Nullable
     @Override
     public View onCreateView(

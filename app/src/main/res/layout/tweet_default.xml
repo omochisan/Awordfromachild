@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -21,7 +21,7 @@
 
         <LinearLayout
             android:id="@+id/tw_linear"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="3dp"
@@ -144,7 +144,7 @@
         android:layout_marginEnd="@dimen/set_margin_default"
         android:layout_marginBottom="@dimen/set_margin_default"
         android:orientation="horizontal"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tw_notweet"

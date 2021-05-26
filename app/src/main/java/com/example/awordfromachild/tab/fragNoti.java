@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 
 public class fragNoti extends fragmentBase implements callBacksBase {
+
     @Nullable
     @Override
     public View onCreateView(

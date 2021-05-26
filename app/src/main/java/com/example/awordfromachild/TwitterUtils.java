@@ -68,6 +68,8 @@ public class TwitterUtils {
     private exceptionHandling errHand;
     //フォローユーザーリスト
     private ArrayList<Long> friendIDs_list = new ArrayList<Long>();
+    //ストリーミング
+    private TwitterStream twitterStream;
 
     /**
      * コンストラクタ
@@ -546,14 +548,21 @@ public class TwitterUtils {
      * @param arr_follow
      */
     public void startStream(String[] arr_strFilter, long[] arr_follow) {
-        TwitterStream twStream = new TwitterStreamFactory().getSingleton();
-        twStream.setOAuthAccessToken(
+        twitterStream = new TwitterStreamFactory().getSingleton();
+        twitterStream.setOAuthAccessToken(
                 loadAccessToken(ApplicationController.getInstance().getApplicationContext()));
-        twStream.addListener(new MyTweetListener());
+        twitterStream.addListener(new MyTweetListener());
         FilterQuery filterQuery = new FilterQuery();
         if (arr_strFilter != null) filterQuery.track(arr_strFilter);
         if (arr_follow != null) filterQuery.follow(arr_follow);
-        twStream.filter(filterQuery);
+        twitterStream.filter(filterQuery);
+    }
+
+    /**
+     * streamingを終了
+     */
+    public void endStream(){
+        twitterStream.shutdown();
     }
 
     /**
@@ -843,7 +852,7 @@ public class TwitterUtils {
                 }
             });
             //API制限掛かったかチェック
-            checkAPIRate(responseList.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_STREAM);
+            //checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_STREAM);
         }
 
         /**

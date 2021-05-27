@@ -49,11 +49,6 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
     @Override
     public void onResume() {
         super.onResume();
-        //ListViewの復元
-        if (adapter != null) {
-            listView.setAdapter(adapter);
-            restoreListViewSelection();
-        }
     }
 
     /**

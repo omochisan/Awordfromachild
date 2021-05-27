@@ -58,6 +58,16 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected String query;
     WeakReference<Fragment> weak_fragment;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //ListViewの復元
+        if (adapter != null) {
+            listView.setAdapter(adapter);
+            restoreListViewSelection();
+        }
+    }
+
     /**
      * 画面状態の保持（Fragment再生成用）
      */

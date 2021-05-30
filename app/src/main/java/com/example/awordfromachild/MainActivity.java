@@ -123,7 +123,7 @@ public class MainActivity extends activityBase implements callBacksMain {
     /**
      * リロードアイコン押下時
      */
-    /*private final View.OnClickListener reloadIconClick = new View.OnClickListener() {
+    private final View.OnClickListener reloadIconClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             //新しいツイートをlistViewの先頭に追加
@@ -146,7 +146,7 @@ public class MainActivity extends activityBase implements callBacksMain {
 
             }
         }
-    };*/
+    };
 
     /**
      * ユーザーアイコン押下時
@@ -267,6 +267,9 @@ public class MainActivity extends activityBase implements callBacksMain {
             //ユーザーアイコン
             ImageView user_icon = (ImageView) findViewById(R.id.fs_img_account);
             user_icon.setOnClickListener(userIconClick);
+            //リロードアイコン
+            ImageView reload_icon = (ImageView) findViewById(R.id.fs_img_reload);
+            reload_icon.setOnClickListener(reloadIconClick);
 
             //ツイートボタン
             ImageView tweet_btn = (ImageView) findViewById(R.id.fs_img_tweet);

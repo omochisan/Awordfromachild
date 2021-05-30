@@ -45,6 +45,7 @@ import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
+import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.Twitter;
@@ -61,15 +62,15 @@ import twitter4j.auth.AccessToken;
 public class TwitterUtils {
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
-    private Twitter twitter;
-    private ResponseList<Status> responseList;
-    private Calendar calendar = Calendar.getInstance();
+    private static Twitter twitter;
+    private static ResponseList<Status> responseList;
+    private static Calendar calendar = Calendar.getInstance();
     //エラーハンドリング
-    private exceptionHandling errHand;
+    private static exceptionHandling errHand;
     //フォローユーザーリスト
-    private ArrayList<Long> friendIDs_list = new ArrayList<Long>();
+    private static ArrayList<Long> friendIDs_list = new ArrayList<Long>();
     //ストリーミング
-    private TwitterStream twitterStream;
+    private static TwitterStream twitterStream;
 
     /**
      * コンストラクタ
@@ -370,27 +371,18 @@ public class TwitterUtils {
      * オーバーロード
      * search
      * @param q_str
-     * @param howToDisplay
-     */
-    public void search(String q_str, String howToDisplay) {
-        search(q_str, null, null, howToDisplay);
-    }
-    /**
-     * オーバーロード
-     * search
-     * @param q_str
      * @param maxID
      * @param howToDisplay
      */
     public void search(String q_str, Long maxID, String howToDisplay) {
-        search(q_str, null, maxID, howToDisplay);
+        search(q_str, null, maxID, 0, howToDisplay);
     }
     /**
      * ツイート検索
      *
      * @param q_str
      */
-    public void search(String q_str, Long sinceID, Long maxID, String howToDisplay) {
+    public void search(String q_str, Long sinceID, Long maxID, int count, String howToDisplay) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
             @Override
             protected Object doInBackground(Void... aVoid) {
@@ -401,7 +393,11 @@ public class TwitterUtils {
                     Query query = new Query();
                     if(sinceID != null) query.setSinceId(sinceID);
                     if(maxID != null) query.setMaxId(maxID);
-                    query.setCount(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
+                    if(count != 0){
+                        query.setCount(count);
+                    }else{
+                        query.setCount(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
+                    }
                     query.setQuery(q_str);
                     query.setResultType(Query.ResultType.recent);
                     // 検索実行
@@ -869,6 +865,11 @@ public class TwitterUtils {
                     errHand.exceptionHand(err, callBacks);
                 }
             });
+        }
+
+        @Override
+        public void onStallWarning(StallWarning stallWarning) {
+            System.out.println(stallWarning);
         }
     }
 }

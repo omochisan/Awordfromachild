@@ -145,8 +145,10 @@ public class activityBase extends AppCompatActivity {
      * @param result
      */
     protected void setListView(List<Status> result, String how_to_display) {
+        int getCount = result.size(); //取得したカウント
+
         //取得ツイートが０の場合
-        if (result.size() == 0) {
+        if (getCount == 0) {
             no_result();
         }
 
@@ -193,10 +195,10 @@ public class activityBase extends AppCompatActivity {
             }
         }
 
-        if(result.size() == 0 || result.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+        //取得可能ツイートがもう無い場合
+        if(getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
             adapter.frg_end = true;
         }
-
         //VIEWにアイテムが未登録の場合、登録
         if (listView.getAdapter() == null) {
             listView.setAdapter(adapter);

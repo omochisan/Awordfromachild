@@ -63,10 +63,12 @@ public class twitterValue {
     public static class tweetCounts {
         //1回の読込で表示するツイート数
         public static final Integer ONE_TIME_DISPLAY_TWEET = 50;
-        //最新ツイート読込で取得する最大タイムライン数
+        //最新ツイート読込で取得する最大タイムライン数（未使用）
         public static final Integer GET_COUNT_NEWER_TIMELINE = 200;
         //1回で取得する最大フォローユーザー数
         public static final Integer GET_FOLLOW_LIST = 200;
+        //1回で取得する最大追加読込数
+        public static final Integer ONE_TIME_DISPLAY_TWEET_MAX = 200;
     }
 
     /**

@@ -50,13 +50,13 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     //スピナー用
     public static PopupWindow mPopupWindow;
     //ListViewアダプター
-    protected SetDefaultTweetAdapter adapter;
-    protected ListView listView;
+    protected static SetDefaultTweetAdapter adapter;
+    protected static ListView listView;
     //エラーハンドリング
-    protected exceptionHandling errHand;
+    protected static exceptionHandling errHand;
     //検索クエリ
-    protected String query;
-    WeakReference<Fragment> weak_fragment;
+    protected static String query;
+    static WeakReference<Fragment> weak_fragment;
 
     @Override
     public void onResume() {
@@ -81,7 +81,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        twitterUtils = new TwitterUtils(this);
         twitterUtils.setTwitterInstance(getContext());
         errHand = new exceptionHandling();
         listView = getActivity().findViewById(R.id.fn_main);
@@ -98,6 +97,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             @Override
             public void onScroll(final AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
+                //追加読込できるツイート無しの場合、return
+                if(adapter != null && adapter.frg_end) return;
+
                 //追加読込を始める位置 ＝ トータルアイテム数-(一回のツイート読込数 / 4)
                 int readStartCount = totalItemCount - (twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET / 4);
                 //スクロール位置が追加読込ポイント（最終から10行前）の場合、追加読込開始
@@ -105,7 +107,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     //スピナー表示
                     dispSpinner(mPopupWindow);
                     now_readPoint = readStartCount;
-                    twitterUtils.search(twitterValue.timeLineType.HOME, returnLastID(),
+                    twitterUtils.search(query, returnLastID(),
                             twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                 }
             }
@@ -180,7 +182,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         weak_pop.setWindowLayoutMode((int) width, WindowManager.LayoutParams.WRAP_CONTENT);
         weak_pop.setWidth((int) width);
         weak_pop.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        Log.d("確認", getActivity().toString());
         weak_pop.showAtLocation(getActivity().findViewById(R.id.view_pager), Gravity.BOTTOM, 0, 0);
     }
 
@@ -199,11 +200,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
     /**
      * ツイート検索実行
-     * @param query
      */
-    public void runSearch(String query){
-        //dispSpinner(mPopupWindow);
-        twitterUtils.search(query, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+    public void runSearch(String q_str, Long sinceID, Long maxID, int count, String howToDisplay){
+        dispSpinner(mPopupWindow);
+        twitterUtils.search(q_str, sinceID, maxID, count, howToDisplay);
     }
 
     /**
@@ -282,8 +282,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @param result
      */
     protected void setListView(List<Status> result, String how_to_display) {
+        int getCount = result.size(); //取得したカウント
+
         //取得ツイートが０の場合
-        if (result.size() == 0) {
+        if (getCount == 0) {
             no_result();
         }
 
@@ -309,7 +311,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     adapter.unShiftItems(result);
                     try {
                         adapter.notifyDataSetChanged();
-                    } catch (Exception e) {
+                    }catch (Exception e){
                         System.out.println(e);
                     }
                     restoreListViewSelection();
@@ -320,7 +322,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH: //末尾に追加
                     putState(); //追加前に画面表示状態保持
 
-                    result.remove(result.size() - 1);
+                    result.remove(0);
                     adapter.addItems(result);
                     adapter.notifyDataSetChanged();
                     restoreListViewSelection();
@@ -330,10 +332,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             }
         }
 
-        if (result.size() == 0 || result.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
+        //取得可能ツイートがもう無い場合
+        if(getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
             adapter.frg_end = true;
         }
-
         //VIEWにアイテムが未登録の場合、登録
         if (listView.getAdapter() == null) {
             listView.setAdapter(adapter);
@@ -343,22 +345,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * 最新ツイートを追加
      */
-    protected void addTheLatestTweets(WeakReference<callBacksBase> callBacks) {
-        //API制限中かチェック
-        try {
-            twitterUtils.checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
-        } catch (ParseException e) {
-            errHand.exceptionHand(e, callBacks);
-        } catch (TwitterException e) {
-            errHand.exceptionHand(e, callBacks);
-        }
-
-        dispSpinner(mPopupWindow);
-        long sinceID = ((Status) adapter.getItem(0)).getId();
-        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
-        twitterUtils.getTimeLine(
-                twitterValue.timeLineType.HOME, sinceID, maxID, twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE,
-                twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+    public void addTheLatestTweets(WeakReference<callBacksBase> callBacks) {
     }
 
     /**
@@ -414,10 +401,18 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     public void callBackGetTweets(Object list, String howToDisplay) {
         if (checkViewDetach(this)) return;
 
-        QueryResult queryResult = (QueryResult) list;
+        //100以上の場合、洗い替え
+        String _howToDisplay ="";
         List<Status> s_list = ((QueryResult) list).getTweets();
-        setListView(s_list, howToDisplay);
-        //hideSpinner(mPopupWindow);
+        if(howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)
+                && s_list.size() >= 100){
+            _howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
+        }else{
+            _howToDisplay = howToDisplay;
+        }
+
+        setListView(s_list, _howToDisplay);
+        hideSpinner(mPopupWindow);
     }
 
     /**

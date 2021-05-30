@@ -1,35 +1,26 @@
 package com.example.awordfromachild.tab;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import com.example.awordfromachild.R;
-import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksNewArrival;
-import com.example.awordfromachild.common.exceptionHandling;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import twitter4j.QueryResult;
 import twitter4j.Status;
 
 public class fragNewArrival extends fragmentBase implements callBacksNewArrival {
 
-    static final String query = twitterValue.APP_HASH_TAG + " exclude:retweets";
+    //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
+    static final String _query = "マヂラブ exclude:retweets";
 
     @Nullable
     @Override
@@ -43,6 +34,9 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        twitterUtils = new TwitterUtils(this);
+        mPopupWindow = new PopupWindow(getContext()); //スピナー用
+        query = _query;
         return inflater.inflate(R.layout.fragnewarrival_layout, container, false);
     }
 
@@ -73,19 +67,17 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //スピナー用
-        mPopupWindow = new PopupWindow(getContext());
-
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
-            dispSpinner(mPopupWindow);
-            runSearch("マヂラブ exclude:retweets");
+            runSearch(_query, null, null, 0,
+                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
 
         //ストリーミング開始
-        long[] l = {};
+        //※タスクが溜まりすぎて？すぐ落ちるため、現在未使用。
+        /*long[] l = {};
         String[] str = {"マヂラブ"};
-        startStreaming(str, l);
+        startStreaming(str, l);*/
     }
 
     /**
@@ -95,7 +87,6 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
     @Override
     public void callBackGetTweets(Object list, String howToDisplay) {
         super.callBackGetTweets(list, howToDisplay);
-        hideSpinner(mPopupWindow);
     }
 
     @Override
@@ -106,5 +97,16 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    /**
+     * リロードボタン押下時、
+     * 最新ツイートを取得
+     */
+    public void addTheLatestTweets() {
+        dispSpinner(mPopupWindow);
+        long sinceID = ((Status) adapter.getItem(0)).getId();
+        runSearch(_query, sinceID, null, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
+                twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
     }
 }

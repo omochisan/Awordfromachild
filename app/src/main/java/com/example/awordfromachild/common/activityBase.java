@@ -1,12 +1,16 @@
 package com.example.awordfromachild.common;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -14,7 +18,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.awordfromachild.MyTweetActivity;
 import com.example.awordfromachild.R;
+import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
@@ -32,31 +38,103 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 
 public class activityBase extends AppCompatActivity {
-    WeakReference<Activity> weak_activity;
-
-    //ListViewアダプター
-    protected SetDefaultTweetAdapter adapter;
-    protected ListView listView;
-
-    //onPuase時、ListView復元のため一時保存
-    protected static Bundle bundle = new Bundle();
     //Bundleキー
     // 現在表示している中で、一番古いツイート
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
-
+    //onPuase時、ListView復元のため一時保存
+    protected Bundle bundle = new Bundle();
+    //ListViewアダプター
+    protected SetDefaultTweetAdapter adapter;
+    protected ListView listView;
     //エラーハンドリング
     protected exceptionHandling errHand;
+    //検索クエリ
+    protected String query;
+    static WeakReference<Activity> weak_activity;
 
     //Twitter処理クラス
-    protected static TwitterUtils twitterUtils;
+    protected  TwitterUtils twitterUtils;
     //現在実施中の読込開始ポイント
-    protected static int now_readPoint = 0;
+    protected int now_readPoint = 0;
     //スピナー用
-    protected static PopupWindow mPopupWindow;
+    public PopupWindow mPopupWindow;
     //外部からview操作するためHandlerを利用
     final Handler handler = new Handler();
+    //リストviewID
+    protected int vid_listView = 0;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //ListViewの復元
+        if (adapter != null) {
+            listView.setAdapter(adapter);
+            restoreListViewSelection();
+        }
+    }
+
+    /**
+     * 画面状態の保持（Fragment再生成用）
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+        putState();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        try {
+            super.onCreate(savedInstanceState);
+            twitterUtils = new TwitterUtils((callBacksBase) this);
+            twitterUtils.setTwitterInstance(this);
+            errHand = new exceptionHandling();
+            listView = findViewById(vid_listView);
+
+
+            if(listView != null) {
+                //リストビューイベント
+                //　スクロール
+                //　ポイントまでスクロールした時、追加で40件読み込み
+                listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    @Override
+                    public void onScroll(final AbsListView view, int firstVisibleItem,
+                                         int visibleItemCount, int totalItemCount) {
+                        //追加読込を始める位置 ＝ トータルアイテム数-(一回のツイート読込数 / 4)
+                        int readStartCount = totalItemCount - (twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET / 4);
+                        //スクロール位置が追加読込ポイント（最終から10行前）の場合、追加読込開始
+                        if (firstVisibleItem == readStartCount && now_readPoint != readStartCount) {
+                            //スピナー表示
+                            dispSpinner(mPopupWindow, R.id.amt_main);
+                            now_readPoint = readStartCount;
+                            twitterUtils.search(twitterValue.timeLineType.USER, returnLastID(),
+                                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                        }
+                    }
+                });
+
+                // 行選択イベント
+                listView.setOnItemClickListener(new AbsListView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        ListView _listView = (ListView) adapterView;
+                        Status status = (Status) _listView.getItemAtPosition(i);
+                        Intent intent = new Intent(getApplicationContext(), TweetDetailActivity.class);
+                        intent.putExtra("DATA", status);
+                        startActivity(intent);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.e("エラー", e.toString());
+        }
+    }
 
     public Boolean checkViewDetach(Activity base){
         weak_activity = new WeakReference<Activity>(base);
@@ -245,5 +323,4 @@ public class activityBase extends AppCompatActivity {
             listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
         }
     }
-
 }

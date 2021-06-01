@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.common.activityBase;
+import com.example.awordfromachild.common.exceptionHandling;
+import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.List;
 
 import androidx.annotation.RequiresApi;
 import twitter4j.Status;
+import twitter4j.StatusUpdate;
 
 public class TweetDetailActivity extends activityBase implements callBacksBase {
     //Twitter処理クラス
@@ -26,9 +30,12 @@ public class TweetDetailActivity extends activityBase implements callBacksBase {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //twitterUtils = new TwitterUtils(this);
         setContentView(R.layout.tweet_detail);
+        errHand = new exceptionHandling();
+        mPopupWindow = new PopupWindow(TweetDetailActivity.this);//スピナー
+        super.onCreate(savedInstanceState);
+
+        //遷移元からツイートデータ取得
         Bundle bundle = getIntent().getExtras();
         Status getStatus = (Status) bundle.get("DATA");
         View view = findViewById(R.id.twd_parent);
@@ -45,7 +52,7 @@ public class TweetDetailActivity extends activityBase implements callBacksBase {
         //フッター設定
         tweetAdapter.setFooterIcon(view, 0, R.id.twd_like, R.id.twd_retweet);
         //ツイートの各種値設定
-        tweetAdapter.setValue(view, getStatus,
+        tweetAdapter.setValue(view, getStatus, true,
                 R.id.twd_time,
                 R.id.twd_userID,
                 R.id.twd_main,

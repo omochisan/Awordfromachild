@@ -116,7 +116,8 @@
                         android:layout_weight="0.3"
                         android:drawableStart="@drawable/ic_replay"
                         android:text="rep"
-                        android:textColor="@color/tweet_gray" />
+                        android:textColor="@color/tweet_gray"
+                        android:visibility="invisible" />
 
                     <TextView
                         android:id="@+id/twd_retweet"

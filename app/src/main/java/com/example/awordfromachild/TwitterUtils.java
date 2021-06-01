@@ -8,6 +8,7 @@ import android.os.Handler;
 
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksCreateTweet;
+import com.example.awordfromachild.asynctask.callBacksFavorite;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksNewArrival;
 import com.example.awordfromachild.common.exceptionHandling;
@@ -55,6 +56,9 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuth2Token;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * Twitterの機能実装クラス（検索、ツイート等）
@@ -169,6 +173,47 @@ public class TwitterUtils {
     }
 
     /**
+     * ユーザーがいいねしたツイートを取得
+     */
+    public void getFavorites(String howToDisplay) {
+        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected Object doInBackground(Void... aVoid) {
+                try {
+                    //API制限中かチェック
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+                    ResponseList<twitter4j.Status> result = twitter.getFavorites();
+                    return result;
+                } catch (TwitterException e) {
+                    cancel(true);
+                    return e;
+                } catch (ParseException e) {
+                    cancel(true);
+                    return e;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Object responseList) {
+                //API制限チェック
+                checkAPIRate(((ResponseList<twitter4j.Status>) responseList).getRateLimitStatus(),
+                        appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+                //取得情報返却
+                callBacks.get().callBackGetTweets(
+                        (ResponseList<twitter4j.Status>) responseList, howToDisplay);
+            }
+
+            @Override
+            protected void onCancelled(Object err) {
+                errHand.exceptionHand(err, callBacks);
+            }
+        };
+        task.execute();
+    }
+
+
+    /**
      * 指定ツイートをいいねする
      *
      * @param id
@@ -181,7 +226,6 @@ public class TwitterUtils {
                 try {
                     //API制限中かチェック
                     checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
-
                     twitter4j.Status status = twitter.createFavorite(id);
                     return status;
                 } catch (TwitterException e) {

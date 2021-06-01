@@ -28,14 +28,11 @@ import twitter4j.Status;
  * 「こどものひとことをツイート」画面
  */
 public class CreateTweetActivity extends activityBase implements callBacksCreateTweet {
-    //Twitter処理クラス
-    private TwitterUtils twitterUtils;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        twitterUtils = new TwitterUtils(this);
         setContentView(R.layout.createtweet_layout);
+        super.onCreate(savedInstanceState);
         //画面の初期表示処理
         setDisplay();
 
@@ -104,13 +101,6 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         }
     };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //画面の初期表示処理
-        setDisplay();
-    }
 
     /**
      * 画面表示処理

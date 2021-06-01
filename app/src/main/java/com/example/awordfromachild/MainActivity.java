@@ -57,8 +57,6 @@ public class MainActivity extends activityBase implements callBacksMain {
     private String noti;
     //タブ
     private TabLayout tabLayout;
-    //Twitter処理クラス
-    private TwitterUtils twitterUtils;
     private LinearLayout popup_userMenu;
 
     WeakReference<fragNewArrival> wr_fragNewArrival;
@@ -134,10 +132,10 @@ public class MainActivity extends activityBase implements callBacksMain {
                 wr_fragNewArrival.get().addTheLatestTweets();
             }
             else if(tab_text.equals(attention)){
-
+                wr_fragAttention.get().addTheLatestTweets();
             }
             else if(tab_text.equals(search)){
-
+                wr_fragFavorite.get().addTheLatestTweets();
             }
             else if(tab_text.equals(favorite)){
 
@@ -241,7 +239,6 @@ public class MainActivity extends activityBase implements callBacksMain {
         try {
             super.onCreate(savedInstanceState);
             setTabInfo();
-            twitterUtils = new TwitterUtils(this);
             //Twitter認証用画面よりアクセストークンを取得
             //取得済みの場合、端末に保存してあるアクセストークンをTwitterインスタンスにセット
             if (!TwitterUtils.hasAccessToken(this)) {

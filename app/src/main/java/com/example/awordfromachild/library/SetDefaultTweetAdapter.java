@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
@@ -226,13 +227,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     /**
      * ツイートの各種値を設定
-     * ※日時表示について
-     * 去年以前のもの＝〇年〇月〇日
-     * 年内のもの＝〇月〇日
-     * 直近3日間以内のもの＝〇日前
-     * 24時間以内のもの＝〇時間前
-     * 1時間以内のもの＝〇分前
-     * 1分以内のもの＝〇秒前
      *
      * @param view ビュー
      * @param item　ツイート
@@ -243,52 +237,71 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param vid_reTweet　ビューID＿リツイート
      * @param vid_reply　ビューID＿リプライ
      */
-    public void setValue(View view, Status item, int vid_time, int vid_userID, int vid_main,
+    public void setValue(View view, Status item, boolean flg_detailDisplay,
+                         int vid_time, int vid_userID, int vid_main,
                                 int vid_like, int vid_reTweet, int vid_reply) {
+        //ツイート日時表示
+        // ツイート詳細表示の場合＝JST日時表示
+        // ツイート一覧表示の場合
+        /*
+         * 去年以前のもの＝〇年〇月〇日
+         * 年内のもの＝〇月〇日
+         * 直近3日間以内のもの＝〇日前
+         * 24時間以内のもの＝〇時間前
+         * 1時間以内のもの＝〇分前
+         * 1分以内のもの＝〇秒前
+         */
         String disp_date = "";
         Date n_date = new Date();
         Date t_date = item.getCreatedAt();
-        // year
-        SimpleDateFormat ysdf = new SimpleDateFormat("yyyy");
-        String n_datey = ysdf.format(n_date);
-        String t_datey = ysdf.format(t_date);
-        // month
-        SimpleDateFormat msdf = new SimpleDateFormat("MM");
-        int n_datem = Integer.parseInt(msdf.format(n_date));
-        int t_datem = Integer.parseInt(msdf.format(t_date));
-        // day
-        SimpleDateFormat dsdf = new SimpleDateFormat("dd");
-        String n_dated = dsdf.format(n_date);
-        String t_dated = dsdf.format(t_date);
 
-        if (n_datey.equals(t_datey)) { //年内のもの
-            if (n_datem == t_datem &&
-                    (Integer.parseInt(n_dated) - 2) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
-                long diffTime = n_date.getTime() - t_date.getTime();
-                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH");
-                int diffTimeStr = Integer.parseInt(timeFormatter.format(new Date(diffTime)));
+        if(flg_detailDisplay){
+            SimpleDateFormat tokyoSdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+            tokyoSdf.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+            disp_date = tokyoSdf.format(t_date);
+        }else {
+            // year
+            SimpleDateFormat ysdf = new SimpleDateFormat("yyyy");
+            String n_datey = ysdf.format(n_date);
+            String t_datey = ysdf.format(t_date);
+            // month
+            SimpleDateFormat msdf = new SimpleDateFormat("MM");
+            int n_datem = Integer.parseInt(msdf.format(n_date));
+            int t_datem = Integer.parseInt(msdf.format(t_date));
+            // day
+            SimpleDateFormat dsdf = new SimpleDateFormat("dd");
+            String n_dated = dsdf.format(n_date);
+            String t_dated = dsdf.format(t_date);
 
-                boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;
-                if (moreThanDay) { //24時間以内のもの
-                    long diff_sec = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime());
-                    long diff_min = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime()) / 60;
-                    if (diff_min < 60) {
-                        if (diff_sec < 60) {
-                            disp_date = diff_sec + "秒前";
+            if (n_datey.equals(t_datey)) { //年内のもの
+                if (n_datem == t_datem &&
+                        (Integer.parseInt(n_dated) - 2) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
+                    long diffTime = n_date.getTime() - t_date.getTime();
+                    SimpleDateFormat timeFormatter = new SimpleDateFormat("HH");
+                    int diffTimeStr = Integer.parseInt(timeFormatter.format(new Date(diffTime)));
+
+                    boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;
+                    if (moreThanDay) { //24時間以内のもの
+                        long diff_sec = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime());
+                        long diff_min = TimeUnit.MILLISECONDS.toSeconds(n_date.getTime() - t_date.getTime()) / 60;
+                        if (diff_min < 60) {
+                            if (diff_sec < 60) {
+                                disp_date = diff_sec + "秒前";
+                            } else {
+                                disp_date = diff_min + "分前";
+                            }
                         } else {
-                            disp_date = diff_min + "分前";
+                            disp_date = diffTimeStr + "時間前";
                         }
-                    } else {
-                        disp_date = diffTimeStr + "時間前";
+                    } else { //直近3日間以内 and 24時間超えて前のもの
+                        disp_date = String.valueOf(Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
                     }
-                } else { //直近3日間以内 and 24時間超えて前のもの
-                    disp_date = String.valueOf(Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
+                } else { //年内 and 4日以上前のもの
+                    disp_date = t_datem + "月" + t_dated + "日";
                 }
-            } else { //年内 and 4日以上前のもの
-                disp_date = t_datem + "月" + t_dated + "日";
+            } else { // 去年以前のもの
+                disp_date = t_datey + "年" + t_datem + "月" + t_dated + "日";
             }
-        } else { // 去年以前のもの
-            disp_date = t_datey + "年" + t_datem + "月" + t_dated + "日";
         }
 
         TextView createDate = view.findViewById(vid_time);
@@ -308,8 +321,9 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         TextView retweet = (TextView) view.findViewById(vid_reTweet);
         retweet.setText(" " + String.valueOf(item.getRetweetCount()));
         //リプライを取得・設定
-        TextView rep = (TextView) view.findViewById(vid_reply);
-        rep.setText(item.getInReplyToScreenName());
+        // ※リプライ取得が実現難しいため、現在非表示
+        //TextView rep = (TextView) view.findViewById(vid_reply);
+        //rep.setText(item.getInReplyToScreenName());
     }
 
     /**
@@ -372,7 +386,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         // フッター設定
         setFooterIcon(view, position, R.id.tw_like, R.id.tw_retweet);
         // ツイートの各種値を設定
-        setValue(view, item,
+        setValue(view, item, false,
                 R.id.tw_time,
                 R.id.tw_userID,
                 R.id.tw_main,

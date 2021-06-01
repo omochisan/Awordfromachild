@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import twitter4j.HashtagEntity;
 import twitter4j.QueryResult;
+import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
@@ -42,21 +43,23 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
     //onPuase時、ListView復元のため一時保存
-    protected static Bundle bundle = new Bundle();
+    protected Bundle bundle = new Bundle();
     //Twitter処理クラス
-    protected static TwitterUtils twitterUtils;
+    protected TwitterUtils twitterUtils;
     //現在実施中の読込開始ポイント
-    protected static int now_readPoint = 0;
+    protected int now_readPoint = 0;
     //スピナー用
-    public static PopupWindow mPopupWindow;
+    public PopupWindow mPopupWindow;
     //ListViewアダプター
-    protected static SetDefaultTweetAdapter adapter;
-    protected static ListView listView;
+    protected SetDefaultTweetAdapter adapter;
+    protected ListView listView;
     //エラーハンドリング
-    protected static exceptionHandling errHand;
+    protected exceptionHandling errHand;
     //検索クエリ
-    protected static String query;
+    protected String query;
     static WeakReference<Fragment> weak_fragment;
+    //リストviewID
+    protected int vid_listView = 0;
 
     @Override
     public void onResume() {
@@ -80,11 +83,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         twitterUtils.setTwitterInstance(getContext());
         errHand = new exceptionHandling();
-        listView = getActivity().findViewById(R.id.fn_main);
-
+        listView = getActivity().findViewById(vid_listView);
 
         //リストビューイベント
         //　スクロール
@@ -403,7 +404,12 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
         //100以上の場合、洗い替え
         String _howToDisplay ="";
-        List<Status> s_list = ((QueryResult) list).getTweets();
+        List<Status> s_list = null;
+        if(list instanceof ResponseList){
+            s_list = (ResponseList<Status>) list;
+        }else if(list instanceof QueryResult){
+            s_list = ((QueryResult) list).getTweets();
+        }
         if(howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)
                 && s_list.size() >= 100){
             _howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;

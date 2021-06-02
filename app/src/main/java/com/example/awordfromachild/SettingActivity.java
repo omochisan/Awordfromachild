@@ -48,14 +48,19 @@ public class SettingActivity extends activityBase {
                     }else{
                         editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.TYPE_OF_TWEET_CREATION_FORM);
                     }
-                    //いいね数
-                    EditText edit_like = findViewById(R.id.set_at_like_edit);
-                    SpannableStringBuilder sb1 = (SpannableStringBuilder)edit_like.getText();
-                    editor.putString(appSharedPreferences.SET_COUNT_LIKE, sb1.toString());
-                    //リツイート数
-                    EditText edit_retweet = findViewById(R.id.set_at_retweet_edit);
-                    SpannableStringBuilder sb2 = (SpannableStringBuilder)edit_retweet.getText();
-                    editor.putString(appSharedPreferences.SET_COUNT_RETWEET, sb2.toString());
+                    //いいね目安
+                    RadioGroup rGroupLike = findViewById(R.id.set_at_radioGroup);
+                    switch (rGroupLike.getCheckedRadioButtonId()){
+                        case R.id.set_at_s:
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_S);
+                            break;
+                        case R.id.set_at_m:
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_M);
+                            break;
+                        case R.id.set_at_l:
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_L);
+                            break;
+                    }
 
                     editor.commit();
                     finish();
@@ -78,8 +83,8 @@ public class SettingActivity extends activityBase {
 
         String set_dispType =
                 preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
-        String set_countLike = preferences.getString(appSharedPreferences.SET_COUNT_LIKE, twitterValue.DEFAULT_LIKES);
-        String set_countRetweet = preferences.getString(appSharedPreferences.SET_COUNT_RETWEET, twitterValue.DEFAULT_RETWEET);
+        String set_criterionLike =
+                preferences.getString(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
 
         //ツイート作成画面　デフォルトタイプ
         RadioGroup dispType = findViewById(R.id.set_ct_defaultType_rgroup);
@@ -88,11 +93,8 @@ public class SettingActivity extends activityBase {
         }else{
             dispType.check(R.id.set_ct_defaultType_r2);
         }
-        //いいね数
-        EditText like = findViewById(R.id.set_at_like_edit);
-        like.setText(set_countLike);
-        //リツイート数
-        EditText retweet = findViewById(R.id.set_at_retweet_edit);
-        retweet.setText(set_countRetweet);
+        //いいね目安
+        RadioGroup disp = findViewById(R.id.set_ct_defaultType_rgroup);
+
     }
 }

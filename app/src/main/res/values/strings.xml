@@ -47,7 +47,7 @@
     <string name="tweet_hint_1">例）散歩中、子供が～～を見て「～～」と言っていた。</string>
 
     <!-- 検索タブ(fs_) -->
-    <string name="fs_text_1">検索したいワードを入力してください。</string>
+    <string name="fs_text_1">タグ #こどものひとこと を含む</string>
     <string name="fs_hint_1"> ワード入力</string>
     <string name="fs_btn_text_1">検索</string>
     <string name="fs_btn_text_2">← 検索結果に戻る</string>
@@ -68,10 +68,12 @@
     <string name="set_ct_defaultType_type1">自由入力</string>
     <string name="set_ct_defaultType_type2">フォーム入力</string>
     <string name="set_at">「注目」タブ</string>
-    <string name="set_at_explan">注目タブには、一定以上のいいね＆リツイートがされた
-    ハッシュタグ #こどものひとこと を含むツイートを表示します。</string>
-    <string name="set_at_countLike">表示するツイートの\nいいね数</string>
-    <string name="set_at_countRetweet">表示するツイートの\nリツイート数</string>
+    <string name="set_at_explan">注目タブには、一定以上のいいねがされた
+    ハッシュタグ #こどものひとこと を含むツイートを表示します。
+    </string>
+    <string name="set_at_countChoice">表示するツイートのいいね数目安\n
+     小・・・だいたい10いいね以上\n中・・・だいたい100いいね以上\n大・・・だいたい1000いいね以上
+    </string>
 
     <string name="twitter_callback_url">com.example.awordfromachild://callback</string>
 </resources>

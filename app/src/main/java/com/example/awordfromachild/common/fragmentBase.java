@@ -31,6 +31,7 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import twitter4j.HashtagEntity;
+import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -202,9 +203,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * ツイート検索実行
      */
-    public void runSearch(String q_str, Long sinceID, Long maxID, int count, String howToDisplay){
+    public void runSearch(String q_str, Long sinceID, Long maxID, int count, Query.ResultType resultType, String howToDisplay){
         dispSpinner(mPopupWindow);
-        twitterUtils.search(q_str, sinceID, maxID, count, howToDisplay);
+        twitterUtils.search(q_str, sinceID, maxID, count, resultType, howToDisplay);
     }
 
     /**

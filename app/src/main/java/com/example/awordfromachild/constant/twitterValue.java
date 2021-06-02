@@ -6,21 +6,25 @@ public class twitterValue {
     public static final String APP_TAG = "こどものひとこと";
     //TwitterAPI RATE制限　エラーコード
     public static final int TwitterAPI_RATE_ERRORCODE = 429;
+
     //ツイート文字数制限（自由入力パターン）
     public static final int CHARALIMIT_FREE = 131;
     //ツイート文字数制限（フォーム入力パターン）
     public static final int CHARALIMIT_FORM = 131;
+
     //デフォルトのツイート作成画面
     public static final String DEFAULT_TYPE_OF_TWEET_CREATION = "free";
     //ツイート作成画面タイプ（自由入力）
     public static final String TYPE_OF_TWEET_CREATION_FREE = "free";
     //ツイート作成画面タイプ（フォーム入力）
     public static final String TYPE_OF_TWEET_CREATION_FORM = "form";
-    //注目タブ（一定のいいね＆リツイートがされているツイートが表示される）
-    // デフォルトのいいね数
+
+    //注目タブ（一定のいいね以上がされたツイートが表示される）
+    public static final int CRITERION_LIKE_S = 10;
+    public static final int CRITERION_LIKE_M = 10;
+    public static final int CRITERION_LIKE_L = 10;
+    // デフォルトのいいね目安
     public static final String DEFAULT_LIKES = "10";
-    // デフォルトのリツイート数
-    public static final String DEFAULT_RETWEET = "10";
 
     /**
      * 取得ツイートの表示方法

@@ -1,6 +1,5 @@
 package com.example.awordfromachild.tab;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,7 @@ import com.example.awordfromachild.constant.twitterValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import twitter4j.Query;
 import twitter4j.Status;
 
 public class fragNewArrival extends fragmentBase implements callBacksNewArrival {
@@ -39,7 +39,7 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
         super.onViewCreated(view, savedInstanceState);
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
-            runSearch(_query, null, null, 0,
+            runSearch(_query, null, null, 0, Query.ResultType.recent,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
 
@@ -58,6 +58,6 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
         dispSpinner(mPopupWindow);
         long sinceID = ((Status) adapter.getItem(0)).getId();
         runSearch(_query, sinceID, null, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
-                twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+                Query.ResultType.recent, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
     }
 }

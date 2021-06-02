@@ -419,14 +419,19 @@ public class TwitterUtils {
      * @param howToDisplay
      */
     public void search(String q_str, Long maxID, String howToDisplay) {
-        search(q_str, null, maxID, 0, howToDisplay);
+        search(q_str, null, maxID, 0, null, howToDisplay);
     }
+
     /**
      * ツイート検索
-     *
-     * @param q_str
+     * @param q_str クエリ文字列
+     * @param sinceID　ツイートID（これを含まず、これより未来のツイートを取得）
+     * @param maxID　ツイートID（これを含まず、これより過去のツイートを取得）
+     * @param resultType　取得するツイートの種類（人気、最新、全て）
+     * @param count　取得する数
+     * @param howToDisplay　取得ツイートの画面追加方法
      */
-    public void search(String q_str, Long sinceID, Long maxID, int count, String howToDisplay) {
+    public void search(String q_str, Long sinceID, Long maxID, int count, Query.ResultType resultType, String howToDisplay) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
             @Override
             protected Object doInBackground(Void... aVoid) {
@@ -442,8 +447,12 @@ public class TwitterUtils {
                     }else{
                         query.setCount(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
                     }
+                    if(resultType != null){
+                        query.setResultType(resultType);
+                    }else{
+                        query.setResultType(Query.ResultType.recent);
+                    }
                     query.setQuery(q_str);
-                    query.setResultType(Query.ResultType.recent);
                     // 検索実行
                     QueryResult result = twitter.search(query);
                     return result;

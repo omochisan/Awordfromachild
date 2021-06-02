@@ -23,6 +23,7 @@ import com.example.awordfromachild.constant.twitterValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.Twitter;
@@ -88,7 +89,7 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
             //_query = twitterValue.APP_HASH_TAG + " " + searchWord;
             _query = searchWord;
             query = _query;
-            twitterUtils.search(_query, null, null, 0,
+            twitterUtils.search(_query, null, null, 0, Query.ResultType.recent,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
             return false;
         }

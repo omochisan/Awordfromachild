@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
+import twitter4j.DirectMessageList;
 import twitter4j.FilterQuery;
 import twitter4j.PagableResponseList;
 import twitter4j.Paging;
@@ -369,6 +370,48 @@ public class TwitterUtils {
         task.execute();
     }
 
+    public void getDirectMessages(String getNextCursor, String howToDisplay) {
+        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected Object doInBackground(Void... aVoid) {
+                try {
+                    //API制限中かチェック
+                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_DM);
+
+                    DirectMessageList dm_list = null;
+                    if(getNextCursor != null){
+                        twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
+                    }else{
+                        twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET, getNextCursor);
+                    }
+                    return dm_list;
+                } catch (TwitterException e) {
+                    cancel(true);
+                    return e;
+                } catch (ParseException e) {
+                    cancel(true);
+                    return e;
+                }
+            }
+
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected void onPostExecute(Object dm_list) {
+                //API制限チェック
+                checkAPIRate(((DirectMessageList) dm_list).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_DM);
+                //取得情報返却
+                callBacks.get().callBackGetTweets(dm_list, howToDisplay);
+            }
+
+            @Override
+            protected void onCancelled(Object err) {
+                errHand.exceptionHand(err, callBacks);
+            }
+        };
+        task.execute();
+    }
+
 
     /**
      * Twitterの自ユーザー情報を取得
@@ -401,14 +444,8 @@ public class TwitterUtils {
                 //API制限チェック
                 checkAPIRate(((User) user).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
                 //取得情報返却
-                String className = callBacks.get().getClass().getSimpleName();
-                if(className.equals(activityClassName.activity_main)){
-                    callBacksMain callback = (callBacksMain) callBacks.get();
-                    callback.callBackGetUser(((User) user));
-                }else if(className.equals(fragmentClassName.fragment_noti)){
-                    callBacksNoti callback = (callBacksNoti) callBacks.get();
-                    callback.callBackGetUser(((User) user));
-                }
+                callBacksMain callback = (callBacksMain) callBacks.get();
+                callback.callBackGetUser(((User) user));
             }
 
             @Override

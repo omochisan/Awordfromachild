@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
 import twitter4j.DirectMessage;
+import twitter4j.DirectMessageList;
 import twitter4j.Status;
 
 public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> implements callBacksDefaultTweet {
@@ -41,7 +42,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     //Twitter処理クラス
     private static TwitterUtils twitterUtils;
     private List<twitter4j.Status> mItems;
-    private List<DirectMessage> mItems_dm;
+    private DirectMessageList mItems_dm;
     private Context app_context;
     //表示ツイート打ち止め
     public boolean frg_end = false;
@@ -55,7 +56,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param resource リソースID
      * @param items    リストビューの要素
      */
-    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items, List<DirectMessage> items_d) {
+    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items, DirectMessageList items_d) {
         super(context, resource, items);
         mResource = resource;
         if(items != null){
@@ -359,7 +360,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items
      */
-    public void addItems(List<Status> items, List<DirectMessage> items_dm) {
+    public void addItems(List<Status> items, DirectMessageList items_dm) {
         if(items != null){
             mItems.addAll(items);
             arr_mItems_status.addAll(setNewestStatus(items));
@@ -406,14 +407,21 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
         //表示ツイート打ち止めの場合
         LinearLayout l = view.findViewById(R.id.tw_linear_);
-        if (frg_end && mItems.size() == position + 1) {
+        if (frg_end &&
+                ((mItems != null && mItems.size() == position + 1) ||
+                        (mItems_dm != null && mItems_dm.size() == position + 1))) {
             l.setVisibility(View.VISIBLE);
         } else {
             l.setVisibility(View.GONE);
         }
 
         // リストビューに表示する要素を取得
-        twitter4j.Status item = mItems.get(position);
+        twitter4j.Status item = null;
+        if(mItems != null){
+            item = mItems.get(position);
+        }else if(mItems_dm != null){
+            item = (Status) mItems_dm.get(position);
+        }
 
         // ユーザーアイコンを設定
         setUserIcon(view, item, R.id.tw_userIcon, R.id.tw_userName);
@@ -450,16 +458,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     @Override
     public void callBackGetTweets(Object list, String howToDisplay) {
-
-    }
-
-    @Override
-    public void callBackCreateFavo(Status status) {
-
-    }
-
-    @Override
-    public void callBackDestroyFavo(Status status) {
 
     }
 }

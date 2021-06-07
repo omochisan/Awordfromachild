@@ -27,6 +27,8 @@ public class appSharedPreferences {
     public static final String API_RATE_DATE_GET_POST_TWEET = "apiRate_getPostTweet";
     // ユーザー情報取得系
     public static final String API_RATE_DATE_GET_USER_INFO= "apiRate_getUser";
+    //DM系
+    public static final String API_RATE_DATE_GET_DM = "apiRate_getDM";
     //フォロー一覧取得
     public static final String API_RATE_DATE_GET_FRIEND_LIST= "apiRate_getFriendList";
     //ストリーミング

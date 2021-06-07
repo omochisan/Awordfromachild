@@ -11,10 +11,10 @@ import com.example.awordfromachild.asynctask.callBacksCreateTweet;
 import com.example.awordfromachild.asynctask.callBacksFavorite;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksNewArrival;
+import com.example.awordfromachild.asynctask.callBacksNoti;
 import com.example.awordfromachild.common.exceptionHandling;
 import com.example.awordfromachild.common.httpConnection;
-import com.example.awordfromachild.constant.appSharedPreferences;
-import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.constant.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -66,6 +66,7 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterUtils {
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
+    private Object callBackClass;
     private static Twitter twitter;
     private static ResponseList<Status> responseList;
     private static Calendar calendar = Calendar.getInstance();
@@ -175,7 +176,7 @@ public class TwitterUtils {
     /**
      * ユーザーがいいねしたツイートを取得
      */
-    public void getFavorites(String howToDisplay) {
+    public void getFavorites(Paging paging, String howToDisplay) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
             @SuppressLint("StaticFieldLeak")
             @Override
@@ -183,7 +184,7 @@ public class TwitterUtils {
                 try {
                     //API制限中かチェック
                     checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
-                    ResponseList<twitter4j.Status> result = twitter.getFavorites();
+                    ResponseList<twitter4j.Status> result = twitter.getFavorites(paging);
                     return result;
                 } catch (TwitterException e) {
                     cancel(true);
@@ -394,13 +395,20 @@ public class TwitterUtils {
                 }
             }
 
+            @SuppressLint("StaticFieldLeak")
             @Override
             protected void onPostExecute(Object user) {
                 //API制限チェック
                 checkAPIRate(((User) user).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
                 //取得情報返却
-                callBacksMain callback = (callBacksMain) callBacks.get();
-                callback.callBackGetUser(((User) user));
+                String className = callBacks.get().getClass().getSimpleName();
+                if(className.equals(activityClassName.activity_main)){
+                    callBacksMain callback = (callBacksMain) callBacks.get();
+                    callback.callBackGetUser(((User) user));
+                }else if(className.equals(fragmentClassName.fragment_noti)){
+                    callBacksNoti callback = (callBacksNoti) callBacks.get();
+                    callback.callBackGetUser(((User) user));
+                }
             }
 
             @Override
@@ -721,29 +729,6 @@ public class TwitterUtils {
      */
     public void getTimeLine(String pattern) {
         getTimeLine(pattern, 0, 0, 0, null);
-    }
-
-    /**
-     * オーバーロード
-     * getTimeLine
-     *
-     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
-     * @param maxID   取得ツイートのカーソル（～まで）
-     */
-    public void getTimeLine(String pattern, long maxID) {
-        getTimeLine(pattern, maxID, 0, 0, null);
-    }
-
-    /**
-     * オーバーロード
-     * getTimeLine
-     *
-     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
-     * @param maxID   取得ツイートのカーソル（～まで）
-     * @param how     取得ツイートの追加方式
-     */
-    public void getTimeLine(String pattern, long maxID, String how) {
-        getTimeLine(pattern, maxID, 0, 0, null);
     }
 
     /**

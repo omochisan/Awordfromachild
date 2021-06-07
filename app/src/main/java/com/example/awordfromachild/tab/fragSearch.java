@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -41,6 +42,7 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fs_main;
         query = _query;
+        getMethod = twitterValue.getMethod.SEARCH;
         return inflater.inflate(R.layout.fragsearch_layout,container,false);
     }
 
@@ -50,34 +52,7 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
         //ビュー イベント設定
         SearchView searchView = view.findViewById(R.id.fs_input_word);
         searchView.setOnQueryTextListener(onQueryTextListener);
-        Button backButton = view.findViewById(R.id.fs_back);
-        backButton.setOnClickListener(onBackClickListener);
-        ImageView searchIcon = view.findViewById(R.id.fs_searchIcon);
-        searchIcon.setOnClickListener(onSearchIconClickListener);
-        //初期表示時は検索結果欄を非表示
-        searchIcon.setVisibility(View.INVISIBLE);
     }
-
-    private View.OnClickListener onBackClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View view) {
-            //検索窓非表示
-            LinearLayout layout_main = getActivity().findViewById(R.id.fs_linearLayout_main);
-            layout_main.setVisibility(View.GONE);
-            //検索アイコン表示
-            ImageView searchIcon = getActivity().findViewById(R.id.fs_searchIcon);
-            searchIcon.setVisibility(View.VISIBLE);
-        }
-    };
-
-    private View.OnClickListener onSearchIconClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View view) {
-            //検索窓再表示
-            LinearLayout layout_main = getActivity().findViewById(R.id.fs_linearLayout_main);
-            layout_main.setVisibility(View.VISIBLE);
-        }
-    };
 
     //検索ボックス　イベント
     private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
@@ -86,8 +61,13 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
         public boolean onQueryTextSubmit(String searchWord) {
             //検索実行
             dispSpinner(mPopupWindow);
-            //_query = twitterValue.APP_HASH_TAG + " " + searchWord;
-            _query = searchWord;
+            CheckBox checkBox = getActivity().findViewById(R.id.fs_tagInclude);
+            //チェックされてる場合、タグ含める
+            if(checkBox.isChecked()){
+                _query = twitterValue.APP_HASH_TAG + " " + searchWord;
+            }else{
+                _query = searchWord;
+            }
             query = _query;
             twitterUtils.search(_query, null, null, 0, Query.ResultType.recent,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
@@ -100,19 +80,4 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
             return false;
         }
     };
-
-    /**
-     * 非同期処理のコールバック関数
-     * 取得したツイートを表示
-     */
-    @Override
-    public void callBackGetTweets(Object list, String howToDisplay) {
-        super.callBackGetTweets(list, howToDisplay);
-        //検索窓非表示
-        LinearLayout layout_main = getActivity().findViewById(R.id.fs_linearLayout_main);
-        layout_main.setVisibility(View.GONE);
-        //検索アイコン表示
-        ImageView searchIcon = getActivity().findViewById(R.id.fs_searchIcon);
-        searchIcon.setVisibility(View.INVISIBLE);
-    }
 }

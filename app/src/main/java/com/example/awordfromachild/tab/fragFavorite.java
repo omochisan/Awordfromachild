@@ -16,6 +16,7 @@ import com.example.awordfromachild.constant.twitterValue;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 
@@ -33,6 +34,8 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fg_main;
         query = _query;
+        getMethod = twitterValue.getMethod.FAVORITE;
+        paging = new Paging(1, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
         return inflater.inflate(R.layout.fraggood_layout, container, false);
     }
 
@@ -42,7 +45,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
             dispSpinner(mPopupWindow);
-            twitterUtils.getFavorites(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+            twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
     }
 
@@ -52,7 +55,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
      */
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
-        long sinceID = ((Status) adapter.getItem(0)).getId();
-        twitterUtils.getFavorites(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+        paging.setPage(1);
+        twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
     }
 }

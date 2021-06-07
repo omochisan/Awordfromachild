@@ -84,10 +84,18 @@
 
         </LinearLayout>
 
+        <View
+            android:id="@+id/border1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="@dimen/set_margin_default"
+            android:layout_marginEnd="@dimen/set_margin_default"
+            android:background="#F98A0F" />
+
         <LinearLayout
             android:id="@+id/set_at"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -111,7 +119,6 @@
                 android:layout_marginBottom="@dimen/set_margin_default"
                 android:scrollbarThumbHorizontal="@color/light_gray"
                 android:text="@string/set_at_explan"
-                android:textColor="@android:color/darker_gray"
                 android:textSize="@dimen/set_stSize_explain2" />
 
             <LinearLayout
@@ -119,19 +126,42 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/set_at_text"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/set_margin_default"
-                    android:layout_marginEnd="@dimen/set_margin_default"
-                    android:layout_marginBottom="@dimen/set_margin_default"
-                    android:text="@string/set_at_countChoice" />
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/set_at_criterion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/set_margin_default"
+                        android:layout_marginTop="@dimen/set_margin_short"
+                        android:layout_marginBottom="@dimen/set_margin_default"
+                        android:text="@string/set_at_criterion"
+                        android:textColor="@color/tweet_default"
+                        android:textSize="@dimen/set_stSize_explain" />
+
+                    <TextView
+                        android:id="@+id/set_at_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/set_margin_default"
+                        android:layout_marginEnd="@dimen/set_margin_default"
+                        android:layout_marginBottom="@dimen/set_margin_default"
+                        android:text="@string/set_at_countChoice" />
+                </LinearLayout>
 
                 <RadioGroup
                     android:id="@+id/set_at_radioGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/set_at_popular"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="人気" />
 
                     <RadioButton
                         android:id="@+id/set_at_s"
@@ -155,6 +185,14 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/border2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="@dimen/set_margin_default"
+            android:layout_marginEnd="@dimen/set_margin_default"
+            android:background="#F98A0F" />
 
     </LinearLayout>
 

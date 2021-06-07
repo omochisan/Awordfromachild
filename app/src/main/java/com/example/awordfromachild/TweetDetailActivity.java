@@ -44,7 +44,7 @@ public class TweetDetailActivity extends activityBase implements callBacksBase {
                 add(getStatus);
             }
         };;
-        SetDefaultTweetAdapter tweetAdapter = new SetDefaultTweetAdapter(this, 0, list);
+        SetDefaultTweetAdapter tweetAdapter = new SetDefaultTweetAdapter(this, 0, list, null);
         //ユーザーアイコン設定
         tweetAdapter.setUserIcon(view, getStatus, R.id.twd_userIcon, R.id.twd_userName);
         //リツイートの場合、リツイートユーザー等を設定

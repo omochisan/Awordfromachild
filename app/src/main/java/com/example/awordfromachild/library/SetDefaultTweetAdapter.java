@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
+import twitter4j.DirectMessage;
 import twitter4j.Status;
 
 public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> implements callBacksDefaultTweet {
@@ -40,6 +41,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     //Twitter処理クラス
     private static TwitterUtils twitterUtils;
     private List<twitter4j.Status> mItems;
+    private List<DirectMessage> mItems_dm;
     private Context app_context;
     //表示ツイート打ち止め
     public boolean frg_end = false;
@@ -53,12 +55,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param resource リソースID
      * @param items    リストビューの要素
      */
-    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items) {
+    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items, List<DirectMessage> items_d) {
         super(context, resource, items);
-
         mResource = resource;
-        mItems = items;
-        arr_mItems_status.addAll(setNewestStatus(items));
+        if(items != null){
+            mItems = items;
+            arr_mItems_status.addAll(setNewestStatus(items));
+        }else{
+            mItems_dm = items_d;
+        }
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         //Twitter共通処理クラス生成
@@ -226,9 +231,31 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     }
 
     /**
+     * オーバーロード
+     * @param view
+     * @param item
+     * @param flg_detailDisplay
+     * @param vid_time
+     * @param vid_userID
+     * @param vid_main
+     * @param vid_like
+     * @param vid_reTweet
+     * @param vid_reply
+     */
+    public void setValue(View view, Status item, boolean flg_detailDisplay,
+    int vid_time, int vid_userID, int vid_main,
+    int vid_like, int vid_reTweet, int vid_reply){
+        setValue(view, item, flg_detailDisplay, true,
+        vid_time, vid_userID, vid_main,
+        vid_like, vid_reTweet, vid_reply);
+    }
+
+    /**
      * ツイートの各種値を設定
      *
      * @param view ビュー
+     * @param flg_detailDisplay ツイート詳細画面の描画かどうか
+     * @param flg_footerSet フッター情報をセットするかどうか
      * @param item　ツイート
      * @param vid_time　ビューID＿ツイート日時
      * @param vid_userID　ビューID＿ユーザーID
@@ -237,7 +264,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param vid_reTweet　ビューID＿リツイート
      * @param vid_reply　ビューID＿リプライ
      */
-    public void setValue(View view, Status item, boolean flg_detailDisplay,
+    public void setValue(View view, Status item, boolean flg_detailDisplay, boolean flg_footerSet,
                          int vid_time, int vid_userID, int vid_main,
                                 int vid_like, int vid_reTweet, int vid_reply) {
         //ツイート日時表示
@@ -305,8 +332,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         }
 
         TextView createDate = view.findViewById(vid_time);
-        //SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd E HH:mm:ss");
-        //createDate.setText(df.format(item.getCreatedAt()));
         createDate.setText(disp_date);
         //ユーザーIDを設定
         TextView userID = (TextView) view.findViewById(vid_userID);
@@ -314,16 +339,19 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         // ツイートを設定
         TextView tweet = (TextView) view.findViewById(vid_main);
         tweet.setText(item.getText());
-        //お気に入りを設定
-        TextView favo = (TextView) view.findViewById(vid_like);
-        favo.setText(" " + String.valueOf(item.getFavoriteCount()));
-        //リツイートを設定
-        TextView retweet = (TextView) view.findViewById(vid_reTweet);
-        retweet.setText(" " + String.valueOf(item.getRetweetCount()));
-        //リプライを取得・設定
-        // ※リプライ取得が実現難しいため、現在非表示
-        //TextView rep = (TextView) view.findViewById(vid_reply);
-        //rep.setText(item.getInReplyToScreenName());
+        //フッター情報を設定
+        if(flg_footerSet) {
+            //お気に入りを設定
+            TextView favo = (TextView) view.findViewById(vid_like);
+            favo.setText(" " + String.valueOf(item.getFavoriteCount()));
+            //リツイートを設定
+            TextView retweet = (TextView) view.findViewById(vid_reTweet);
+            retweet.setText(" " + String.valueOf(item.getRetweetCount()));
+            //リプライを取得・設定
+            // ※リプライ取得が実現難しいため、現在非表示
+            //TextView rep = (TextView) view.findViewById(vid_reply);
+            //rep.setText(item.getInReplyToScreenName());
+        }
     }
 
     /**
@@ -331,9 +359,13 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items
      */
-    public void addItems(List<Status> items) {
-        mItems.addAll(items);
-        arr_mItems_status.addAll(setNewestStatus(items));
+    public void addItems(List<Status> items, List<DirectMessage> items_dm) {
+        if(items != null){
+            mItems.addAll(items);
+            arr_mItems_status.addAll(setNewestStatus(items));
+        }else{
+            mItems_dm.addAll(items_dm);
+        }
     }
 
     /**
@@ -341,9 +373,13 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items
      */
-    public void unShiftItems(List<Status> items) {
-        mItems.addAll(0, items);
-        arr_mItems_status.addAll(0, setNewestStatus(items));
+    public void unShiftItems(List<Status> items, List<DirectMessage> items_dm) {
+        if(items != null){
+            mItems.addAll(0, items);
+            arr_mItems_status.addAll(0, setNewestStatus(items));
+        }else{
+            mItems_dm.addAll(0, items_dm);
+        }
     }
 
     /**

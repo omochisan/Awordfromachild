@@ -31,6 +31,7 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fn_main;
         query = _query;
+        getMethod = twitterValue.getMethod.SEARCH;
         return inflater.inflate(R.layout.fragnewarrival_layout, container, false);
     }
 

@@ -1,88 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/fs_linearLayout_main"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/fs_appBar"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/fs_text1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/set_margin_default"
-            android:text="@string/fs_text_1"
-            android:textColor="@color/string_default" />
+        android:background="@color/light_orange">
 
         <LinearLayout
-            android:id="@+id/fs_linearLayout1"
+            android:id="@+id/fs_linearLayout_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="87dp">
+            android:orientation="vertical"
+            app:layout_scrollFlags="enterAlways">
 
-            <SearchView
-                android:id="@+id/fs_input_word"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/set_margin_default"
-                android:background="@drawable/box_orange" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/fs_linnerLayout2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/fs_back"
-                style="?android:attr/borderlessButtonStyle"
+            <CheckBox
+                android:id="@+id/fs_tagInclude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/light_orange"
-                android:backgroundTint="@color/transparent"
-                android:text="@string/fs_btn_text_2"
-                android:textColor="#393939"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fs_linearLayout1" />
+                android:layout_marginStart="@dimen/set_margin_default"
+                android:checked="true"
+                android:text="@string/fs_text_1" />
+
+            <LinearLayout
+                android:id="@+id/fs_linearLayout1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="87dp">
+
+                <SearchView
+                    android:id="@+id/fs_input_word"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/set_margin_default"
+                    android:layout_marginEnd="@dimen/set_margin_default"
+                    android:layout_marginBottom="@dimen/set_margin_default"
+                    android:background="@drawable/box_orange" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/fs_frameLayout"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fs_linearLayout_main">
+        android:layout_height="wrap_content"
 
-        <ImageView
-            android:id="@+id/fs_searchIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="40sp"
-            android:layout_marginBottom="50dp"
-            app:srcCompat="@drawable/ic_search" />
 
-        <ListView
-            android:id="@+id/fs_main"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-    </FrameLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <ListView
+                android:id="@+id/fs_main"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

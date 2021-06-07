@@ -1,5 +1,8 @@
 package com.example.awordfromachild.constant;
 
+/**
+ * Twitter関連の定数
+ */
 public class twitterValue {
     //アプリのハッシュタグ
     public static final String APP_HASH_TAG = "#こどものひとこと";
@@ -21,10 +24,21 @@ public class twitterValue {
 
     //注目タブ（一定のいいね以上がされたツイートが表示される）
     public static final int CRITERION_LIKE_S = 10;
-    public static final int CRITERION_LIKE_M = 10;
-    public static final int CRITERION_LIKE_L = 10;
+    public static final int CRITERION_LIKE_M = 100;
+    public static final int CRITERION_LIKE_L = 1000;
     // デフォルトのいいね目安
-    public static final String DEFAULT_LIKES = "10";
+    public static final int DEFAULT_LIKES = 0;
+
+    /**
+     * ツイート取得方法
+     * search：ワード検索
+     * favorite：いいね取得メソッド利用
+     */
+    public static class getMethod{
+        public static final String SEARCH = "search";
+        public static final String FAVORITE = "favorite";
+        public static final String DM = "dm";
+    }
 
     /**
      * 取得ツイートの表示方法
@@ -90,17 +104,5 @@ public class twitterValue {
      */
     public static class TwitterAPIEndPoint {
         public static final String search = "https://api.twitter.com/1.1/search/tweets.json";
-    }
-
-    /**
-     * Twitter取得ツイートタイプ
-     */
-    public static class resultType {
-        //人気のツイート
-        public static final String POPULAR = "popular";
-        //最新のツイート。
-        public static final String RECENT = "recent";
-        //全てのツイート。
-        public static final String mixed = "MIXED";
     }
 }

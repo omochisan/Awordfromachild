@@ -88,11 +88,14 @@ public class activityBase extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            twitterUtils = new TwitterUtils((callBacksBase) this);
-            twitterUtils.setTwitterInstance(this);
+            if (callBacksBase.class.isAssignableFrom(this.getClass())) {
+                twitterUtils = new TwitterUtils((callBacksBase) this);
+                twitterUtils.setTwitterInstance(this);
+            }
+            if(vid_listView != 0) {
+                listView = findViewById(vid_listView);
+            }
             errHand = new exceptionHandling();
-            listView = findViewById(vid_listView);
-
 
             if(listView != null) {
                 //リストビューイベント
@@ -232,7 +235,7 @@ public class activityBase extends AppCompatActivity {
 
         //カスタマイズしたlistViewに取得結果を表示
         if (adapter == null) {
-            adapter = new SetDefaultTweetAdapter(this, R.layout.tweet_default, result);
+            adapter = new SetDefaultTweetAdapter(this, R.layout.tweet_default, result, null);
         } else {
             //最新ツイートを先頭に追加する＆一定以上の取得数の場合、追加ではなく洗い替えに変更
             //（古い順から取得ができないため）
@@ -243,13 +246,13 @@ public class activityBase extends AppCompatActivity {
             switch (how_to_display) {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH: //表示ツイート洗い替え
                     adapter.clear();
-                    adapter.addItems(result);
+                    adapter.addItems(result, null);
                     adapter.notifyDataSetChanged();
                     break;
 
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT: //先頭に追加
                     putState(); //追加前に画面表示状態保持
-                    adapter.unShiftItems(result);
+                    adapter.unShiftItems(result, null);
                     try {
                         adapter.notifyDataSetChanged();
                     }catch (Exception e){
@@ -264,7 +267,7 @@ public class activityBase extends AppCompatActivity {
                     putState(); //追加前に画面表示状態保持
 
                     result.remove(result.size() - 1);
-                    adapter.addItems(result);
+                    adapter.addItems(result, null);
                     adapter.notifyDataSetChanged();
                     restoreListViewSelection();
                     //位置復元

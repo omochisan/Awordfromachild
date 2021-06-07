@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
+import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
@@ -51,6 +52,9 @@ public class SettingActivity extends activityBase {
                     //いいね目安
                     RadioGroup rGroupLike = findViewById(R.id.set_at_radioGroup);
                     switch (rGroupLike.getCheckedRadioButtonId()){
+                        case R.id.set_at_popular:
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
+                            break;
                         case R.id.set_at_s:
                             editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_S);
                             break;
@@ -83,8 +87,8 @@ public class SettingActivity extends activityBase {
 
         String set_dispType =
                 preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
-        String set_criterionLike =
-                preferences.getString(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
+        int set_criterionLike =
+                preferences.getInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
 
         //ツイート作成画面　デフォルトタイプ
         RadioGroup dispType = findViewById(R.id.set_ct_defaultType_rgroup);
@@ -94,7 +98,21 @@ public class SettingActivity extends activityBase {
             dispType.check(R.id.set_ct_defaultType_r2);
         }
         //いいね目安
-        RadioGroup disp = findViewById(R.id.set_ct_defaultType_rgroup);
+        RadioGroup criterionLike = findViewById(R.id.set_at_radioGroup);
+        switch (set_criterionLike){
+            case twitterValue.DEFAULT_LIKES:
+                criterionLike.check(R.id.set_at_popular);
+                break;
+            case twitterValue.CRITERION_LIKE_S:
+                criterionLike.check(R.id.set_at_s);
+                break;
+            case twitterValue.CRITERION_LIKE_M:
+                criterionLike.check(R.id.set_at_m);
+                break;
+            case twitterValue.CRITERION_LIKE_L:
+                criterionLike.check(R.id.set_at_l);
+                break;
+        }
 
     }
 }

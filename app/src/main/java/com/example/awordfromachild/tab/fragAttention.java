@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
+import com.example.awordfromachild.ApplicationController;
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksAttention;
@@ -35,6 +36,7 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
         twitterUtils = new TwitterUtils(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fa_main;
+        getMethod = twitterValue.getMethod.SEARCH;
         return inflater.inflate(R.layout.fragattention_layout, container, false);
     }
 
@@ -42,13 +44,27 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //下限いいね数、下限リツイート数をクエリに設定
-        //_query = twitterValue.APP_HASH_TAG;
-        _query = "マヂラブ";
-        query = _query;
+        //preferenceから設定値の呼び出し
+        Context app_context = ApplicationController.getInstance().getApplicationContext();
+        SharedPreferences preferences = app_context.getSharedPreferences(appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);
+        //表示ツイート目安
+        int criterionLike =
+                preferences.getInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
+        //いいね数の目安指定がある場合、最新ツイート取得。
+        //数指定無い場合、取得タイプを「人気ツイート」に。
+        Query.ResultType qResult = null;
+        if(criterionLike != 0){
+            qResult = Query.ResultType.recent;
+            //_query = twitterValue.APP_HASH_TAG + " min_faves:" + criterionLike;
+            _query = "マヂラブ" + " min_faves:" + criterionLike;
+        }else{
+            qResult = Query.ResultType.popular;
+            //_query = twitterValue.APP_HASH_TAG;
+            _query = "マヂラブ";
+        }
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
-            runSearch(_query, null, null, 0, Query.ResultType.popular,
+            runSearch(_query, null, null, 0, qResult,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
     }

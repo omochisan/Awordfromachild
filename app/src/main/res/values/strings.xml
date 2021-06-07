@@ -52,6 +52,11 @@
     <string name="fs_btn_text_1">検索</string>
     <string name="fs_btn_text_2">← 検索結果に戻る</string>
 
+    <!-- 通知タブ(fno_) -->
+    <string name="fno_select_1">いいねされた投稿</string>
+    <string name="fno_select_2">リツイートされた投稿</string>
+    <string name="fno_select_3">Ⅾ Ⅿ</string>
+
     <!-- ツイート作成(ct_) -->
     <string name="ct_hint1">お買い物に行く途中</string>
     <string name="ct_hint2">歩道で</string>
@@ -68,11 +73,11 @@
     <string name="set_ct_defaultType_type1">自由入力</string>
     <string name="set_ct_defaultType_type2">フォーム入力</string>
     <string name="set_at">「注目」タブ</string>
+    <string name="set_at_criterion">表示ツイートの目安</string>
     <string name="set_at_explan">注目タブには、一定以上のいいねがされた
     ハッシュタグ #こどものひとこと を含むツイートを表示します。
     </string>
-    <string name="set_at_countChoice">表示するツイートのいいね数目安\n
-     小・・・だいたい10いいね以上\n中・・・だいたい100いいね以上\n大・・・だいたい1000いいね以上
+    <string name="set_at_countChoice">人気・・・タグが付いたツイート全体で人気のもの\n小　・・・だいたい10いいね以上\n中　・・・だいたい100いいね以上\n大　・・・だいたい1000いいね以上
     </string>
 
     <string name="twitter_callback_url">com.example.awordfromachild://callback</string>

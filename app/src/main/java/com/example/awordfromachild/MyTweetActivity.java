@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.PopupWindow;
 
+import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksMyTweet;
 import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.constant.twitterValue;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import twitter4j.ResponseList;
@@ -21,6 +23,7 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
     private static final String BUNDLE_KEY_ITEM_POSITION = "amt_item_position";
     //onPuase時、ListView復元のため一時保存
     private static Bundle bundle = new Bundle();
+    WeakReference<callBacksBase> callBacks;
 
     @Override
     public void onResume() {
@@ -32,7 +35,7 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
                 restoreListViewSelection();
             }
         } catch (Exception e) {
-            Log.e("エラー", e.toString());
+            errHand.exceptionHand(e, callBacks);
         }
 
     }
@@ -46,16 +49,18 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
     protected void onCreate(Bundle savedInstanceState) {
         try {
             setContentView(R.layout.activity_mytweet);//画面基礎描画
-            mPopupWindow = new PopupWindow(MyTweetActivity.this);//スピナー
+            mPopupWindow = new PopupWindow(MyTweetActivity.this);
+            callBacks = new WeakReference<>(this);
             vid_listView = R.id.fn_main;
             super.onCreate(savedInstanceState);
 
+            adapter.getItem(1000);
             if (adapter == null || adapter.getCount() == 0) {
                 //クエリ生成
-                twitterUtils.getTimeLine(twitterValue.timeLineType.USER);
+                twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, 0, 0, null);
             }
         } catch (Exception e) {
-            Log.e("エラー", e.toString());
+            errHand.exceptionHand(e, callBacks);
         }
     }
 

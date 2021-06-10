@@ -42,7 +42,6 @@ public class exceptionHandling {
         } else {
             //非チェック例外
             callBacks.get().callBackException();
-            Log.e("実行エラー",err.toString());
         }
     }
 }

@@ -37,7 +37,7 @@ import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
-public class activityBase extends AppCompatActivity {
+public class activityBase extends AppCompatActivity implements callBacksBase{
     //Bundleキー
     // 現在表示している中で、一番古いツイート
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
@@ -325,5 +325,29 @@ public class activityBase extends AppCompatActivity {
         if (bundle.getInt(BUNDLE_KEY_ITEM_POSITION) >= 1) {
             listView.setSelection(bundle.getInt(BUNDLE_KEY_ITEM_POSITION));
         }
+    }
+
+    /**
+     * コールバック
+     * 非チェック例外発生時
+     */
+    @Override
+    public void callBackException() {
+        fail_result();
+    }
+
+    @Override
+    public void callBackTwitterLimit(int secondsUntilReset) {
+
+    }
+
+    @Override
+    public void callBackStreamAddList(Status status) {
+
+    }
+
+    @Override
+    public void callBackGetTweets(Object list, String howToDisplay) {
+
     }
 }

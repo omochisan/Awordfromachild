@@ -759,16 +759,6 @@ public class TwitterUtils {
     }
 
     /**
-     * オーバーロード
-     * getTimeLine
-     *
-     * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
-     */
-    public void getTimeLine(String pattern) {
-        getTimeLine(pattern, 0, 0, 0, null);
-    }
-
-    /**
      * タイムラインを取得
      *
      * @param pattern 取得タイムライン種別。twitterValueにて種別一覧記載。
@@ -817,12 +807,6 @@ public class TwitterUtils {
              * 2　Boolean（全件取得完了フラグ）
              */
             protected void onPostExecute(Object list) {
-                String howToDisplay = "";
-                if (how == null) {
-                    howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
-                } else {
-                    howToDisplay = how;
-                }
                 callBacks.get().callBackGetTweets(list, how);
                 //API制限掛かったかチェック
                 checkAPIRate(responseList.getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_TIMELINE);

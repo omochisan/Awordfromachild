@@ -63,7 +63,6 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         RadioGroup radioGroup = view.findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
-        twitterUtils.getTwitterUserInfo();
         setGetMethod(checkRadioID); //選択ラジオボタンごとにデータ取得
         getData(checkRadioID, null);
 
@@ -167,7 +166,6 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
 
     @Override
     public void callBackGetTweets(Object list, String howToDisplay) {
-        //super.callBackGetTweets(list, howToDisplay);
         if (checkViewDetach(this)) return;
 
         String _howToDisplay = "";

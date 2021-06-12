@@ -6,28 +6,45 @@ package com.example.awordfromachild.constant;
 public class twitterValue {
     //アプリのハッシュタグ
     public static final String APP_HASH_TAG = "#こどものひとこと";
-    public static final String APP_TAG = "こどものひとこと";
-    //TwitterAPI RATE制限　エラーコード
-    public static final int TwitterAPI_RATE_ERRORCODE = 429;
-
-    //ツイート文字数制限（自由入力パターン）
-    public static final int CHARALIMIT_FREE = 131;
-    //ツイート文字数制限（フォーム入力パターン）
-    public static final int CHARALIMIT_FORM = 131;
-
-    //デフォルトのツイート作成画面
-    public static final String DEFAULT_TYPE_OF_TWEET_CREATION = "free";
-    //ツイート作成画面タイプ（自由入力）
-    public static final String TYPE_OF_TWEET_CREATION_FREE = "free";
-    //ツイート作成画面タイプ（フォーム入力）
-    public static final String TYPE_OF_TWEET_CREATION_FORM = "form";
-
-    //注目タブ（一定のいいね以上がされたツイートが表示される）
-    public static final int CRITERION_LIKE_S = 10;
-    public static final int CRITERION_LIKE_M = 100;
-    public static final int CRITERION_LIKE_L = 1000;
     // デフォルトのいいね目安
     public static final int DEFAULT_LIKES = 0;
+
+    /**
+     * ツイート作成に関する値
+     */
+    public static class createTweetValue{
+        //ツイート文字数制限（自由入力パターン）
+        public static final int CHARALIMIT_FREE = 131;
+        //ツイート文字数制限（フォーム入力パターン）
+        public static final int CHARALIMIT_FORM = 131;
+
+        //デフォルトのツイート作成画面
+        public static final String DEFAULT_TYPE_OF_TWEET_CREATION = "free";
+        //ツイート作成画面タイプ（自由入力）
+        public static final String TYPE_OF_TWEET_CREATION_FREE = "free";
+        //ツイート作成画面タイプ（フォーム入力）
+        public static final String TYPE_OF_TWEET_CREATION_FORM = "form";
+    }
+
+    /**
+     * 注目タブに関する値
+     */
+    public static class attentionValue{
+        //注目タブ（一定のいいね以上がされたツイートが表示される）
+        public static final int CRITERION_LIKE_S = 10;
+        public static final int CRITERION_LIKE_M = 100;
+        public static final int CRITERION_LIKE_L = 1000;
+    }
+
+    /**
+     * エラー・制限に関する値
+     */
+    public static class errorLimitsValue {
+        //TwitterAPI RATE制限　エラーコード
+        public static final int TwitterAPI_RATE_ERRORCODE = 429;
+        //1回読込でのAPI最大実行回数
+        public static final int ONETIME_MAX_API_RUN = 10;
+    }
 
     /**
      * ツイート取得方法

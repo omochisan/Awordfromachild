@@ -62,7 +62,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         if(items != null){
             mItems = items;
             arr_mItems_status.addAll(setNewestStatus(items));
-        }else{
+        }else if(items_d != null){
             mItems_dm = items_d;
         }
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -170,6 +170,13 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         userName.setText(item.getUser().getName());
     }
 
+    /**
+     * リツイート元のツイートを取得
+     * @param view
+     * @param item
+     * @param vid_tweetHeader
+     * @return 元ツイート
+     */
     public Status setReTweet(View view, Status item, int vid_tweetHeader) {
         //リツイートの場合、元のツイート情報を取得
         Status _item = item;

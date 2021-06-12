@@ -45,9 +45,9 @@ public class SettingActivity extends activityBase {
                     //ツイート作成画面タイプ
                     RadioGroup rgroup = findViewById(R.id.set_ct_defaultType_rgroup);
                     if(rgroup.getCheckedRadioButtonId() == R.id.set_ct_defaultType_r1){
-                        editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.TYPE_OF_TWEET_CREATION_FREE);
+                        editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE);
                     }else{
-                        editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.TYPE_OF_TWEET_CREATION_FORM);
+                        editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FORM);
                     }
                     //いいね目安
                     RadioGroup rGroupLike = findViewById(R.id.set_at_radioGroup);
@@ -56,13 +56,13 @@ public class SettingActivity extends activityBase {
                             editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
                             break;
                         case R.id.set_at_s:
-                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_S);
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.attentionValue.CRITERION_LIKE_S);
                             break;
                         case R.id.set_at_m:
-                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_M);
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.attentionValue.CRITERION_LIKE_M);
                             break;
                         case R.id.set_at_l:
-                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.CRITERION_LIKE_L);
+                            editor.putInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.attentionValue.CRITERION_LIKE_L);
                             break;
                     }
 
@@ -86,13 +86,13 @@ public class SettingActivity extends activityBase {
         preferences = this.getSharedPreferences(appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);
 
         String set_dispType =
-                preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
+                preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.DEFAULT_TYPE_OF_TWEET_CREATION);
         int set_criterionLike =
                 preferences.getInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
 
         //ツイート作成画面　デフォルトタイプ
         RadioGroup dispType = findViewById(R.id.set_ct_defaultType_rgroup);
-        if(set_dispType.equals(twitterValue.TYPE_OF_TWEET_CREATION_FREE)){
+        if(set_dispType.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)){
             dispType.check(R.id.set_ct_defaultType_r1);
         }else{
             dispType.check(R.id.set_ct_defaultType_r2);
@@ -103,13 +103,13 @@ public class SettingActivity extends activityBase {
             case twitterValue.DEFAULT_LIKES:
                 criterionLike.check(R.id.set_at_popular);
                 break;
-            case twitterValue.CRITERION_LIKE_S:
+            case twitterValue.attentionValue.CRITERION_LIKE_S:
                 criterionLike.check(R.id.set_at_s);
                 break;
-            case twitterValue.CRITERION_LIKE_M:
+            case twitterValue.attentionValue.CRITERION_LIKE_M:
                 criterionLike.check(R.id.set_at_m);
                 break;
-            case twitterValue.CRITERION_LIKE_L:
+            case twitterValue.attentionValue.CRITERION_LIKE_L:
                 criterionLike.check(R.id.set_at_l);
                 break;
         }

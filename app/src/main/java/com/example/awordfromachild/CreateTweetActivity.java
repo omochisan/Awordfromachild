@@ -82,14 +82,14 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
             int all_len_count =
                     str_when.length() + str_where.length() + str_how.length() + str_word.length();
             String str;
-            if (all_len_count > twitterValue.CHARALIMIT_FREE) {
+            if (all_len_count > twitterValue.createTweetValue.CHARALIMIT_FREE) {
                 str = "文字数オーバーです。　" + String.valueOf(all_len_count) + "／"
-                        + String.valueOf(twitterValue.CHARALIMIT_FREE);
+                        + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE);
                 textCount.setText(str);
                 textCount.setTextColor(Color.RED);
             } else {
                 str = String.valueOf(all_len_count) + "／"
-                        + String.valueOf(twitterValue.CHARALIMIT_FREE);
+                        + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE);
                 textCount.setText(str);
                 textCount.setTextColor(Color.DKGRAY);
             }
@@ -111,7 +111,7 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
                 this.getSharedPreferences(appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);
         //ツイート作成タイプ（自由入力orフォーム入力）
         String set_dispType =
-                preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.DEFAULT_TYPE_OF_TWEET_CREATION);
+                preferences.getString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.DEFAULT_TYPE_OF_TWEET_CREATION);
         setDisplayType(set_dispType);
     }
 
@@ -125,16 +125,16 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
         LinearLayout linear_free = findViewById(R.id.ct_freeInput);
 
         //自由入力
-        if(set_dispType.equals(twitterValue.TYPE_OF_TWEET_CREATION_FREE)){
+        if(set_dispType.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)){
             type_rgroup.check(R.id.ct_free_radio);
             TextView count_free = findViewById(R.id.ct_count_free);
-            count_free.setText("0／" + String.valueOf(twitterValue.CHARALIMIT_FREE));
+            count_free.setText("0／" + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE));
             linear_form.setVisibility(View.GONE);
             linear_free.setVisibility(View.VISIBLE);
         }else{ //フォーム入力
             type_rgroup.check(R.id.ct_form_radio);
             TextView count_form = findViewById(R.id.ct_count_form);
-            count_form.setText("0／" + String.valueOf(twitterValue.CHARALIMIT_FORM));
+            count_form.setText("0／" + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FORM));
             linear_form.setVisibility(View.VISIBLE);
             linear_free.setVisibility(View.GONE);
         }
@@ -147,9 +147,9 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
         @Override
         public void onCheckedChanged(RadioGroup radioGroup, int i) {
             if(radioGroup.getCheckedRadioButtonId() == R.id.ct_free_radio) {
-                setDisplayType(twitterValue.TYPE_OF_TWEET_CREATION_FREE);
+                setDisplayType(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE);
             }else{
-                setDisplayType(twitterValue.TYPE_OF_TWEET_CREATION_FORM);
+                setDisplayType(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FORM);
             }
         }
     };
@@ -173,10 +173,10 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
     private void checkCharaCount(EditText editText, String type){
         String tweet = String.valueOf(editText.getText());
         int countLimit = 0;
-        if(type.equals(twitterValue.TYPE_OF_TWEET_CREATION_FREE)){
-            countLimit = twitterValue.CHARALIMIT_FREE;
+        if(type.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)){
+            countLimit = twitterValue.createTweetValue.CHARALIMIT_FREE;
         }else {
-            countLimit = twitterValue.CHARALIMIT_FORM;
+            countLimit = twitterValue.createTweetValue.CHARALIMIT_FORM;
         }
         //文字数オーバーの場合、投稿ボタン非活性
         Button btn_sent = findViewById(R.id.ct_btn_sent);

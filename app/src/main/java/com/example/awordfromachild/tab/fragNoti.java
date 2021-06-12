@@ -12,16 +12,20 @@ import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksNoti;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import twitter4j.DirectMessageList;
+import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 
@@ -32,7 +36,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     static ArrayList<Status> bk_list_reTweet;
     static DirectMessageList bk_list_dm;
     static int vid_nowChecked;
-    static List<Status> merge_list;
+    static List<Status> merge_list = new ArrayList<>();
     static String dm_getNextCursor;
 
     /**
@@ -63,8 +67,9 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         RadioGroup radioGroup = view.findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
+        vid_nowChecked = checkRadioID; //現在の選択状態を保持
         setGetMethod(checkRadioID); //選択ラジオボタンごとにデータ取得
-        getData(checkRadioID, null);
+        getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
 
         super.onViewCreated(view, savedInstanceState);
 
@@ -108,6 +113,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 break;
         }
         //バックアップ
+        if (adapter == null) return;
         switch (vid_nowChecked) {
             case R.id.fno_rb_favorite:
                 bk_list_favorite = getItemList();
@@ -168,9 +174,9 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     public void callBackGetTweets(Object list, String howToDisplay) {
         if (checkViewDetach(this)) return;
 
-        String _howToDisplay = "";
         List<Status> s_list = null;
         DirectMessageList d_list = null;
+        List<Status> set_list = new ArrayList<>();
         if (list instanceof ResponseList) {
             s_list = (ResponseList<Status>) list;
         } else if (list instanceof DirectMessageList) {
@@ -182,44 +188,47 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             Boolean flg_endDate = false;
             //いいね・リツイート取得の場合、直近30日以降 or 1回読込上限数取得できた段階で1読込を終了
             if (vid_nowChecked == R.id.fno_rb_favorite) {
-                List<Status> list_favorite = null;
                 for (Status s : s_list) {
                     //31日前以前の場合、取得終了
                     flg_endDate = checkBeforeDate(s);
                     if (flg_endDate) break;
                     //いいねされているツイート
-                    if (s.getFavoriteCount() >= 1) list_favorite.add(s);
+                    if (s.getFavoriteCount() >= 1) set_list.add(s);
                 }
-                ;
             } else if (vid_nowChecked == R.id.fno_rb_retweet) {
-                List<Status> list_reTweet = null;
                 for (Status s : s_list) {
                     //31日前以前の場合、取得終了
                     flg_endDate = checkBeforeDate(s);
                     if (flg_endDate) break;
                     //リツイートされているツイート
-                    if (s.getRetweetCount() >= 1) list_reTweet.add(s);
+                    if (s.getRetweetCount() >= 1) set_list.add(s);
                 }
             }
-            if(flg_endDate) adapter.frg_end = true;
-            merge_list.addAll(s_list);
+            //if (flg_endDate) adapter.frg_end = true;
+            merge_list.addAll(set_list);
             //直近31日以降ではない ＆ 1回読込上限数取得できていない場合、追加読込
-            if (s_list.size() >= 1 && !flg_endDate && s_list.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
-                twitterUtils.getTimeLine(twitterValue.timeLineType.USER, s_list.get(s_list.size()).getId(), 0,
+            if (s_list.size() >= 1 && !flg_endDate && merge_list.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
+                twitterUtils.getTimeLine(twitterValue.timeLineType.USER, s_list.get(s_list.size() - 1).getId(), 0,
                         twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
             } else {
-                setListView(s_list, _howToDisplay);
+                setListView(merge_list, howToDisplay);
+                //merge_list.clear();
             }
         } else {
             dm_getNextCursor = d_list.getNextCursor();
-            setListView_directMessage(d_list, _howToDisplay);
+            setListView_directMessage(d_list, howToDisplay);
         }
         hideSpinner(mPopupWindow);
     }
 
+    /**
+     * 表示範囲(30日以内)外かどうか判断
+     *
+     * @param status
+     * @return true=31日以前
+     */
     private Boolean checkBeforeDate(Status status) {
         // 加算される現在時間の取得(Date型)
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         // Date型の日時をCalendar型に変換
         Calendar calendar = Calendar.getInstance();
@@ -231,15 +240,12 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         Date t_date = status.getCreatedAt();
 
         //31日前以前の場合、終了
-        Boolean flg_before = _date.before(t_date);
+        Boolean flg_before = t_date.before(_date);
         return flg_before;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        bk_list_favorite = null;
-        bk_list_reTweet = null;
-        bk_list_dm = null;
     }
 }

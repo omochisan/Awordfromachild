@@ -22,7 +22,7 @@ public class exceptionHandling {
         if(err.getClass() == TwitterException.class){
             String msg = ((TwitterException) err).getMessage();
             boolean msg_seconds = msg.matches("^-?\\d+$");
-            if(((TwitterException) err).getErrorCode() == twitterValue.TwitterAPI_RATE_ERRORCODE
+            if(((TwitterException) err).getErrorCode() == twitterValue.errorLimitsValue.TwitterAPI_RATE_ERRORCODE
             || msg_seconds){
                 int resetSeconds = 0;
                 if(msg_seconds){

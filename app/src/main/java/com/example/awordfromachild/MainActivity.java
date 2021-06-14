@@ -138,10 +138,10 @@ public class MainActivity extends activityBase implements callBacksMain {
                 wr_fragFavorite.get().addTheLatestTweets();
             }
             else if(tab_text.equals(favorite)){
-
+                wr_fragFavorite.get().addTheLatestTweets();
             }
             else if(tab_text.equals(noti)){
-
+                wr_fragNoti.get().addTheLatestTweets();
             }
         }
     };

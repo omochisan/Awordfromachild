@@ -30,8 +30,6 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 
 public class fragNoti extends fragmentBase implements callBacksNoti {
-    static String _query_favorite = "min_faves:1";
-    static String _query_reTweet = "min_retweets:1";
     static ArrayList<Status> bk_list_favorite;
     static ArrayList<Status> bk_list_reTweet;
     static DirectMessageList bk_list_dm;
@@ -47,7 +45,8 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         public void onCheckedChanged(RadioGroup radioGroup, int i) {
             int checkRadioID = radioGroup.getCheckedRadioButtonId();
             setGetMethod(checkRadioID);
-            vid_nowChecked = checkRadioID; //現在の選択状態を保持
+            getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+                    vid_nowChecked = checkRadioID; //現在の選択状態を保持
         }
     };
 
@@ -99,13 +98,8 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     private void setGetMethod(int checkRadioID) {
         switch (checkRadioID) {
             case R.id.fno_rb_favorite:
-                query = _query_favorite;
-                getMethod = twitterValue.getMethod.SEARCH;
-                break;
-
             case R.id.fno_rb_retweet:
-                query = _query_reTweet;
-                getMethod = twitterValue.getMethod.SEARCH;
+                getMethod = twitterValue.getMethod.TIMELINE;
                 break;
 
             case R.id.fno_rb_dm:
@@ -211,8 +205,9 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 twitterUtils.getTimeLine(twitterValue.timeLineType.USER, s_list.get(s_list.size() - 1).getId(), 0,
                         twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
             } else {
-                setListView(merge_list, howToDisplay);
-                //merge_list.clear();
+                List<Status> _list = new ArrayList<Status>(merge_list);
+                setListView(_list, howToDisplay);
+                merge_list.clear();
             }
         } else {
             dm_getNextCursor = d_list.getNextCursor();

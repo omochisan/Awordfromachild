@@ -370,6 +370,11 @@ public class TwitterUtils {
         task.execute();
     }
 
+    /**
+     * DM取得
+     * @param getNextCursor
+     * @param howToDisplay
+     */
     public void getDirectMessages(String getNextCursor, String howToDisplay) {
         android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
             @SuppressLint("StaticFieldLeak")
@@ -380,10 +385,10 @@ public class TwitterUtils {
                     checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_DM);
 
                     DirectMessageList dm_list = null;
-                    if(getNextCursor != null){
-                        twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
+                    if(getNextCursor == null){
+                        dm_list = twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
                     }else{
-                        twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET, getNextCursor);
+                        dm_list = twitter.getDirectMessages(twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET, getNextCursor);
                     }
                     return dm_list;
                 } catch (TwitterException e) {

@@ -127,6 +127,14 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                             paging.setPage(p_count);
                             twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                             break;
+
+                        case twitterValue.getMethod.TIMELINE:
+
+                            break;
+
+                        case twitterValue.getMethod.DM:
+
+                            break;
                     }
                 }
             }

@@ -55,6 +55,7 @@ public class twitterValue {
         public static final String SEARCH = "search";
         public static final String FAVORITE = "favorite";
         public static final String DM = "dm";
+        public static final String TIMELINE = "timeline";
     }
 
     /**

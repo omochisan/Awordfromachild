@@ -4,6 +4,10 @@
     <string name="app_name">こどものひとこと</string>
     <string name="app_name_en">Awordfromachild</string>
 
+    <!-- 画像の分類 -->
+    <string name="img_icon">icon</string>
+    <string name="img_tabIcon">tabIcon</string>
+
     <!-- 共通 -->
     <string name="common_check_restore">復元しますか？</string>
     <string name="common_no_tweet">表示できるツイートはもうありませんm(_ _)m</string>

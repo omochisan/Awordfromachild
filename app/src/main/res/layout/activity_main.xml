@@ -39,6 +39,7 @@
         </com.example.awordfromachild.library.SetHeader>
 
         <LinearLayout
+            android:id="@+id/fs_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -59,22 +60,22 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="7dp"
-                    android:drawableStart="@drawable/ic_bikkuri"
                     android:gravity="start|center_vertical"
                     android:text="@string/hd_icon_text_1"
                     android:textColor="#4B4B4B"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:drawableStartCompat="@drawable/ic_bikkuri" />
 
                 <TextView
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:drawableStart="@drawable/ic_hatena"
                     android:gravity="start|center_vertical"
                     android:text="@string/hd_icon_text_2"
                     android:textColor="#4B4B4B"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:drawableStartCompat="@drawable/ic_hatena" />
             </LinearLayout>
 
             <LinearLayout
@@ -89,6 +90,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_weight="1"
+                    android:contentDescription="@string/img_icon"
                     android:textAlignment="viewEnd"
                     app:srcCompat="@drawable/ic_reload" />
 
@@ -105,7 +107,8 @@
                     android:id="@+id/fs_img_account"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:contentDescription="@string/img_icon" />
 
             </LinearLayout>
 
@@ -139,7 +142,8 @@
                 android:id="@+id/fs_img_tweet"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.3"
+                android:layout_weight="0.5"
+                android:contentDescription="@string/img_icon"
                 android:paddingBottom="5dp"
                 app:srcCompat="@drawable/main_ic_tweet" />
 

@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.content.res.AppCompatResources;
 import twitter4j.DirectMessage;
 import twitter4j.DirectMessageList;
 import twitter4j.Status;
@@ -85,12 +87,12 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             case ptn_favo:
                 // アイコンの設定
                 if (validity) {
-                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_favo_already);
+                    Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_favo_already);
                     leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 } else {
-                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_favo);
+                    Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_favo);
                     leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
@@ -99,12 +101,12 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
             case ptn_retweet:
                 if (validity) {
-                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_retweet_already);
+                    Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_retweet_already);
                     leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 } else {
-                    Drawable leftDrawable = app_context.getDrawable(R.drawable.ic_retweet);
+                    Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_retweet);
                     leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
@@ -291,20 +293,20 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         Date t_date = item.getCreatedAt();
 
         if(flg_detailDisplay){
-            SimpleDateFormat tokyoSdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+            SimpleDateFormat tokyoSdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm", Locale.JAPANESE);
             tokyoSdf.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
             disp_date = tokyoSdf.format(t_date);
         }else {
             // year
-            SimpleDateFormat ysdf = new SimpleDateFormat("yyyy");
+            SimpleDateFormat ysdf = new SimpleDateFormat("yyyy", Locale.JAPANESE);
             String n_datey = ysdf.format(n_date);
             String t_datey = ysdf.format(t_date);
             // month
-            SimpleDateFormat msdf = new SimpleDateFormat("MM");
+            SimpleDateFormat msdf = new SimpleDateFormat("MM", Locale.JAPANESE);
             int n_datem = Integer.parseInt(msdf.format(n_date));
             int t_datem = Integer.parseInt(msdf.format(t_date));
             // day
-            SimpleDateFormat dsdf = new SimpleDateFormat("dd");
+            SimpleDateFormat dsdf = new SimpleDateFormat("dd", Locale.JAPANESE);
             String n_dated = dsdf.format(n_date);
             String t_dated = dsdf.format(t_date);
 
@@ -312,7 +314,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                 if (n_datem == t_datem &&
                         (Integer.parseInt(n_dated) - 2) <= Integer.parseInt(t_dated)) { ///直近3日間以内のもの
                     long diffTime = n_date.getTime() - t_date.getTime();
-                    SimpleDateFormat timeFormatter = new SimpleDateFormat("HH");
+                    SimpleDateFormat timeFormatter = new SimpleDateFormat("HH", Locale.JAPANESE);
                     int diffTimeStr = Integer.parseInt(timeFormatter.format(new Date(diffTime)));
 
                     boolean moreThanDay = Math.abs(n_date.getTime() - t_date.getTime()) < MILLIS_PER_DAY;

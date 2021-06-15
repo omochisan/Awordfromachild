@@ -16,7 +16,8 @@
         android:layout_width="0dp"
         android:layout_height="46dp"
         android:layout_weight="0.2"
-        app:srcCompat="@drawable/img_logo" />
+        app:srcCompat="@drawable/img_logo"
+        android:contentDescription="@string/img_icon" />
 
     <TextView
         android:id="@+id/hd_dispTitle"
@@ -33,6 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:layout_weight="0.2"
-        app:srcCompat="@drawable/main_ic_setting" />
+        app:srcCompat="@drawable/main_ic_setting"
+        android:contentDescription="@string/img_icon" />
 
 </LinearLayout>

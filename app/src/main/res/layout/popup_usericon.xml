@@ -23,7 +23,8 @@
             android:id="@+id/p_ic_myTweet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/popup_ic_mytweet" />
+            app:srcCompat="@drawable/popup_ic_mytweet"
+            android:contentDescription="@string/img_icon" />
 
         <TextView
             android:id="@+id/p_text_myTweet"
@@ -58,7 +59,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            app:srcCompat="@drawable/popup_ic_browser" />
+            app:srcCompat="@drawable/popup_ic_browser"
+            android:contentDescription="@string/img_icon" />
 
         <TextView
             android:id="@+id/textView2"
@@ -92,7 +94,8 @@
             android:id="@+id/p_ic_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/popup_ic_logout" />
+            app:srcCompat="@drawable/popup_ic_logout"
+            android:contentDescription="@string/img_icon" />
 
         <TextView
             android:id="@+id/p_text_logout"

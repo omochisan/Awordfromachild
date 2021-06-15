@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.awordfromachild">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:name="com.example.awordfromachild.ApplicationController"
         android:allowBackup="true"
@@ -46,5 +47,4 @@
             android:name=".MyTweetActivity">
         </activity>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

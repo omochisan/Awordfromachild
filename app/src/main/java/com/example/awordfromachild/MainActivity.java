@@ -1,10 +1,9 @@
 package com.example.awordfromachild;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,16 +21,16 @@ import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
-import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.User;
 
@@ -40,7 +39,47 @@ import twitter4j.User;
  */
 public class MainActivity extends activityBase implements callBacksMain {
     //タブ情報（インデックス／タブ名）
-    private final Map<String, String> tabInfo = new HashMap<String, String>();
+    private final Map<String, String> tabInfo = new HashMap<>();
+    /**
+     * ツイートアイコン押下時
+     */
+    private final View.OnClickListener iconTweetClick = view -> {
+        //ツイート作成画面へ遷移
+        Intent intent = new Intent(getApplication(), CreateTweetActivity.class);
+        startActivity(intent);
+    };
+    /**
+     * ポップアップ
+     * じぶんの投稿を表示 押下時
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private final View.OnTouchListener popupItemMyTweetClick = (view, motionEvent) -> {
+        //じぶんの投稿一覧画面へ遷移
+        Intent intent = new Intent(getApplication(), MyTweetActivity.class);
+        startActivity(intent);
+        return false;
+    };
+    /**
+     * ポップアップ
+     * ログアウト押下時
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private final View.OnTouchListener popupItemLogoutClick = (view, motionEvent) -> {
+        Dialog dialog = new AlertDialog.Builder(view.getContext())
+                .setTitle(R.string.dialog_TwitterLogout_title)
+                .setMessage(R.string.dialog_TwitterLogout_message)
+                .setPositiveButton("OK", (dialog1, which) -> {
+                    TwitterUtils.removeAccessToken();
+                    dialogTwitterLogin();
+                })
+                .setNegativeButton("キャンセル", (dialog12, which) -> dialog12.dismiss()).show();
+        return false;
+    };
+    WeakReference<fragNewArrival> wr_fragNewArrival;
+    WeakReference<fragAttention> wr_fragAttention;
+    WeakReference<fragNoti> wr_fragNoti;
+    WeakReference<fragFavorite> wr_fragFavorite;
+    WeakReference<fragSearch> wr_fragSearch;
     //タブアイコン
     private int[] tabIcons = {
             R.drawable.main_ic_new,
@@ -57,67 +96,6 @@ public class MainActivity extends activityBase implements callBacksMain {
     private String noti;
     //タブ
     private TabLayout tabLayout;
-    private LinearLayout popup_userMenu;
-
-    WeakReference<fragNewArrival> wr_fragNewArrival;
-    WeakReference<fragAttention> wr_fragAttention;
-    WeakReference<fragNoti> wr_fragNoti;
-    WeakReference<fragFavorite> wr_fragFavorite;
-    WeakReference<fragSearch> wr_fragSearch;
-
-    /**
-     * ツイートアイコン押下時
-     */
-    private final View.OnClickListener iconTweetClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            //ツイート作成画面へ遷移
-            Intent intent = new Intent(getApplication(), CreateTweetActivity.class);
-            startActivity(intent);
-        }
-    };
-
-    /**
-     * ポップアップ
-     * じぶんの投稿を表示 押下時
-     */
-    private final View.OnTouchListener popupItemMyTweetClick = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            //じぶんの投稿一覧画面へ遷移
-            Intent intent = new Intent(getApplication(), MyTweetActivity.class);
-            startActivity(intent);
-            return false;
-        }
-    };
-
-    /**
-     * ポップアップ
-     * ログアウト押下時
-     */
-    private final View.OnTouchListener popupItemLogoutClick = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            Dialog dialog = new AlertDialog.Builder(view.getContext())
-                    .setTitle(R.string.dialog_TwitterLogout_title)
-                    .setMessage(R.string.dialog_TwitterLogout_message)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            twitterUtils.removeAccessToken();
-                            dialogTwitterLogin();
-                        }
-                    })
-                    .setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).show();
-            return false;
-        }
-    };
-
     /**
      * リロードアイコン押下時
      */
@@ -128,33 +106,31 @@ public class MainActivity extends activityBase implements callBacksMain {
             //※追加分ツイートが200以上ある場合、洗い替えして表示
             final String tab_text = tabInfo.get(String.valueOf(tabLayout.getSelectedTabPosition()));
             //表示中のフラグメントにより処理を変化
-            if(tab_text.equals(newArrival)){
+            if (Objects.requireNonNull(tab_text).equals(newArrival)) {
                 wr_fragNewArrival.get().addTheLatestTweets();
-            }
-            else if(tab_text.equals(attention)){
+            } else if (tab_text.equals(attention)) {
                 wr_fragAttention.get().addTheLatestTweets();
-            }
-            else if(tab_text.equals(search)){
+            } else if (tab_text.equals(search)) {
                 wr_fragFavorite.get().addTheLatestTweets();
-            }
-            else if(tab_text.equals(favorite)){
+            } else if (tab_text.equals(favorite)) {
                 wr_fragFavorite.get().addTheLatestTweets();
-            }
-            else if(tab_text.equals(noti)){
+            } else if (tab_text.equals(noti)) {
                 wr_fragNoti.get().addTheLatestTweets();
             }
         }
     };
-
+    private LinearLayout popup_userMenu;
     /**
      * ユーザーアイコン押下時
      */
     private final View.OnClickListener userIconClick = new View.OnClickListener() {
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public void onClick(View view) {
             //ポップアップメニュー表示
             if (popup_userMenu == null) {
-                LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.popup_usericon, null);
+                LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(
+                        R.layout.popup_usericon, findViewById(R.id.fs_header), false);
                 PopupWindow popupWindow = new PopupWindow();
                 popupWindow.setWindowLayoutMode(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
                 popupWindow.setContentView(layout);
@@ -162,39 +138,19 @@ public class MainActivity extends activityBase implements callBacksMain {
                 popup_userMenu = layout;
 
                 //イベント設定
-                LinearLayout l_logout = (LinearLayout) layout.findViewById(R.id.p_item_logout);
+                LinearLayout l_logout = layout.findViewById(R.id.p_item_logout);
                 l_logout.setOnTouchListener(popupItemLogoutClick);
-                TextView p_text = (TextView) layout.findViewById(R.id.p_text_logout);
-                ImageView p_ic = (ImageView) layout.findViewById(R.id.p_ic_logout);
-                p_text.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return false;
-                    }
-                });
-                p_ic.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return false;
-                    }
-                });
+                TextView p_text = layout.findViewById(R.id.p_text_logout);
+                ImageView p_ic = layout.findViewById(R.id.p_ic_logout);
+                p_text.setOnTouchListener((v, event) -> false);
+                p_ic.setOnTouchListener((v, event) -> false);
 
-                LinearLayout l_myTweet = (LinearLayout) layout.findViewById(R.id.p_item_myTweet);
+                LinearLayout l_myTweet = layout.findViewById(R.id.p_item_myTweet);
                 l_myTweet.setOnTouchListener(popupItemMyTweetClick);
-                TextView p_m_text = (TextView) layout.findViewById(R.id.p_text_myTweet);
-                ImageView p_m_ic = (ImageView) layout.findViewById(R.id.p_ic_myTweet);
-                p_m_text.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return false;
-                    }
-                });
-                p_m_ic.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return false;
-                    }
-                });
+                TextView p_m_text = layout.findViewById(R.id.p_text_myTweet);
+                ImageView p_m_ic = layout.findViewById(R.id.p_ic_myTweet);
+                p_m_text.setOnTouchListener((v, event) -> false);
+                p_m_ic.setOnTouchListener((v, event) -> false);
                 return;
             }
             if (popup_userMenu.getVisibility() == View.VISIBLE) {
@@ -208,23 +164,24 @@ public class MainActivity extends activityBase implements callBacksMain {
 
     /**
      * onAttachFragment
-     * @param fragment
+     *
+     * @param fragment フラグメント
      */
     @Override
-    public void onAttachFragment(Fragment fragment) {
+    public void onAttachFragment(@NotNull Fragment fragment) {
         if (fragment instanceof fragNewArrival) {
             wr_fragNewArrival = new WeakReference<>((fragNewArrival) fragment);
         }
-        if(fragment instanceof fragAttention){
+        if (fragment instanceof fragAttention) {
             wr_fragAttention = new WeakReference<>((fragAttention) fragment);
         }
-        if(fragment instanceof fragSearch){
+        if (fragment instanceof fragSearch) {
             wr_fragSearch = new WeakReference<>((fragSearch) fragment);
         }
-        if(fragment instanceof fragFavorite){
+        if (fragment instanceof fragFavorite) {
             wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
         }
-        if(fragment instanceof fragNoti){
+        if (fragment instanceof fragNoti) {
             wr_fragNoti = new WeakReference<>((fragNoti) fragment);
         }
     }
@@ -232,7 +189,7 @@ public class MainActivity extends activityBase implements callBacksMain {
     /**
      * onCreate*
      *
-     * @param savedInstanceState
+     * @param savedInstanceState インスタンス状態
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,21 +212,21 @@ public class MainActivity extends activityBase implements callBacksMain {
             viewPager.setAdapter(sectionsPagerAdapter);
             twitterUtils.getTwitterUserInfo(); //自ユーザー情報取得
             //タブ
-            tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout = findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(viewPager);
             setUpTabIcon();
             //ヘッダー
             TextView title = findViewById(R.id.hd_dispTitle);
             title.setText(R.string.hd_title_main);
             //ユーザーアイコン
-            ImageView user_icon = (ImageView) findViewById(R.id.fs_img_account);
+            ImageView user_icon = findViewById(R.id.fs_img_account);
             user_icon.setOnClickListener(userIconClick);
             //リロードアイコン
-            ImageView reload_icon = (ImageView) findViewById(R.id.fs_img_reload);
+            ImageView reload_icon = findViewById(R.id.fs_img_reload);
             reload_icon.setOnClickListener(reloadIconClick);
 
             //ツイートボタン
-            ImageView tweet_btn = (ImageView) findViewById(R.id.fs_img_tweet);
+            ImageView tweet_btn = findViewById(R.id.fs_img_tweet);
             tweet_btn.setOnClickListener(iconTweetClick);
 
         } catch (Exception e) {
@@ -282,7 +239,7 @@ public class MainActivity extends activityBase implements callBacksMain {
      * ・タブのタイトル
      * ・タブ順
      */
-    private void setTabInfo(){
+    private void setTabInfo() {
         newArrival = getResources().getString(R.string.tab_text_newArrival);
         attention = getResources().getString(R.string.tab_text_attention);
         search = getResources().getString(R.string.tab_text_search);
@@ -306,20 +263,12 @@ public class MainActivity extends activityBase implements callBacksMain {
         Dialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_TwitterLoginCheck_title)
                 .setMessage(R.string.dialog_TwitterLoginCheck_message)
-                .setPositiveButton("OK(ログイン画面へ)", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(getApplication(), TwitterLoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
+                .setPositiveButton("OK(ログイン画面へ)", (dialog12, which) -> {
+                    Intent intent = new Intent(getApplication(), TwitterLoginActivity.class);
+                    startActivity(intent);
+                    finish();
                 })
-                .setNegativeButton("キャンセル(アプリを閉じる)", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        moveTaskToBack(true);
-                    }
-                })
+                .setNegativeButton("キャンセル(アプリを閉じる)", (dialog1, which) -> moveTaskToBack(true))
                 .show();
     }
 
@@ -327,7 +276,7 @@ public class MainActivity extends activityBase implements callBacksMain {
      * コールバック関数（Twitterの自ユーザー情報取得後）
      * アカウント画像をアイコンとして表示
      *
-     * @param user
+     * @param user ユーザー情報
      */
     @Override
     public void callBackGetUser(User user) {
@@ -345,13 +294,13 @@ public class MainActivity extends activityBase implements callBacksMain {
      */
     private void setUpTabIcon() {
         //アイコン設定
-        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
-        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
-        tabLayout.getTabAt(4).setIcon(tabIcons[4]);
+        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(tabIcons[0]);
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setIcon(tabIcons[1]);
+        Objects.requireNonNull(tabLayout.getTabAt(2)).setIcon(tabIcons[2]);
+        Objects.requireNonNull(tabLayout.getTabAt(3)).setIcon(tabIcons[3]);
+        Objects.requireNonNull(tabLayout.getTabAt(4)).setIcon(tabIcons[4]);
         //初期選択タブ
-        tabLayout.getTabAt(0).select();
+        Objects.requireNonNull(tabLayout.getTabAt(0)).select();
     }
 
     /**

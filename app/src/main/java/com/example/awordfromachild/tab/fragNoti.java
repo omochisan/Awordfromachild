@@ -12,20 +12,15 @@ import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksNoti;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
-import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import twitter4j.DirectMessageList;
-import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 
@@ -46,7 +41,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             int checkRadioID = radioGroup.getCheckedRadioButtonId();
             setGetMethod(checkRadioID);
             getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
-                    vid_nowChecked = checkRadioID; //現在の選択状態を保持
+            vid_nowChecked = checkRadioID; //現在の選択状態を保持
         }
     };
 
@@ -93,74 +88,59 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     /**
      * 選択ラジオボタンごとにデータ取得方法を設定
      *
-     * @param checkRadioID
+     * @param checkRadioID 選択ラジオボタン　リソースID
      */
     private void setGetMethod(int checkRadioID) {
-        switch (checkRadioID) {
-            case R.id.fno_rb_favorite:
-            case R.id.fno_rb_retweet:
-                getMethod = twitterValue.getMethod.TIMELINE;
-                break;
-
-            case R.id.fno_rb_dm:
-                getMethod = twitterValue.getMethod.DM;
-                break;
+        if (checkRadioID == R.id.fno_rb_favorite || checkRadioID == R.id.fno_rb_retweet) {
+            getMethod = twitterValue.getMethod.TIMELINE;
+        } else if (checkRadioID == R.id.fno_rb_dm) {
+            getMethod = twitterValue.getMethod.DM;
         }
+
         //バックアップ
         if (adapter == null) return;
-        switch (vid_nowChecked) {
-            case R.id.fno_rb_favorite:
-                bk_list_favorite = getItemList();
-                break;
-
-            case R.id.fno_rb_retweet:
-                bk_list_reTweet = getItemList();
-                break;
-
-            case R.id.fno_rb_dm:
-                bk_list_dm = getItemList_dm();
-                break;
+        if (vid_nowChecked == R.id.fno_rb_favorite) {
+            bk_list_favorite = getItemList();
+        } else if (vid_nowChecked == R.id.fno_rb_retweet) {
+            bk_list_reTweet = getItemList();
+        } else if (vid_nowChecked == R.id.fno_rb_dm) {
+            bk_list_dm = getItemList_dm();
         }
     }
 
     /**
      * 選択ラジオボタンごとにデータ取得
      *
-     * @param checkRadioID
+     * @param checkRadioID 選択ラジオボタン　リソースID
      */
     private void getData(int checkRadioID, String howToDisplay) {
-        switch (checkRadioID) {
-            case R.id.fno_rb_favorite:
-            case R.id.fno_rb_retweet:
-                //最新ツイート取得
-                if (howToDisplay == twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT) {
-                    long sinceID = ((Status) adapter.getItem(0)).getId();
-                    twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, sinceID,
-                            twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, howToDisplay);
-                } else {
-                    List<Status> _bk = checkRadioID == R.id.fno_rb_favorite ?
-                            bk_list_favorite : bk_list_reTweet;
-                    if (_bk != null) {  //バックアップがある場合
-                        adapter.clear();
-                        adapter.addItems(_bk, null);
-                        adapter.notifyDataSetChanged();
-                    } else { //バックアップない場合、取得
-                        twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, 0,
-                                twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, howToDisplay);
-                    }
-                }
-                break;
-
-            case R.id.fno_rb_dm:
-                if (bk_list_dm != null) {  //バックアップがある場合
+        if (checkRadioID == R.id.fno_rb_favorite || checkRadioID == R.id.fno_rb_retweet) {
+            //最新ツイート取得
+            if (howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)) {
+                long sinceID = adapter.getItem(0).getId();
+                twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, sinceID,
+                        twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, howToDisplay);
+            } else {
+                List<Status> _bk = checkRadioID == R.id.fno_rb_favorite ?
+                        bk_list_favorite : bk_list_reTweet;
+                if (_bk != null) {  //バックアップがある場合
                     adapter.clear();
-                    adapter.addItems(null, bk_list_dm);
+                    adapter.addItems(_bk, null);
                     adapter.notifyDataSetChanged();
                 } else { //バックアップない場合、取得
-                    twitterUtils.getDirectMessages(null,
-                            twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+                    twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, 0,
+                            twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, howToDisplay);
                 }
-                break;
+            }
+        } else if (checkRadioID == R.id.fno_rb_dm) {
+            if (bk_list_dm != null) {  //バックアップがある場合
+                adapter.clear();
+                adapter.addItems(null, bk_list_dm);
+                adapter.notifyDataSetChanged();
+            } else { //バックアップない場合、取得
+                twitterUtils.getDirectMessages(null,
+                        twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+            }
         }
     }
 

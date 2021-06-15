@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 import twitter4j.TwitterException;
@@ -180,7 +181,8 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
         //スピナー表示
         ProgressBar spinner = new ProgressBar(this);
         weak_pop.setContentView(spinner);
-        weak_pop.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_lightgray));
+        weak_pop.setBackgroundDrawable(
+                ResourcesCompat.getDrawable(getResources(), R.drawable.popup_lightgray, null));
         // 表示サイズの設定 今回は幅300dp
         float width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
         weak_pop.setWindowLayoutMode((int) width, WindowManager.LayoutParams.WRAP_CONTENT);

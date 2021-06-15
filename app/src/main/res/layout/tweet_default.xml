@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,7 +18,8 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="10dp"
+            android:contentDescription="@string/img_icon" />
 
         <LinearLayout
             android:id="@+id/tw_linear"
@@ -32,8 +34,8 @@
                 android:id="@+id/tw_tweetheader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_retweet"
-                android:text="TextView"
+                app:drawableStartCompat="@drawable/ic_retweet"
+                android:text=""
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -109,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
-                    android:drawableStart="@drawable/ic_replay"
+                    app:drawableStartCompat="@drawable/ic_replay"
                     android:text="rep"
                     android:textColor="@color/tweet_gray"
                     android:visibility="invisible" />
@@ -119,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
-                    android:drawableStart="@drawable/ic_retweet"
+                    app:drawableStartCompat="@drawable/ic_retweet"
                     android:text="ret"
                     android:textColor="@color/tweet_gray" />
 
@@ -128,7 +130,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
-                    android:drawableStart="@drawable/ic_favo"
+                    app:drawableStartCompat="@drawable/ic_favo"
                     android:text="like"
                     android:textColor="@color/tweet_gray" />
             </LinearLayout>

@@ -3,6 +3,7 @@ package com.example.awordfromachild;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -65,10 +67,10 @@ import twitter4j.conf.ConfigurationBuilder;
  * Twitterの機能実装クラス（検索、ツイート等）
  */
 public class TwitterUtils {
+    static Twitter twitter;
     //コールバック先インターフェース（弱参照）
     private WeakReference<callBacksBase> callBacks;
     private Object callBackClass;
-    private static Twitter twitter;
     private static ResponseList<Status> responseList;
     private static Calendar calendar = Calendar.getInstance();
     //エラーハンドリング
@@ -177,43 +179,55 @@ public class TwitterUtils {
     /**
      * ユーザーがいいねしたツイートを取得
      */
-    public void getFavorites(Paging paging, String howToDisplay) {
-        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            protected Object doInBackground(Void... aVoid) {
-                try {
-                    //API制限中かチェック
-                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
-                    ResponseList<twitter4j.Status> result = twitter.getFavorites(paging);
-                    return result;
-                } catch (TwitterException e) {
-                    cancel(true);
-                    return e;
-                } catch (ParseException e) {
-                    cancel(true);
-                    return e;
-                }
-            }
+    public class getFavorites extends AsyncTask<Void, Void, Object> {
+        Paging paging;
+        String howToDisplay;
 
-            @Override
-            protected void onPostExecute(Object responseList) {
-                //API制限チェック
-                checkAPIRate(((ResponseList<twitter4j.Status>) responseList).getRateLimitStatus(),
-                        appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
-                //取得情報返却
-                callBacks.get().callBackGetTweets(
-                        (ResponseList<twitter4j.Status>) responseList, howToDisplay);
-            }
+        /**
+         * コンストラクタ
+         * @param _paging ページング
+         * @param _howToDisplay 取得ツイートの画面追加方法
+         */
+        public getFavorites(Paging _paging, String _howToDisplay){
+            paging = _paging;
+            howToDisplay = _howToDisplay;
+        }
 
-            @Override
-            protected void onCancelled(Object err) {
-                errHand.exceptionHand(err, callBacks);
+        /**
+         * 取得したツイートを画面に追加する方法をセット
+         * @param howToDisplay 取得ツイートの画面追加方法
+         */
+        public void setHowToDisplay(String howToDisplay) {
+            this.howToDisplay = howToDisplay;
+        }
+
+        @Override
+        protected Object doInBackground(Void... aVoid) {
+            try {
+                //API制限中かチェック
+                checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+                return twitter.getFavorites(paging);
+            } catch (TwitterException | ParseException e) {
+                cancel(true);
+                return e;
             }
-        };
-        task.execute();
+        }
+
+        @Override
+        protected void onPostExecute(Object responseList) {
+            //API制限チェック
+            checkAPIRate(((ResponseList<twitter4j.Status>) responseList).getRateLimitStatus(),
+                    appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
+            //取得情報返却
+            callBacks.get().callBackGetTweets(
+                    (ResponseList<twitter4j.Status>) responseList, howToDisplay);
+        }
+
+        @Override
+        protected void onCancelled(Object err) {
+            errHand.exceptionHand(err, callBacks);
+        }
     }
-
 
     /**
      * 指定ツイートをいいねする
@@ -241,8 +255,6 @@ public class TwitterUtils {
 
             @Override
             protected void onPostExecute(Object status) {
-                //API制限チェック
-                checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
             }
 
             @Override
@@ -847,7 +859,8 @@ public class TwitterUtils {
             calendar.add(Calendar.SECOND, rateLimit.getSecondsUntilReset() + 10);
             date = calendar.getTime();
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat(appSharedPreferences.API_RATE_DATE_FORMAT);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(
+                    appSharedPreferences.API_RATE_DATE_FORMAT, Locale.JAPANESE);
             String strDate = dateFormat.format(date);
 
             //保存
@@ -873,7 +886,8 @@ public class TwitterUtils {
         if (date_string == null) return;
 
         //制限解除日時分と現在を比較
-        SimpleDateFormat dateFormat = new SimpleDateFormat(appSharedPreferences.API_RATE_DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                appSharedPreferences.API_RATE_DATE_FORMAT, Locale.JAPANESE);
         Date untilReset_date = dateFormat.parse(date_string);
         Date now_date = new Date();
         boolean flg_reset = now_date.after(untilReset_date);

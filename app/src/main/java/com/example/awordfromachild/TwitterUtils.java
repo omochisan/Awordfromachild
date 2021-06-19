@@ -69,14 +69,13 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterUtils {
     static Twitter twitter;
     //コールバック先インターフェース（弱参照）
-    private WeakReference<callBacksBase> callBacks;
-    private Object callBackClass;
+    private final WeakReference<callBacksBase> callBacks;
     private static ResponseList<Status> responseList;
-    private static Calendar calendar = Calendar.getInstance();
+    private static final Calendar calendar = Calendar.getInstance();
     //エラーハンドリング
     private static exceptionHandling errHand;
     //フォローユーザーリスト
-    private static ArrayList<Long> friendIDs_list = new ArrayList<Long>();
+    private static final ArrayList<Long> friendIDs_list = new ArrayList<Long>();
     //ストリーミング
     private static TwitterStream twitterStream;
 
@@ -84,7 +83,7 @@ public class TwitterUtils {
      * コンストラクタ
      * （コールバック先の画面を弱参照）
      *
-     * @param callBacks
+     * @param callBacks コールバック先
      */
     public TwitterUtils(callBacksBase callBacks) {
         this.callBacks = new WeakReference<>(callBacks);
@@ -94,7 +93,7 @@ public class TwitterUtils {
     /**
      * Twitterインスタンスの生成
      *
-     * @param context
+     * @param context コンテキスト
      * @return Twitterインスタンス
      */
     public static Twitter getTwitterInstance(Context context) {
@@ -113,8 +112,8 @@ public class TwitterUtils {
     /**
      * トークンの格納
      *
-     * @param context
-     * @param accessToken
+     * @param context コンテキスト
+     * @param accessToken アクセストークン
      */
     public static void storeAccessToken(Context context, AccessToken accessToken) {
         //トークンの設定
@@ -142,8 +141,8 @@ public class TwitterUtils {
     /**
      * トークンの読み込み
      *
-     * @param context
-     * @return
+     * @param context コンテキスト
+     * @return トークン
      */
     public static AccessToken loadAccessToken(Context context) {
         //preferenceからトークンの呼び出し
@@ -160,8 +159,8 @@ public class TwitterUtils {
     /**
      * トークンの有無判定
      *
-     * @param context
-     * @return
+     * @param context コンテキスト
+     * @return トークンの有無
      */
     public static boolean hasAccessToken(Context context) {
         return loadAccessToken(context) != null;
@@ -170,7 +169,7 @@ public class TwitterUtils {
     /**
      * TwitterUtilsインスタンスを設定
      *
-     * @param context
+     * @param context コンテキスト
      */
     public void setTwitterInstance(Context context) {
         twitter = getTwitterInstance(context);
@@ -179,16 +178,19 @@ public class TwitterUtils {
     /**
      * ユーザーがいいねしたツイートを取得
      */
-    public class getFavorites extends AsyncTask<Void, Void, Object> {
+    public static class getFavorites extends AsyncTask<Void, Void, Object> {
         Paging paging;
         String howToDisplay;
+        WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
+         * @param callBacks コールバック先
          * @param _paging ページング
          * @param _howToDisplay 取得ツイートの画面追加方法
          */
-        public getFavorites(Paging _paging, String _howToDisplay){
+        public getFavorites(callBacksBase callBacks, Paging _paging, String _howToDisplay){
+            this.callBacks = new WeakReference<>(callBacks);
             paging = _paging;
             howToDisplay = _howToDisplay;
         }
@@ -215,12 +217,11 @@ public class TwitterUtils {
 
         @Override
         protected void onPostExecute(Object responseList) {
-            //API制限チェック
-            checkAPIRate(((ResponseList<twitter4j.Status>) responseList).getRateLimitStatus(),
+            //API制限状態登録
+            ResponseList<twitter4j.Status> _responseList = autoCast(responseList);
+            checkAPIRate(_responseList.getRateLimitStatus(),
                     appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
-            //取得情報返却
-            callBacks.get().callBackGetTweets(
-                    (ResponseList<twitter4j.Status>) responseList, howToDisplay);
+            callBacks.get().callBackGetTweets(_responseList, howToDisplay);
         }
 
         @Override
@@ -230,39 +231,56 @@ public class TwitterUtils {
     }
 
     /**
-     * 指定ツイートをいいねする
-     *
-     * @param id
+     * 戻り値の型に合わせてキャスト
+     * @param obj キャスト前
+     * @param <T> ジェネリクス
+     * @return キャスト後
      */
-    public void createFavorite(long id) {
-        android.os.AsyncTask<Void, Void, Object> task = new android.os.AsyncTask<Void, Void, Object>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            protected Object doInBackground(Void... aVoid) {
-                try {
-                    //API制限中かチェック
-                    checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
-                    twitter4j.Status status = twitter.createFavorite(id);
-                    return status;
-                } catch (TwitterException e) {
-                    cancel(true);
-                    return e;
-                } catch (ParseException e) {
-                    cancel(true);
-                    return e;
-                }
-            }
+    @SuppressWarnings("unchecked")
+    public static <T> T autoCast(Object obj) {
+        return (T) obj;
+    }
 
-            @Override
-            protected void onPostExecute(Object status) {
-            }
+    /**
+     * 指定ツイートをいいねする
+     */
+    public static class createFavorite extends AsyncTask<Void, Void, Object>{
+        long id;
+        WeakReference<callBacksBase> callBacks;
 
-            @Override
-            protected void onCancelled(Object err) {
-                errHand.exceptionHand(err, callBacks);
+        /**
+         * コンストラクタ
+         * @param callBacks コールバック先
+         */
+        public createFavorite(callBacksBase callBacks){
+            this.callBacks = new WeakReference<>(callBacks);
+        }
+
+        public void setTweetId(Long id){
+            this.id = id;
+        }
+
+        @Override
+        protected Object doInBackground(Void... aVoid) {
+            try {
+                //API制限中かチェック
+                checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_PUT_FAVORITE);
+                twitter4j.Status status = twitter.createFavorite(id);
+                return status;
+            } catch (TwitterException | ParseException e) {
+                cancel(true);
+                return e;
             }
-        };
-        task.execute();
+        }
+
+        @Override
+        protected void onPostExecute(Object status) {
+        }
+
+        @Override
+        protected void onCancelled(Object err) {
+            errHand.exceptionHand(err, callBacks);
+        }
     }
 
     /**
@@ -546,6 +564,7 @@ public class TwitterUtils {
 
     /**
      * HTTP通信（GET)
+     * ※現在不使用
      *
      * @param endpoint
      * @return
@@ -850,7 +869,7 @@ public class TwitterUtils {
      * @param rateLimit
      * @param sharedPreferencesKey
      */
-    private void checkAPIRate(RateLimitStatus rateLimit, String sharedPreferencesKey) {
+    private static void checkAPIRate(RateLimitStatus rateLimit, String sharedPreferencesKey) {
         //残りAPI使用可能数が0の場合、制限解除日時分を保存
         if (rateLimit.getRemaining() == 0) {
             //制限解除日時分を計算
@@ -878,7 +897,7 @@ public class TwitterUtils {
      * @param apiType
      * @return 0=未制限 1以上=制限中（制限解除までの秒数）
      */
-    public void checkAPIUnderRestriction(String apiType) throws ParseException, TwitterException {
+    public static void checkAPIUnderRestriction(String apiType) throws ParseException, TwitterException {
         //制限値取得
         Context app_context = ApplicationController.getInstance().getApplicationContext();
         SharedPreferences preferences = app_context.getSharedPreferences(appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);

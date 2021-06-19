@@ -2,7 +2,6 @@ package com.example.awordfromachild.common;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -18,12 +17,10 @@ import com.example.awordfromachild.R;
 import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
-import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.lang.ref.WeakReference;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +36,6 @@ import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
 import twitter4j.Status;
-import twitter4j.TwitterException;
 
 public abstract class fragmentBase extends Fragment implements callBacksBase {
     //Bundleキー
@@ -69,6 +65,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected String getMethod;
     protected Paging paging;
     protected int p_count;
+
+    private fragmentBase getThisClass(){
+        return this;
+    }
 
     @Override
     public void onResume() {
@@ -126,8 +126,8 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                         case twitterValue.getMethod.FAVORITE:
                             p_count++;
                             paging.setPage(p_count);
-                            twitterUtils.new getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
-                            //twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            new TwitterUtils.getFavorites(getThisClass(), paging,
+                                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                             break;
 
                         case twitterValue.getMethod.TIMELINE:

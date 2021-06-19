@@ -37,7 +37,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         query = _query;
         getMethod = twitterValue.getMethod.FAVORITE;
         paging = new Paging(1, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
-        getFavorites = twitterUtils.new getFavorites(
+        getFavorites = new TwitterUtils.getFavorites(this,
                 paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         return inflater.inflate(R.layout.fraggood_layout, container, false);
     }
@@ -49,7 +49,6 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         if (adapter == null || adapter.getCount() == 0) {
             dispSpinner(mPopupWindow);
             getFavorites.execute();
-            //twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
     }
 
@@ -62,6 +61,5 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         paging.setPage(1);
         getFavorites.setHowToDisplay(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
         getFavorites.execute();
-        //twitterUtils.getFavorites(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
     }
 }

@@ -40,9 +40,12 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     private final static String mapKey_favorite = "favo";
     private final static String mapKey_retweet = "ret";
     //ツイート群の現在の状態を保持
-    public List<Map<String, Object>> arr_mItems_status = new ArrayList<Map<String, Object>>();
+    public List<Map<String, Object>> arr_mItems_status = new ArrayList<>();
+
     //Twitter処理クラス
     private static TwitterUtils twitterUtils;
+    static TwitterUtils.createFavorite createFavorite;
+
     private List<twitter4j.Status> mItems;
     private DirectMessageList mItems_dm;
     private Context app_context;
@@ -72,15 +75,17 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         //Twitter共通処理クラス生成
         twitterUtils = new TwitterUtils((callBacksBase) context);
         twitterUtils.setTwitterInstance(getContext());
+        createFavorite = new TwitterUtils.createFavorite(this);
+
         app_context = ApplicationController.getInstance().getApplicationContext();
     }
 
     /**
      * アイコンを設定
      *
-     * @param ptn
-     * @param validity
-     * @param view
+     * @param ptn アイコンの種類
+     * @param validity アイコンON・OFF
+     * @param view 対象アイコンがセットされたtextView
      */
     private void setIcon(String ptn, boolean validity, TextView view) {
         switch (ptn) {
@@ -118,11 +123,11 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     /**
      * 現在のツイート群の状態を保持する
      *
-     * @param target
-     * @return
+     * @param target ツイート（単体もしくは配列）
+     * @return ツイート群
      */
     public List<Map<String, Object>> setNewestStatus(Object target) {
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> list = new ArrayList<>();
 
         //複数ツイートを保持
         if (target instanceof ArrayList) {
@@ -153,7 +158,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     /**
      * ユーザーアイコンをセット
      *
-     * @param view
+     * @param view         ビュー
      * @param item         ツイート
      * @param vid_userIcon ユーザーアイコンのviewID
      * @param vid_userName ユーザーネームボックスのviewID
@@ -173,29 +178,25 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     }
 
     /**
-     * リツイート元のツイートを取得
-     * @param view
-     * @param item
-     * @param vid_tweetHeader
-     * @return 元ツイート
+     * リツイート元のツイートを設定
+     * @param view ビュー
+     * @param item リツイート
+     * @param vid_tweetHeader リツイート情報表示するviewのID
      */
-    public Status setReTweet(View view, Status item, int vid_tweetHeader) {
+    public void setReTweet(View view, Status item, int vid_tweetHeader) {
         //リツイートの場合、元のツイート情報を取得
-        Status _item = item;
         if (item.isRetweet()) {
-            _item = item.getRetweetedStatus();
             TextView tweet_header = view.findViewById(vid_tweetHeader);
             tweet_header.setVisibility(View.VISIBLE);
             tweet_header.setText(item.getUser().getName() + "さんがリツイート");
         }
-        return _item;
     }
 
     /**
      * フッター設定（リツイート、いいね等）
      *
-     * @param view
-     * @param position
+     * @param view ビュー
+     * @param position 対象ツイートのリストビュー内index
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setFooterIcon(View view, int position, int vid_like, int vid_favorite) {
@@ -213,7 +214,8 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             boolean st_favo = (boolean) arr_mItems_status.get(position).get(mapKey_favorite);
             if (!st_favo) {
                 setIcon(ptn_favo, true, like);
-                twitterUtils.createFavorite(_item.getId());
+                createFavorite.setTweetId(_item.getId());
+                createFavorite.execute();
                 arr_mItems_status.get(position).replace(mapKey_favorite, true);
             } else {
                 setIcon(ptn_favo, false, like);
@@ -242,15 +244,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
     /**
      * オーバーロード
-     * @param view
-     * @param item
-     * @param flg_detailDisplay
-     * @param vid_time
-     * @param vid_userID
-     * @param vid_main
-     * @param vid_like
-     * @param vid_reTweet
-     * @param vid_reply
+     * @param view ビュー
+     * @param item ツイート
+     * @param flg_detailDisplay ツイート詳細画面有無
+     * @param vid_time ビューID_ツイート投稿日付
+     * @param vid_userID ビューID_ユーザーID
+     * @param vid_main ビューID_ツイート文
+     * @param vid_like ビューID_いいね
+     * @param vid_reTweet ビューID_リツイート
+     * @param vid_reply ビューID_リプライ
      */
     public void setValue(View view, Status item, boolean flg_detailDisplay,
     int vid_time, int vid_userID, int vid_main,
@@ -367,7 +369,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     /**
      * リストにセットするツイート一覧を最後尾に追加設定。
      *
-     * @param items
+     * @param items 追加ツイート
      */
     public void addItems(List<Status> items, DirectMessageList items_dm) {
         if(items != null){
@@ -381,7 +383,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     /**
      * リストにセットするツイート一覧を先頭に追加設定。
      *
-     * @param items
+     * @param items 追加ツイート
      */
     public void unShiftItems(List<Status> items, List<DirectMessage> items_dm) {
         if(items != null){
@@ -395,9 +397,9 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     /**
      * 画面をスクロールし、新しい一行が表示されるたびに呼ばれ、1行のUIを作成する。
      *
-     * @param position
-     * @param convertView
-     * @param parent
+     * @param position 対象ツイートのリストビュー内のindex
+     * @param convertView 再利用可能ビュー
+     * @param parent 親ビュー
      * @return
      */
     @RequiresApi(api = Build.VERSION_CODES.N)

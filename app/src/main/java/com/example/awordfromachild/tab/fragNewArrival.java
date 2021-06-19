@@ -49,6 +49,9 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
         /*long[] l = {};
         String[] str = {"マヂラブ"};
         startStreaming(str, l);*/
+
+        new TwitterUtils.getFavorites(this,
+                null, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
     }
 
     /**

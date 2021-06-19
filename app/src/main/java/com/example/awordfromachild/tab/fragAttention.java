@@ -67,6 +67,9 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
             runSearch(_query, null, null, 0, qResult,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
+
+        new TwitterUtils.getFavorites(this,
+                paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
     }
 
     /**

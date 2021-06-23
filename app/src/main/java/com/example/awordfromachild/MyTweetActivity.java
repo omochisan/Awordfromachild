@@ -24,6 +24,7 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
     //onPuase時、ListView復元のため一時保存
     private static Bundle bundle = new Bundle();
     WeakReference<callBacksBase> callBacks;
+    static TwitterUtils.getTimeLine getTimeLine;
 
     @Override
     public void onResume() {
@@ -51,13 +52,15 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
             setContentView(R.layout.activity_mytweet);//画面基礎描画
             mPopupWindow = new PopupWindow(MyTweetActivity.this);
             callBacks = new WeakReference<>(this);
-            vid_listView = R.id.fn_main;
+            vid_listView = R.id.amt_main;
+            getTimeLine = new TwitterUtils.getTimeLine(this);
             super.onCreate(savedInstanceState);
 
-            adapter.getItem(1000);
             if (adapter == null || adapter.getCount() == 0) {
                 //クエリ生成
-                twitterUtils.getTimeLine(twitterValue.timeLineType.USER, 0, 0, 0, null);
+                getTimeLine.setParam(twitterValue.timeLineType.USER, 0, 0,
+                        0, null);
+                getTimeLine.execute();
             }
         } catch (Exception e) {
             errHand.exceptionHand(e, callBacks);

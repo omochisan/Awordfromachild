@@ -1,5 +1,6 @@
 package com.example.awordfromachild.common;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -75,6 +76,7 @@ public class httpConnection {
 
         String OAuthBase = OAuthDataSb.toString();
 
+        @SuppressLint({"NewApi", "LocalSuppress"})
         String signature = generateSignature(secretKeySpec, OAuthBase);
         // Mapに署名を追加
         allParams.put("oauth_signature", urlEncode(signature));

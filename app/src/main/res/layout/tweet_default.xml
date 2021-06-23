@@ -56,7 +56,7 @@
                     android:paddingEnd="0dp"
                     android:paddingBottom="5dp"
                     android:singleLine="true"
-                    android:text="userName"
+                    android:text="@string/common_dummy"
                     android:textColor="#000"
                     android:textStyle="bold" />
 
@@ -68,7 +68,7 @@
                     android:layout_weight="1"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    android:text="userID"
+                    android:text="@string/common_dummy"
                     android:textColor="@color/tweet_gray" />
 
                 <TextView
@@ -79,7 +79,7 @@
                     android:layout_weight="1"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    android:text="date"
+                    android:text="@string/common_dummy"
                     android:textColor="@color/tweet_gray" />
             </LinearLayout>
 
@@ -112,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     app:drawableStartCompat="@drawable/ic_replay"
-                    android:text="rep"
+                    android:text="@string/common_dummy"
                     android:textColor="@color/tweet_gray"
                     android:visibility="invisible" />
 
@@ -122,7 +122,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     app:drawableStartCompat="@drawable/ic_retweet"
-                    android:text="ret"
+                    android:text="@string/common_dummy"
                     android:textColor="@color/tweet_gray" />
 
                 <TextView
@@ -131,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     app:drawableStartCompat="@drawable/ic_favo"
-                    android:text="like"
+                    android:text="@string/common_dummy"
                     android:textColor="@color/tweet_gray" />
             </LinearLayout>
 
@@ -150,8 +150,8 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/tw_notweet"
-            android:layout_width="wrap_content"
+            android:id="@+id/tw_noTweet"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/common_no_tweet" />

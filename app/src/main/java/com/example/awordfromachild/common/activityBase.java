@@ -11,14 +11,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.awordfromachild.MyTweetActivity;
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.TwitterUtils;
@@ -29,21 +26,24 @@ import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
 import java.lang.ref.WeakReference;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
-public class activityBase extends AppCompatActivity implements callBacksBase{
+public class activityBase extends AppCompatActivity implements callBacksBase {
     //Bundleキー
     // 現在表示している中で、一番古いツイート
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
+    static WeakReference<Activity> weak_activity;
+    //外部からview操作するためHandlerを利用
+    final Handler handler = new Handler();
+    //スピナー用
+    public PopupWindow mPopupWindow;
     //onPuase時、ListView復元のため一時保存
     protected Bundle bundle = new Bundle();
     //ListViewアダプター
@@ -53,16 +53,12 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
     protected exceptionHandling errHand;
     //検索クエリ
     protected String query;
-    static WeakReference<Activity> weak_activity;
-
     //Twitter処理クラス
-    protected  TwitterUtils twitterUtils;
+    protected TwitterUtils twitterUtils;
+    protected TwitterUtils.search search;
+    protected TwitterUtils.getTimeLine getTimeLine;
     //現在実施中の読込開始ポイント
     protected int now_readPoint = 0;
-    //スピナー用
-    public PopupWindow mPopupWindow;
-    //外部からview操作するためHandlerを利用
-    final Handler handler = new Handler();
     //リストviewID
     protected int vid_listView = 0;
 
@@ -89,16 +85,19 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
+            search = new TwitterUtils.search(this);
+            getTimeLine = new TwitterUtils.getTimeLine(this);
+
             if (callBacksBase.class.isAssignableFrom(this.getClass())) {
                 twitterUtils = new TwitterUtils((callBacksBase) this);
                 twitterUtils.setTwitterInstance(this);
             }
-            if(vid_listView != 0) {
+            if (vid_listView != 0) {
                 listView = findViewById(vid_listView);
             }
             errHand = new exceptionHandling();
 
-            if(listView != null) {
+            if (listView != null) {
                 //リストビューイベント
                 //　スクロール
                 //　ポイントまでスクロールした時、追加で40件読み込み
@@ -117,8 +116,10 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
                             //スピナー表示
                             dispSpinner(mPopupWindow, R.id.amt_main);
                             now_readPoint = readStartCount;
-                            twitterUtils.search(twitterValue.timeLineType.USER, returnLastID(),
+                            getTimeLine.setParam(twitterValue.timeLineType.USER, returnLastID(),
+                                    0, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            getTimeLine.execute();
                         }
                     }
                 });
@@ -140,12 +141,12 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
         }
     }
 
-    public Boolean checkViewDetach(Activity base){
+    public Boolean checkViewDetach(Activity base) {
         weak_activity = new WeakReference<Activity>(base);
         Activity activity = weak_activity.get();
-        if (activity.isDestroyed()){
+        if (activity.isDestroyed()) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -153,7 +154,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
     /**
      * TwitterAPIのレート制限発生
      */
-    public void ex_twitterAPILimit(int secondsUntilReset){
+    public void ex_twitterAPILimit(int secondsUntilReset) {
         double minutes = Math.ceil(secondsUntilReset / 60) + 1;
         String minutes_str = String.valueOf(minutes);
         Toast.makeText(this, "ごめんなさい、この操作は制限中です。\n" +
@@ -164,7 +165,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
     /**
      * チェック例外時、トースト表示
      */
-    public void fail_result(){
+    public void fail_result() {
         Toast.makeText(
                 this, "データの取得に失敗しました。\n後でまたお試しください。",
                 Toast.LENGTH_LONG).show();
@@ -216,9 +217,10 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
 
     /**
      * 表示中ツイートの中で、最後尾のツイートのIDを返却
+     *
      * @return
      */
-    protected long returnLastID(){
+    protected long returnLastID() {
         return adapter.getItem(adapter.getCount() - 1).getId();
     }
 
@@ -257,7 +259,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
                     adapter.unShiftItems(result, null);
                     try {
                         adapter.notifyDataSetChanged();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         System.out.println(e);
                     }
                     restoreListViewSelection();
@@ -279,7 +281,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
         }
 
         //取得可能ツイートがもう無い場合
-        if(getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+        if (getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
             adapter.frg_end = true;
         }
         //VIEWにアイテムが未登録の場合、登録
@@ -295,18 +297,17 @@ public class activityBase extends AppCompatActivity implements callBacksBase{
         //API制限中かチェック
         try {
             twitterUtils.checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
-        } catch (ParseException e) {
-            errHand.exceptionHand(e, callBacks);
-        } catch (TwitterException e) {
+        } catch (ParseException | TwitterException e) {
             errHand.exceptionHand(e, callBacks);
         }
 
         dispSpinner(mPopupWindow, viewID);
         long sinceID = ((Status) adapter.getItem(0)).getId();
         long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
-        twitterUtils.getTimeLine(
+        getTimeLine.setParam(
                 twitterValue.timeLineType.HOME, sinceID, maxID, twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE,
                 twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+        getTimeLine.execute();
     }
 
     /**

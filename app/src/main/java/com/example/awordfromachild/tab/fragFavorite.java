@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
 
 import com.example.awordfromachild.R;
@@ -15,10 +14,7 @@ import com.example.awordfromachild.constant.twitterValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import twitter4j.Paging;
-import twitter4j.ResponseList;
-import twitter4j.Status;
 
 public class fragFavorite extends fragmentBase implements callBacksFavorite {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
@@ -37,8 +33,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         query = _query;
         getMethod = twitterValue.getMethod.FAVORITE;
         paging = new Paging(1, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
-        getFavorites = new TwitterUtils.getFavorites(this,
-                paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+        getFavorites = new TwitterUtils.getFavorites(this);
         return inflater.inflate(R.layout.fraggood_layout, container, false);
     }
 
@@ -48,6 +43,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
             dispSpinner(mPopupWindow);
+            getFavorites.setParams(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
             getFavorites.execute();
         }
     }

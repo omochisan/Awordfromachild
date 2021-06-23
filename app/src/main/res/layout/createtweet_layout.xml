@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -35,13 +34,13 @@
                 android:id="@+id/ct_free_radio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="自由入力" />
+                android:text="@string/ct_inputType_free" />
 
             <RadioButton
                 android:id="@+id/ct_form_radio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="フォーム入力" />
+                android:text="@string/ct_inputType_form" />
 
         </RadioGroup>
 
@@ -62,7 +61,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.35"
-                    android:text="いつ"
+                    android:text="@string/ct_when"
                     android:textSize="@dimen/ct_defaultSize" />
 
                 <EditText
@@ -72,7 +71,8 @@
                     android:layout_weight="0.65"
                     android:ems="10"
                     android:hint="@string/ct_hint1"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:importantForAutofill="no" />
 
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.35"
-                    android:text="どこで"
+                    android:text="@string/ct_where"
                     android:textSize="@dimen/ct_defaultSize" />
 
                 <EditText
@@ -97,7 +97,8 @@
                     android:layout_weight="0.65"
                     android:ems="10"
                     android:hint="@string/ct_hint2"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:importantForAutofill="no" />
 
             </LinearLayout>
 
@@ -112,7 +113,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.35"
-                    android:text="どういうとき"
+                    android:text="@string/ct_how"
                     android:textSize="@dimen/ct_defaultSize" />
 
                 <EditText
@@ -122,7 +123,8 @@
                     android:layout_weight="0.65"
                     android:ems="10"
                     android:hint="@string/ct_hint3"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:importantForAutofill="no" />
 
             </LinearLayout>
 
@@ -136,19 +138,20 @@
                     android:id="@+id/ct_word"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="こどものひとことや会話"
+                    android:text="@string/ct_word"
                     android:textSize="@dimen/ct_defaultSize" />
 
                 <EditText
                     android:id="@+id/ct_input_word"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:hint="@string/ct_hint4"
                     android:inputType="textMultiLine"
                     android:maxLines="5"
-                    android:minLines="5" />
+                    android:minLines="5"
+                    android:importantForAutofill="no" />
 
             </LinearLayout>
 
@@ -157,7 +160,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:text="／000" />
+                android:text="@string/ct_strCount_latter" />
 
             <TextView
                 android:id="@+id/ct_notes_form1"
@@ -185,14 +188,15 @@
                 android:hint="@string/ct_hint5"
                 android:inputType="textMultiLine"
                 android:maxLines="10"
-                android:minLines="10" />
+                android:minLines="10"
+                android:importantForAutofill="no" />
 
             <TextView
                 android:id="@+id/ct_count_free"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:text="／000" />
+                android:text="@string/ct_strCount_latter" />
 
             <TextView
                 android:id="@+id/ct_notes_free1"

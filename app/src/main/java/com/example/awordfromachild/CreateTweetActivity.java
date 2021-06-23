@@ -28,11 +28,13 @@ import twitter4j.Status;
  * 「こどものひとことをツイート」画面
  */
 public class CreateTweetActivity extends activityBase implements callBacksCreateTweet {
+    private static TwitterUtils.tweet tweet;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.createtweet_layout);
         super.onCreate(savedInstanceState);
+        tweet = new TwitterUtils.tweet(this);
         //画面の初期表示処理
         setDisplay();
 
@@ -42,16 +44,16 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
 
         //入力監視（フォーム入力）
         final EditText input_when = findViewById(R.id.ct_input_when);
-        input_when.addTextChangedListener(editTextForm);
+        input_when.addTextChangedListener(editText);
         final EditText input_where = findViewById(R.id.ct_input_where);
-        input_where.addTextChangedListener(editTextForm);
+        input_where.addTextChangedListener(editText);
         final EditText input_how = findViewById(R.id.ct_input_how);
-        input_how.addTextChangedListener(editTextForm);
+        input_how.addTextChangedListener(editText);
         final EditText input_word = findViewById(R.id.ct_input_word);
-        input_word.addTextChangedListener(editTextForm);
+        input_word.addTextChangedListener(editText);
         //入力監視（自由入力）
         final EditText input_tweet_free = findViewById(R.id.ct_input_free);
-        //input_tweet_free.addTextChangedListener(editTextFree);
+        input_tweet_free.addTextChangedListener(editText);
 
         //ラジオボタン処理
         final RadioGroup type_rgroup = findViewById(R.id.ct_inputType);
@@ -61,33 +63,47 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
     /**
      * フォーム入力監視
      */
-    private TextWatcher editTextForm = new TextWatcher() {
+    private TextWatcher editText = new TextWatcher() {
         @Override
         /**
          * 文字入力時に呼び出される。
          * 文字数カウント用
          */
         public void afterTextChanged(Editable s) {
-            TextView textCount = findViewById(R.id.ct_count_form);
-            //全フォーム項目から入力文字取得
-            EditText edit_when = findViewById(R.id.ct_input_when);
-            String str_when = ((SpannableStringBuilder)edit_when.getText()).toString();
-            EditText edit_where = findViewById(R.id.ct_input_where);
-            String str_where = ((SpannableStringBuilder)edit_where.getText()).toString();
-            EditText edit_how = findViewById(R.id.ct_input_how);
-            String str_how = ((SpannableStringBuilder)edit_how.getText()).toString();
-            EditText edit_word = findViewById(R.id.ct_input_word);
-            String str_word = ((SpannableStringBuilder)edit_word.getText()).toString();
-            // 文字長をカウントして、制限文字数を超えると「オーバー」とする
-            int all_len_count =
-                    str_when.length() + str_where.length() + str_how.length() + str_word.length();
+            TextView textCount = null;
+            int all_len_count = 0;
+            RadioGroup type_rgroup = findViewById(R.id.ct_inputType);
+            int checked = type_rgroup.getCheckedRadioButtonId();
+            //自由入力
+            if(checked == R.id.ct_free_radio) {
+                textCount = findViewById(R.id.ct_count_free);
+                EditText vt = findViewById(R.id.ct_input_free);
+                all_len_count = ((SpannableStringBuilder)vt.getText()).toString().length();
+            }else if(checked == R.id.ct_form_radio){
+                textCount = findViewById(R.id.ct_count_form);
+                //全フォーム項目から入力文字取得
+                EditText edit_when = findViewById(R.id.ct_input_when);
+                String str_when = ((SpannableStringBuilder)edit_when.getText()).toString();
+                EditText edit_where = findViewById(R.id.ct_input_where);
+                String str_where = ((SpannableStringBuilder)edit_where.getText()).toString();
+                EditText edit_how = findViewById(R.id.ct_input_how);
+                String str_how = ((SpannableStringBuilder)edit_how.getText()).toString();
+                EditText edit_word = findViewById(R.id.ct_input_word);
+                String str_word = ((SpannableStringBuilder)edit_word.getText()).toString();
+                // 文字長をカウントして、制限文字数を超えると「オーバー」とする
+                all_len_count =
+                        str_when.length() + str_where.length() + str_how.length() + str_word.length();
+            }
+
             String str;
             if (all_len_count > twitterValue.createTweetValue.CHARALIMIT_FREE) {
+                checkCharaCount(false);
                 str = "文字数オーバーです。　" + String.valueOf(all_len_count) + "／"
                         + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE);
                 textCount.setText(str);
                 textCount.setTextColor(Color.RED);
             } else {
+                checkCharaCount(true);
                 str = String.valueOf(all_len_count) + "／"
                         + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE);
                 textCount.setText(str);
@@ -128,13 +144,15 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
         if(set_dispType.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)){
             type_rgroup.check(R.id.ct_free_radio);
             TextView count_free = findViewById(R.id.ct_count_free);
-            count_free.setText("0／" + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FREE));
+            String text = "0／" + twitterValue.createTweetValue.CHARALIMIT_FREE;
+            count_free.setText(text);
             linear_form.setVisibility(View.GONE);
             linear_free.setVisibility(View.VISIBLE);
         }else{ //フォーム入力
             type_rgroup.check(R.id.ct_form_radio);
             TextView count_form = findViewById(R.id.ct_count_form);
-            count_form.setText("0／" + String.valueOf(twitterValue.createTweetValue.CHARALIMIT_FORM));
+            String text = "0／" + twitterValue.createTweetValue.CHARALIMIT_FORM;
+            count_form.setText(text);
             linear_form.setVisibility(View.VISIBLE);
             linear_free.setVisibility(View.GONE);
         }
@@ -161,8 +179,28 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
             OnClickListener btnSentClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            String text = "";
+            TextView vt = null;
+            RadioGroup type_rgroup = findViewById(R.id.ct_inputType);
+            int checked = type_rgroup.getCheckedRadioButtonId();
+            //自由入力
+            if(checked == R.id.ct_form_radio) {
+                EditText edit_when = findViewById(R.id.ct_input_when);
+                String str_when = ((SpannableStringBuilder)edit_when.getText()).toString();
+                EditText edit_where = findViewById(R.id.ct_input_where);
+                String str_where = ((SpannableStringBuilder)edit_where.getText()).toString();
+                EditText edit_how = findViewById(R.id.ct_input_how);
+                String str_how = ((SpannableStringBuilder)edit_how.getText()).toString();
+                EditText edit_word = findViewById(R.id.ct_input_word);
+                String str_word = ((SpannableStringBuilder)edit_word.getText()).toString();
+                text = str_when + str_where + str_how + str_word;
+            }else if(checked == R.id.ct_free_radio){
+                vt = findViewById(R.id.ct_input_free);
+                text = ((SpannableStringBuilder)vt.getText()).toString();
+            }
             //ツイート投稿
-            twitterUtils.tweet();
+            tweet.setText(text);
+            tweet.execute();
         }
     };
 
@@ -170,20 +208,12 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
      * 文字数チェック&オーバー時処理
      * @return
      */
-    private void checkCharaCount(EditText editText, String type){
-        String tweet = String.valueOf(editText.getText());
-        int countLimit = 0;
-        if(type.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)){
-            countLimit = twitterValue.createTweetValue.CHARALIMIT_FREE;
-        }else {
-            countLimit = twitterValue.createTweetValue.CHARALIMIT_FORM;
-        }
-        //文字数オーバーの場合、投稿ボタン非活性
+    private void checkCharaCount(boolean enable){
         Button btn_sent = findViewById(R.id.ct_btn_sent);
-        if (tweet.length() > countLimit) {
-            btn_sent.setEnabled(false);
-        }else{
+        if (enable) {
             btn_sent.setEnabled(true);
+        }else{
+            btn_sent.setEnabled(false);
         }
     }
 

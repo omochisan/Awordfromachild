@@ -161,25 +161,25 @@
                         android:id="@+id/set_at_popular"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="人気" />
+                        android:text="@string/set_at_popular" />
 
                     <RadioButton
                         android:id="@+id/set_at_s"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="小" />
+                        android:text="@string/set_at_large" />
 
                     <RadioButton
                         android:id="@+id/set_at_m"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="中" />
+                        android:text="@string/set_at_medium" />
 
                     <RadioButton
                         android:id="@+id/set_at_l"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="大" />
+                        android:text="@string/set_at_small" />
                 </RadioGroup>
 
             </LinearLayout>
@@ -213,7 +213,7 @@
             android:layout_marginEnd="@dimen/set_margin_long"
             android:background="#AEAEAE"
             android:backgroundTint="#E48112"
-            android:text="保存"
+            android:text="@string/common_btn_save"
             android:textSize="@dimen/set_stSize_btn" />
 
         <Button
@@ -224,7 +224,7 @@
             android:layout_marginEnd="@dimen/set_margin_long"
             android:background="#AEAEAE"
             android:backgroundTint="#808080"
-            android:text="キャンセル"
+            android:text="@string/common_btn_cancel"
             android:textSize="@dimen/set_stSize_btn" />
     </LinearLayout>
 

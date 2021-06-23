@@ -60,17 +60,17 @@ public class SetHeader extends LinearLayout {
         switch (activity_className) {
             case activityClassName.activity_main:
             case activityClassName.activity_contextThemeWrapper:
-                title.setText("メイン画面");
+                title.setText(R.string.hd_title_main);
                 ((ImageView) layout.findViewById(R.id.hd_icon)).setImageResource(R.drawable.main_ic_setting);
                 break;
 
             case activityClassName.activity_createTweet:
-                title.setText("こどものひとこと をツイート");
+                title.setText(R.string.hd_title_tweet);
                 ((ImageView) layout.findViewById(R.id.hd_icon)).setImageResource(R.drawable.main_ic_setting);
                 break;
 
             case activityClassName.activity_setting:
-                title.setText("設定");
+                title.setText(R.string.hd_title_setting);
                 ((ImageView) layout.findViewById(R.id.hd_icon)).setImageResource(R.drawable.main_ic_home);
                 break;
 

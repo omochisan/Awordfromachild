@@ -23,9 +23,13 @@ import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
 
+/**
+ * 注目タブの実装
+ */
 public class fragAttention extends fragmentBase implements callBacksAttention {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
     static String _query = "";
+    static TwitterUtils.getFavorites getFavorites;
 
     @Nullable
     @Override
@@ -34,6 +38,7 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         twitterUtils = new TwitterUtils(this);
+        getFavorites = new TwitterUtils.getFavorites(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fa_main;
         getMethod = twitterValue.getMethod.SEARCH;
@@ -67,9 +72,6 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
             runSearch(_query, null, null, 0, qResult,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
         }
-
-        new TwitterUtils.getFavorites(this,
-                paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
     }
 
     /**

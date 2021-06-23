@@ -1,6 +1,8 @@
 package com.example.awordfromachild.common;
 
+import androidx.fragment.app.Fragment;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -26,8 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
 import twitter4j.DirectMessage;
 import twitter4j.DirectMessageList;
 import twitter4j.HashtagEntity;
@@ -47,6 +49,8 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected Bundle bundle = new Bundle();
     //Twitter処理クラス
     protected TwitterUtils twitterUtils;
+    protected TwitterUtils.search search;
+    protected TwitterUtils.getFavorites getFavorites;
     //現在実施中の読込開始ポイント
     protected int now_readPoint = 0;
     //スピナー用
@@ -68,6 +72,27 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
     private fragmentBase getThisClass(){
         return this;
+    }
+
+    private callBacksBase getThis(){
+        return this;
+    }
+
+    /**
+     * 検索機能取得
+     * @return 検索機能
+     */
+    protected TwitterUtils.search returnSearch(){
+        return new TwitterUtils.search(getThis());
+    }
+
+    /**
+     * お気に入り取得機能取得
+     * @return お気に入り取得機能
+     */
+    protected TwitterUtils.getFavorites returnGetFavorites(){
+        if(getFavorites == null) getFavorites = new TwitterUtils.getFavorites(getThis());
+        return getFavorites;
     }
 
     @Override
@@ -119,15 +144,20 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     now_readPoint = readStartCount;
                     switch (getMethod){
                         case twitterValue.getMethod.SEARCH:
-                            twitterUtils.search(query, returnLastID(),
+                            TwitterUtils.search search = new TwitterUtils.search(getThis());
+                            search.setParam(query, null, returnLastID(),
+                                    twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET,
+                                    Query.ResultType.recent,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            search.execute();
                             break;
 
                         case twitterValue.getMethod.FAVORITE:
                             p_count++;
                             paging.setPage(p_count);
-                            new TwitterUtils.getFavorites(getThisClass(), paging,
+                            returnGetFavorites().setParams(paging,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            returnGetFavorites().execute();
                             break;
 
                         case twitterValue.getMethod.TIMELINE:
@@ -143,25 +173,22 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         });
 
         // 行選択イベント
-        listView.setOnItemClickListener(new AbsListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ListView _listView = (ListView) adapterView;
-                if(!(_listView.getItemAtPosition(i) instanceof Status)){
-                    return;
-                }
-                Status status = (Status) _listView.getItemAtPosition(i);
-                Intent intent = new Intent(getActivity(), TweetDetailActivity.class);
-                intent.putExtra("DATA", status);
-                startActivity(intent);
+        listView.setOnItemClickListener((adapterView, view1, i, l) -> {
+            ListView _listView = (ListView) adapterView;
+            if(!(_listView.getItemAtPosition(i) instanceof Status)){
+                return;
             }
+            Status status = (Status) _listView.getItemAtPosition(i);
+            Intent intent = new Intent(getActivity(), TweetDetailActivity.class);
+            intent.putExtra("DATA", status);
+            startActivity(intent);
         });
     }
 
     /**
      * 画面状態の保持（Fragment再生成用）
      *
-     * @param state
+     * @param state 状態
      */
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -175,6 +202,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @param arr_str    フィルタ条件（文字列）
      * @param arr_follow フィルタ条件（フォローユーザー）
      */
+    @SuppressWarnings("unused")
     public void startStreaming(String[] arr_str, long[] arr_follow) {
         twitterUtils.startStream(arr_str, arr_follow);
     }
@@ -182,17 +210,13 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * フラグメントが破棄されたかチェック
      *
-     * @param base
-     * @return
+     * @param base 対象フラグメント
+     * @return 破棄判定
      */
     public Boolean checkViewDetach(Fragment base) {
-        weak_fragment = new WeakReference<Fragment>(base);
+        weak_fragment = new WeakReference<>(base);
         Fragment fragment = weak_fragment.get();
-        if (fragment.isDetached() || fragment.getActivity() == null) {
-            return true;
-        } else {
-            return false;
-        }
+        return fragment.isDetached() || fragment.getActivity() == null;
     }
 
     /**
@@ -231,9 +255,12 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * ツイート検索実行
      */
-    public void runSearch(String q_str, Long sinceID, Long maxID, int count, Query.ResultType resultType, String howToDisplay){
+    public void runSearch(String q_str, Long sinceID, Long maxID, int count,
+                          Query.ResultType resultType, String howToDisplay){
         dispSpinner(mPopupWindow);
-        twitterUtils.search(q_str, sinceID, maxID, count, resultType, howToDisplay);
+        TwitterUtils.search search = new TwitterUtils.search(getThis());
+        search.setParam(q_str, sinceID, maxID, count, resultType, howToDisplay);
+        search.execute();
     }
 
     /**
@@ -252,7 +279,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * Adapter内のアイテムをすべて取得する。
      *
-     * @return
+     * @return 全アイテム（ツイート）
      */
     public DirectMessageList getItemList_dm() {
         DirectMessageList dmList = null;
@@ -260,24 +287,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             dmList.add((DirectMessage) adapter.getItem(i));
         }
         return dmList;
-    }
-
-    /**
-     * アプリ用ハッシュタグを含むツイートを抽出する。
-     *
-     * @param list
-     * @return
-     */
-    public ArrayList<Status> filterList(ArrayList<Status> list, String queryStr) {
-        HashtagEntity[] hashTags;
-        ArrayList<Status> returnList = new ArrayList<>();
-        for (Status status : list) {
-            hashTags = status.getHashtagEntities();
-            if (Arrays.asList(hashTags).contains(twitterValue.APP_HASH_TAG)) {
-                returnList.add(status);
-            }
-        }
-        return returnList;
     }
 
     /**
@@ -313,7 +322,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * 表示中ツイートの中で、最後尾のツイートのIDを返却
      *
-     * @return
+     * @return 最新ツイートのID
      */
     protected long returnLastID() {
         return adapter.getItem(adapter.getCount() - 1).getId();
@@ -322,7 +331,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * ListViewにツイートをセット
      *
-     * @param result
+     * @param result ツイート群
      */
     protected void setListView(List<Status> result, String how_to_display) {
         int getCount = result.size(); //取得したカウント
@@ -386,9 +395,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     }
 
     /**
-     * ListViewにツイートをセット
+     * ListViewにDMをセット
      *
-     * @param result
+     * @param result DM群
      */
     protected void setListView_directMessage(DirectMessageList result, String how_to_display) {
         int getCount = result.size(); //取得したカウント
@@ -418,12 +427,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT: //先頭に追加
                     putState(); //追加前に画面表示状態保持
                     adapter.unShiftItems(null, result);
-                    try {
-                        adapter.notifyDataSetChanged();
-                    }catch (Exception e){
-                        System.out.println(e);
-                    }
-                    restoreListViewSelection();
+                    adapter.notifyDataSetChanged();
                     //スクロール位置復元
                     restoreListViewSelection();
                     break;
@@ -434,7 +438,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     result.remove(0);
                     adapter.addItems(null, result);
                     adapter.notifyDataSetChanged();
-                    restoreListViewSelection();
                     //位置復元
                     restoreListViewSelection();
                     break;
@@ -481,7 +484,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * コールバック
      * Streamでの追跡結果を画面に追加する
      *
-     * @param status
+     * @param status 追跡ツイート
      */
     @Override
     public void callBackStreamAddList(Status status) {

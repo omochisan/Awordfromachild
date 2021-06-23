@@ -1,5 +1,6 @@
 package com.example.awordfromachild.tab;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.example.awordfromachild.constant.twitterValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -46,6 +48,7 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
         return inflater.inflate(R.layout.fragsearch_layout,container,false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -69,8 +72,10 @@ public class fragSearch extends fragmentBase implements callBacksSearch {
                 _query = searchWord;
             }
             query = _query;
-            twitterUtils.search(_query, null, null, 0, Query.ResultType.recent,
+            TwitterUtils.search search = returnSearch();
+            search.setParam(_query, null, null, 0, Query.ResultType.recent,
                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+            search.execute();
             return false;
         }
 

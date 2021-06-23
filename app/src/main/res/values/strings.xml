@@ -6,11 +6,12 @@
 
     <!-- 画像の分類 -->
     <string name="img_icon">icon</string>
-    <string name="img_tabIcon">tabIcon</string>
 
     <!-- 共通 -->
-    <string name="common_check_restore">復元しますか？</string>
     <string name="common_no_tweet">表示できるツイートはもうありませんm(_ _)m</string>
+    <string name="common_dummy">ダミーテキスト</string>
+    <string name="common_btn_save">保存</string>
+    <string name="common_btn_cancel">キャンセル</string>
 
     <!-- ダイアログ Twitterログイン確認 -->
     <string name="dialog_TwitterLoginCheck_title">Twitterへログイン</string>
@@ -43,8 +44,6 @@
 
     <string name="hd_icon_text_1">利用上の注意</string>
     <string name="hd_icon_text_2">アプリについて</string>
-    <string name="hd_icon_text_3">画面更新</string>
-    <string name="hd_icon_text_4">アカウント</string>
     <string name="hd_icon_text_5">ひとことを\n投稿する</string>
 
 
@@ -52,7 +51,6 @@
 
     <!-- 検索タブ(fs_) -->
     <string name="fs_text_1">タグ #こどものひとこと を含む</string>
-    <string name="fs_hint_1"> ワード入力</string>
     <string name="fs_btn_text_1">検索</string>
     <string name="fs_btn_text_2">← 検索結果に戻る</string>
 
@@ -62,6 +60,14 @@
     <string name="fno_select_3">Ⅾ Ⅿ</string>
 
     <!-- ツイート作成(ct_) -->
+    <string name="ct_when">いつ</string>
+    <string name="ct_where">どこで</string>
+    <string name="ct_how">どういうとき</string>
+    <string name="ct_word">こどものひとことや会話</string>
+
+    <string name="ct_inputType_free">フォーム入力</string>
+    <string name="ct_inputType_form">自由入力</string>
+
     <string name="ct_hint1">お買い物に行く途中</string>
     <string name="ct_hint2">歩道で</string>
     <string name="ct_hint3">お散歩中の犬を見て</string>
@@ -71,13 +77,22 @@
     <string name="ct_notes1">※返信はできません</string>
     <string name="ct_notes2">※投稿時、タグ「#こどものひとこと」が自動で付与されます</string>
 
+    <string name="ct_strCount_latter">／000</string>
+
+
     <!-- 設定画面(set_) -->
     <string name="set_ct">「こどものひとことをツイート」画面</string>
     <string name="set_ct_defaultType">デフォルトのツイート作成画面</string>
     <string name="set_ct_defaultType_type1">自由入力</string>
     <string name="set_ct_defaultType_type2">フォーム入力</string>
+
     <string name="set_at">「注目」タブ</string>
     <string name="set_at_criterion">表示ツイートの目安</string>
+    <string name="set_at_popular">人気</string>
+    <string name="set_at_large">大</string>
+    <string name="set_at_medium">中</string>
+    <string name="set_at_small">小</string>
+
     <string name="set_at_explan">注目タブには、一定以上のいいねがされた
     ハッシュタグ #こどものひとこと を含むツイートを表示します。
     </string>

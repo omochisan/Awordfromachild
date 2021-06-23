@@ -20,6 +20,7 @@ import twitter4j.Status;
 public class fragNewArrival extends fragmentBase implements callBacksNewArrival {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
     static final String _query = "マヂラブ exclude:retweets";
+    static TwitterUtils.getTimeLine getTimeLine;
 
     @Nullable
     @Override
@@ -28,6 +29,7 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         twitterUtils = new TwitterUtils(this);
+        getTimeLine = new TwitterUtils.getTimeLine(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fn_main;
         query = _query;
@@ -49,9 +51,6 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
         /*long[] l = {};
         String[] str = {"マヂラブ"};
         startStreaming(str, l);*/
-
-        new TwitterUtils.getFavorites(this,
-                null, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
     }
 
     /**

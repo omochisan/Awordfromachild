@@ -2,6 +2,7 @@ package com.example.awordfromachild;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.library.GlideApp;
+import com.example.awordfromachild.library.MyAppGlideModule;
 import com.example.awordfromachild.tab.fragAttention;
 import com.example.awordfromachild.tab.fragFavorite;
 import com.example.awordfromachild.tab.fragNewArrival;
@@ -28,8 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentOnAttachListener;
 import androidx.viewpager.widget.ViewPager;
 import twitter4j.Status;
 import twitter4j.User;
@@ -40,6 +45,8 @@ import twitter4j.User;
 public class MainActivity extends activityBase implements callBacksMain {
     //タブ情報（インデックス／タブ名）
     private final Map<String, String> tabInfo = new HashMap<>();
+    private static TwitterUtils.getTwitterUserInfo getTwitterUserInfo;
+
     /**
      * ツイートアイコン押下時
      */
@@ -96,6 +103,7 @@ public class MainActivity extends activityBase implements callBacksMain {
     private String noti;
     //タブ
     private TabLayout tabLayout;
+
     /**
      * リロードアイコン押下時
      */
@@ -167,24 +175,26 @@ public class MainActivity extends activityBase implements callBacksMain {
      *
      * @param fragment フラグメント
      */
-    @Override
-    public void onAttachFragment(@NotNull Fragment fragment) {
-        if (fragment instanceof fragNewArrival) {
-            wr_fragNewArrival = new WeakReference<>((fragNewArrival) fragment);
+    private final FragmentOnAttachListener fragmentOnAttachListener = new FragmentOnAttachListener() {
+        @Override
+        public void onAttachFragment(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
+            if (fragment instanceof fragNewArrival) {
+                wr_fragNewArrival = new WeakReference<>((fragNewArrival) fragment);
+            }
+            if (fragment instanceof fragAttention) {
+                wr_fragAttention = new WeakReference<>((fragAttention) fragment);
+            }
+            if (fragment instanceof fragSearch) {
+                wr_fragSearch = new WeakReference<>((fragSearch) fragment);
+            }
+            if (fragment instanceof fragFavorite) {
+                wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
+            }
+            if (fragment instanceof fragNoti) {
+                wr_fragNoti = new WeakReference<>((fragNoti) fragment);
+            }
         }
-        if (fragment instanceof fragAttention) {
-            wr_fragAttention = new WeakReference<>((fragAttention) fragment);
-        }
-        if (fragment instanceof fragSearch) {
-            wr_fragSearch = new WeakReference<>((fragSearch) fragment);
-        }
-        if (fragment instanceof fragFavorite) {
-            wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
-        }
-        if (fragment instanceof fragNoti) {
-            wr_fragNoti = new WeakReference<>((fragNoti) fragment);
-        }
-    }
+    };
 
     /**
      * onCreate*
@@ -207,10 +217,16 @@ public class MainActivity extends activityBase implements callBacksMain {
 
             //画面基礎描画
             setContentView(R.layout.activity_main);
-            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
+                    getSupportFragmentManager());
             ViewPager viewPager = findViewById(R.id.view_pager);
             viewPager.setAdapter(sectionsPagerAdapter);
-            twitterUtils.getTwitterUserInfo(); //自ユーザー情報取得
+            //フラグメント
+            FragmentManager fragment = getSupportFragmentManager();
+            fragment.addFragmentOnAttachListener(fragmentOnAttachListener);
+            //自ユーザー情報取得
+            getTwitterUserInfo = new TwitterUtils.getTwitterUserInfo(this);
+            getTwitterUserInfo.execute();
             //タブ
             tabLayout = findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(viewPager);

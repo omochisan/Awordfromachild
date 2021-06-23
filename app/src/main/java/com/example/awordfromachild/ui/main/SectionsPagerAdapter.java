@@ -1,10 +1,10 @@
 package com.example.awordfromachild.ui.main;
 
+import android.app.Fragment;
 import android.content.Context;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
@@ -37,9 +37,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public androidx.fragment.app.Fragment getItem(int position) {
         // 指定されたページのフラグメントをインスタンス化するために呼び出されます。
-        Fragment fragment = null;
+        androidx.fragment.app.Fragment fragment = null;
         switch (position){
             case 0:
                 fragment = new fragNewArrival();

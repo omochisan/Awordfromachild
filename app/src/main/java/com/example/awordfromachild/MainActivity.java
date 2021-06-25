@@ -1,7 +1,6 @@
 package com.example.awordfromachild;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +31,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentOnAttachListener;
 import androidx.viewpager.widget.ViewPager;
-import twitter4j.Status;
 import twitter4j.User;
 
 /**
@@ -90,16 +88,26 @@ public class MainActivity extends activityBase implements callBacksMain {
      */
     @SuppressLint("ClickableViewAccessibility")
     private final View.OnTouchListener popupItemLogoutClick = (view, motionEvent) -> {
-        Dialog dialog = new AlertDialog.Builder(view.getContext())
+        new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_TwitterLogout_title)
                 .setMessage(R.string.dialog_TwitterLogout_message)
                 .setPositiveButton("OK", (dialog1, which) -> {
                     TwitterUtils.removeAccessToken();
                     dialogTwitterLogin();
                 })
-                .setNegativeButton("キャンセル", (dialog12, which) -> dialog12.dismiss()).show();
+                .setNegativeButton("キャンセル", (dialog12, which) -> dialog12.dismiss())
+                .show();
         return false;
     };
+    /**
+     * ポップアップ
+     * 「アプリについて」押下時
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private final View.OnClickListener popupAppExplainClick  = view -> new AlertDialog.Builder(view.getContext())
+            .setTitle(R.string.dialog_appExplain_title)
+            .setMessage(R.string.dialog_appExplain)
+            .setNegativeButton("閉じる", (dialog12, which) -> dialog12.dismiss()).show();
 
     /**
      * onAttachFragment
@@ -235,10 +243,12 @@ public class MainActivity extends activityBase implements callBacksMain {
             //リロードアイコン
             ImageView reload_icon = findViewById(R.id.fs_img_reload);
             reload_icon.setOnClickListener(reloadIconClick);
-
             //ツイートボタン
             ImageView tweet_btn = findViewById(R.id.fs_img_tweet);
             tweet_btn.setOnClickListener(iconTweetClick);
+            //アプリについて
+            TextView app_text = findViewById(R.id.mh_appExplan);
+            app_text.setOnClickListener(popupAppExplainClick);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -323,11 +333,6 @@ public class MainActivity extends activityBase implements callBacksMain {
         ex_twitterAPILimit(secondsUntilReset);
     }
 
-    @Override
-    public void callBackStreamAddList(Status status) {
-
-    }
-
     /**
      * コールバック
      * 非チェック例外発生時
@@ -335,10 +340,5 @@ public class MainActivity extends activityBase implements callBacksMain {
     @Override
     public void callBackException() {
         fail_result();
-    }
-
-    @Override
-    public void callBackGetTweets(Object list, String howToDisplay) {
-
     }
 }

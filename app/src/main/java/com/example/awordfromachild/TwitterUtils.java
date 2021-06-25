@@ -61,7 +61,8 @@ import twitter4j.auth.AccessToken;
  */
 public class TwitterUtils {
     private static final Calendar calendar = Calendar.getInstance();
-    //フォローユーザーリスト
+    //フォローユーザーリスト（現在フォロー一覧情報不使用）
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static final ArrayList<Long> friendIDs_list = new ArrayList<>();
     static Twitter twitter;
     private static ResponseList<Status> responseList;
@@ -306,7 +307,8 @@ public class TwitterUtils {
      * @param arr_follow    フォロー一覧（フォロー中のユーザーのツイートを対象にstreaming）
      */
     public void startStream(String[] arr_strFilter, long[] arr_follow) {
-        twitterStream = new TwitterStreamFactory().getSingleton();
+        new TwitterStreamFactory();
+        twitterStream = TwitterStreamFactory.getSingleton();
         twitterStream.setOAuthAccessToken(
                 loadAccessToken(ApplicationController.getInstance().getApplicationContext()));
         twitterStream.addListener(new MyTweetListener());
@@ -365,10 +367,6 @@ public class TwitterUtils {
 
         @Override
         protected void onPostExecute(Object status) {
-            //API制限チェック
-            checkAPIRate(((twitter4j.Status) status).getRateLimitStatus(),
-                    appSharedPreferences.API_RATE_DATE_GET_POST_TWEET);
-
             callBacksCreateTweet callback = (callBacksCreateTweet) callBacks.get();
             callback.callBackTweeting(((twitter4j.Status) status));
         }
@@ -700,8 +698,9 @@ public class TwitterUtils {
      * ユーザーがいいねしたツイートを取得
      */
     public static class getFavorites extends AsyncTask<Void, Void, Object> {
-        Paging paging;
         String howToDisplay;
+        long maxID;
+        long sinceId;
         final WeakReference<callBacksBase> callBacks;
 
         /**
@@ -716,29 +715,25 @@ public class TwitterUtils {
         /**
          * 取得用パラメータをセット
          *
-         * @param _paging       ページング
-         * @param _howToDisplay 取得ツイートの画面追加方法
-         */
-        public void setParams(Paging _paging, String _howToDisplay) {
-            paging = _paging;
-            howToDisplay = _howToDisplay;
-        }
-
-        /**
-         * 取得したツイートを画面に追加する方法をセット
-         *
+         * @param maxID       ページング
          * @param howToDisplay 取得ツイートの画面追加方法
          */
-        public void setHowToDisplay(String howToDisplay) {
+        public void setParams(long maxID, long sinceID, String howToDisplay) {
+            this.maxID = maxID;
+            this.sinceId = sinceID;
             this.howToDisplay = howToDisplay;
         }
 
         @Override
         protected Object doInBackground(Void... aVoid) {
             try {
+                Paging p = new Paging();
+                if (maxID != 0) p.setMaxId(maxID);
+                if (sinceId != 0) p.setSinceId(sinceId);
+
                 //API制限中かチェック
                 checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_FAVORITE);
-                return twitter.getFavorites(paging);
+                return twitter.getFavorites(p);
             } catch (TwitterException | ParseException e) {
                 cancel(true);
                 return e;

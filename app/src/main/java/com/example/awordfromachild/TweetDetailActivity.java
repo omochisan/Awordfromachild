@@ -60,24 +60,4 @@ public class TweetDetailActivity extends activityBase implements callBacksBase {
             restoreListViewSelection();
         }
     }
-
-    @Override
-    public void callBackTwitterLimit(int secondsUntilReset) {
-
-    }
-
-    @Override
-    public void callBackStreamAddList(Status status) {
-
-    }
-
-    @Override
-    public void callBackException() {
-
-    }
-
-    @Override
-    public void callBackGetTweets(Object list, String howToDisplay) {
-
-    }
 }

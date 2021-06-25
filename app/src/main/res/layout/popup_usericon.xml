@@ -63,7 +63,7 @@
             android:contentDescription="@string/img_icon" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/mh_appExplan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_icons_chara"

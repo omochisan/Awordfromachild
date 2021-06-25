@@ -12,7 +12,6 @@ import com.example.awordfromachild.constant.twitterValue;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import twitter4j.ResponseList;
 import twitter4j.Status;
 
 public class MyTweetActivity extends activityBase implements callBacksMyTweet {
@@ -53,21 +52,6 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
         } catch (Exception e) {
             errHand.exceptionHand(e, callBacks);
         }
-    }
-
-    @Override
-    public void callBackTwitterLimit(int secondsUntilReset) {
-
-    }
-
-    @Override
-    public void callBackStreamAddList(Status status) {
-
-    }
-
-    @Override
-    public void callBackException() {
-
     }
 
     @Override

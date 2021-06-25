@@ -23,6 +23,10 @@
     <string name="dialog_TwitterLogout_title">ログアウト</string>
     <string name="dialog_TwitterLogout_message">表示中のユーザーからログアウトします。</string>
 
+    <!-- ダイアログ　アプリについて -->
+    <string name="dialog_appExplain_title">アプリについて</string>
+    <string name="dialog_appExplain">アプリについて</string>
+
 
     <!-- ポップアップ ユーザーアイコン押下時メニュー -->
     <string name="popup_userMenu3">自分の投稿を表示</string>
@@ -41,7 +45,6 @@
     <string name="hd_title_tweet">こどものひとこと をツイート</string>
     <string name="hd_title_setting">設定</string>
 
-    <string name="hd_icon_text_1">利用上の注意</string>
     <string name="hd_icon_text_2">アプリについて</string>
     <string name="hd_icon_text_5">ひとことを\n投稿する</string>
 

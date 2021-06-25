@@ -85,8 +85,6 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         RadioGroup radioGroup = requireActivity().findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
         getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
-
-        long sinceID = (adapter.getItem(0)).getId();
     }
 
     /**
@@ -147,7 +145,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             } else { //バックアップない場合、取得
                 TwitterUtils.getDirectMessages getDirectMessages =
                         new TwitterUtils.getDirectMessages(this);
-                getDirectMessages.setGetParam(null,
+                getDirectMessages.setGetParam(dm_getNextCursor,
                         twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
                 getDirectMessages.execute();
             }

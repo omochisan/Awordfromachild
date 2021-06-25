@@ -103,7 +103,13 @@ public class httpConnection {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public String createUrlString(String baseUrl, Map<String, String> params) {
         String paramString = params.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue()))
+                .map(entry -> {
+                    try {
+                        return entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8");
+                    } catch (UnsupportedEncodingException ignored) {
+                    }
+                    return null;
+                })
                 .collect(Collectors.joining("&"));
         return baseUrl + "?" + paramString;
 

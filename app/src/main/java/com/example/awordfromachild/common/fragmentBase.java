@@ -30,7 +30,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import twitter4j.DirectMessage;
 import twitter4j.DirectMessageList;
-import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
@@ -60,7 +59,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected int vid_listView = 0;
     //追加読込処理
     protected String getMethod;
-    protected Paging paging;
     protected int p_count;
 
     private callBacksBase getThis() {
@@ -83,6 +81,15 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      */
     protected TwitterUtils.getFavorites returnGetFavorites() {
         return new TwitterUtils.getFavorites(getThis());
+    }
+
+    /**
+     * タイムライン取得機能取得
+     *
+     * @return タイムライン取得機能
+     */
+    protected TwitterUtils.getTimeLine returnGetTimeLine() {
+        return new TwitterUtils.getTimeLine(getThis());
     }
 
     @Override
@@ -143,15 +150,17 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
                         case twitterValue.getMethod.FAVORITE:
                             p_count++;
-                            paging.setPage(p_count);
                             TwitterUtils.getFavorites getFavorites = returnGetFavorites();
-                            getFavorites.setParams(paging,
+                            getFavorites.setParams(0,0,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                             getFavorites.execute();
                             break;
 
                         case twitterValue.getMethod.TIMELINE:
-
+                            TwitterUtils.getTimeLine getTimeLine = returnGetTimeLine();
+                            getTimeLine.setParam(twitterValue.timeLineType.USER, returnLastID(),
+                                    0, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
+                                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                             break;
 
                         case twitterValue.getMethod.DM:
@@ -283,7 +292,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @param secondsUntilReset 解除されるまでの分数
      */
     public void ex_twitterAPILimit(int secondsUntilReset) {
-        double minutes = Math.ceil(secondsUntilReset / 60) + 1;
+        double minutes = Math.ceil((double) (int)secondsUntilReset / 60) + 1;
         String minutes_str = String.valueOf(minutes);
         Toast.makeText(getContext(), "ごめんなさい、この操作は制限中です。\n" +
                 minutes_str.substring(0, minutes_str.indexOf(".")) +

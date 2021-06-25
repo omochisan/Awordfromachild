@@ -42,8 +42,6 @@ public class twitterValue {
     public static class errorLimitsValue {
         //TwitterAPI RATE制限　エラーコード
         public static final int TwitterAPI_RATE_ERRORCODE = 429;
-        //1回読込でのAPI最大実行回数
-        public static final int ONETIME_MAX_API_RUN = 10;
     }
 
     /**

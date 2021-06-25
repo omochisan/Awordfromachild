@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import twitter4j.Paging;
 
 public class fragFavorite extends fragmentBase implements callBacksFavorite {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
@@ -33,7 +32,6 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         vid_listView = R.id.fg_main;
         query = _query;
         getMethod = twitterValue.getMethod.FAVORITE;
-        paging = new Paging(1, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
         return inflater.inflate(R.layout.fraggood_layout, container, false);
     }
 
@@ -44,7 +42,8 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         if (adapter == null || adapter.getCount() == 0) {
             dispSpinner(mPopupWindow);
             TwitterUtils.getFavorites getFavorites = new TwitterUtils.getFavorites(this);
-            getFavorites.setParams(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+            getFavorites.setParams(0,0,
+                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
             getFavorites.execute();
         }
     }
@@ -55,9 +54,10 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
      */
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
-        paging.setPage(1);
+        long sinceID = (adapter.getItem(0)).getId();
         TwitterUtils.getFavorites getFavorites = new TwitterUtils.getFavorites(this);
-        getFavorites.setHowToDisplay(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
+        getFavorites.setParams(0, sinceID,
+                twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
         getFavorites.execute();
     }
 }

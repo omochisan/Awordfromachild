@@ -19,8 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 /**
- * A [FragmentPagerAdapter] that returns a fragment corresponding to
- * one of the sections/tabs/pages.
+ * 対応するフラグメントを返却する
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 

@@ -156,7 +156,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
      * TwitterAPIのレート制限発生
      */
     public void ex_twitterAPILimit(int secondsUntilReset) {
-        double minutes = Math.ceil(secondsUntilReset / 60) + 1;
+        double minutes = Math.ceil((double) (int)secondsUntilReset / 60) + 1;
         String minutes_str = String.valueOf(minutes);
         Toast.makeText(this, "ごめんなさい、この操作は制限中です。\n" +
                 minutes_str.substring(0, minutes_str.indexOf(".")) +
@@ -346,7 +346,6 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
 
     @Override
     public void callBackTwitterLimit(int secondsUntilReset) {
-
     }
 
     @Override

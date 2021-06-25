@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +45,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     static TwitterUtils.createReTweet createReTweet;
     static TwitterUtils.destroyReTweet destroyReTweet;
     //ツイート群の現在の状態を保持
-    public List<Map<String, Object>> arr_mItems_status = new ArrayList<>();
+    public final List<Map<String, Object>> arr_mItems_status = new ArrayList<>();
     //表示ツイート打ち止め
     public boolean frg_end = false;
     private List<twitter4j.Status> mItems;
@@ -96,12 +97,12 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                 // アイコンの設定
                 if (validity) {
                     Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_favo_already);
-                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                    Objects.requireNonNull(leftDrawable).setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 } else {
                     Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_favo);
-                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                    Objects.requireNonNull(leftDrawable).setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 }
@@ -110,17 +111,29 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             case ptn_retweet:
                 if (validity) {
                     Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_retweet_already);
-                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                    Objects.requireNonNull(leftDrawable).setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 } else {
                     Drawable leftDrawable = AppCompatResources.getDrawable(app_context, R.drawable.ic_retweet);
-                    leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
+                    Objects.requireNonNull(leftDrawable).setBounds(0, 0, leftDrawable.getIntrinsicWidth(),
                             leftDrawable.getIntrinsicHeight());
                     view.setCompoundDrawables(leftDrawable, null, null, null);
                 }
                 break;
         }
+    }
+
+    /**
+     * 戻り値の型に合わせてキャスト
+     *
+     * @param obj キャスト前
+     * @param <T> ジェネリクス
+     * @return キャスト後
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T autoCast(Object obj) {
+        return (T) obj;
     }
 
     /**
@@ -134,10 +147,10 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
         //複数ツイートを保持
         if (target instanceof ArrayList) {
-            ArrayList<Status> items = (ArrayList<Status>) target;
+            ArrayList<Status> items = autoCast(target);
             for (int i = 0; i < items.size(); i++) {
                 twitter4j.Status item = items.get(i);
-                Map<String, Object> _map = new HashMap<String, Object>();
+                Map<String, Object> _map = new HashMap<>();
                 //お気に入りの状態
                 _map.put(mapKey_favorite, item.isFavorited());
                 //リツイートの状態
@@ -168,7 +181,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      */
     public void setUserIcon(View view, Status item, int vid_userIcon, int vid_userName) {
         // ユーザーアイコンを設定
-        ImageView userIcon = (ImageView) view.findViewById(vid_userIcon);
+        ImageView userIcon = view.findViewById(vid_userIcon);
         String getUrl = item.getUser().getProfileImageURLHttps();
         GlideApp.with(view)
                 .load(getUrl)
@@ -176,7 +189,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                 .into(userIcon);
 
         //ユーザー名を設定
-        TextView userName = (TextView) view.findViewById(vid_userName);
+        TextView userName = view.findViewById(vid_userName);
         userName.setText(item.getUser().getName());
     }
 
@@ -208,11 +221,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         //お気に入り
         TextView like = view.findViewById(vid_like);
         // お気に入り状態の場合、アイコン変更
-        if ((boolean) arr_mItems_status.get(position).get(mapKey_favorite)) {
-            setIcon(ptn_favo, true, like);
-        } else {
-            setIcon(ptn_favo, false, like);
-        }
+        setIcon(ptn_favo, (boolean) arr_mItems_status.get(position).get(mapKey_favorite), like);
         // お気に入りクリックイベント
         like.setOnClickListener(view1 -> {
             Status _item = mItems.get(position);
@@ -299,7 +308,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
          * 1時間以内のもの＝〇分前
          * 1分以内のもの＝〇秒前
          */
-        String disp_date = "";
+        String disp_date;
         Date n_date = new Date();
         Date t_date = item.getCreatedAt();
 
@@ -342,7 +351,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                             disp_date = diffTimeStr + "時間前";
                         }
                     } else { //直近3日間以内 and 24時間超えて前のもの
-                        disp_date = String.valueOf(Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
+                        disp_date = (Integer.parseInt(n_dated) - Integer.parseInt(t_dated)) + "日前";
                     }
                 } else { //年内 and 4日以上前のもの
                     disp_date = t_datem + "月" + t_dated + "日";
@@ -370,7 +379,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             reTweet.setText(String.format(" %s", item.getRetweetCount()));
             //リプライを取得・設定
             // ※リプライ取得が実現難しいため、現在非表示
-            //TextView rep = (TextView) view.findViewById(vid_reply);
+            @SuppressWarnings("unused") TextView rep = view.findViewById(vid_reply);
             //rep.setText(item.getInReplyToScreenName());
         }
     }
@@ -452,7 +461,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         }
 
         // ユーザーアイコンを設定
-        setUserIcon(view, item, R.id.tw_userIcon, R.id.tw_userName);
+        setUserIcon(view, Objects.requireNonNull(item), R.id.tw_userIcon, R.id.tw_userName);
         // リツイートの場合、元ツイートを設定
         setReTweet(view, item, R.id.tw_tweetheader);
         // フッター設定

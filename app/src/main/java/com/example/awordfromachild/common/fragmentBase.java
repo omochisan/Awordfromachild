@@ -1,15 +1,12 @@
 package com.example.awordfromachild.common;
 
-import androidx.fragment.app.Fragment;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -22,17 +19,17 @@ import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 import twitter4j.DirectMessage;
 import twitter4j.DirectMessageList;
-import twitter4j.HashtagEntity;
 import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
@@ -45,24 +42,20 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
-    //onPuase時、ListView復元のため一時保存
-    protected Bundle bundle = new Bundle();
-    //Twitter処理クラス
-    protected TwitterUtils twitterUtils;
-    protected TwitterUtils.search search;
-    protected TwitterUtils.getFavorites getFavorites;
-    //現在実施中の読込開始ポイント
-    protected int now_readPoint = 0;
+    static WeakReference<Fragment> weak_fragment;
     //スピナー用
     public PopupWindow mPopupWindow;
+    //onPuase時、ListView復元のため一時保存
+    protected final Bundle bundle = new Bundle();
+    //Twitter処理クラス
+    protected TwitterUtils twitterUtils;
+    //現在実施中の読込開始ポイント
+    protected int now_readPoint = 0;
     //ListViewアダプター
     protected SetDefaultTweetAdapter adapter;
     protected ListView listView;
-    //エラーハンドリング
-    protected exceptionHandling errHand;
     //検索クエリ
     protected String query;
-    static WeakReference<Fragment> weak_fragment;
     //リストviewID
     protected int vid_listView = 0;
     //追加読込処理
@@ -70,29 +63,26 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected Paging paging;
     protected int p_count;
 
-    private fragmentBase getThisClass(){
-        return this;
-    }
-
-    private callBacksBase getThis(){
+    private callBacksBase getThis() {
         return this;
     }
 
     /**
      * 検索機能取得
+     *
      * @return 検索機能
      */
-    protected TwitterUtils.search returnSearch(){
+    protected TwitterUtils.search returnSearch() {
         return new TwitterUtils.search(getThis());
     }
 
     /**
      * お気に入り取得機能取得
+     *
      * @return お気に入り取得機能
      */
-    protected TwitterUtils.getFavorites returnGetFavorites(){
-        if(getFavorites == null) getFavorites = new TwitterUtils.getFavorites(getThis());
-        return getFavorites;
+    protected TwitterUtils.getFavorites returnGetFavorites() {
+        return new TwitterUtils.getFavorites(getThis());
     }
 
     @Override
@@ -115,11 +105,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         twitterUtils.setTwitterInstance(getContext());
-        errHand = new exceptionHandling();
-        listView = getActivity().findViewById(vid_listView);
+        listView = requireActivity().findViewById(vid_listView);
 
         //リストビューイベント
         //　スクロール
@@ -133,7 +122,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             public void onScroll(final AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
                 //追加読込できるツイート無しの場合、return
-                if(adapter != null && adapter.frg_end) return;
+                if (adapter != null && adapter.frg_end) return;
 
                 //追加読込を始める位置 ＝ トータルアイテム数-(一回のツイート読込数 / 4)
                 int readStartCount = totalItemCount - (twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET / 4);
@@ -142,7 +131,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     //スピナー表示
                     dispSpinner(mPopupWindow);
                     now_readPoint = readStartCount;
-                    switch (getMethod){
+                    switch (getMethod) {
                         case twitterValue.getMethod.SEARCH:
                             TwitterUtils.search search = new TwitterUtils.search(getThis());
                             search.setParam(query, null, returnLastID(),
@@ -155,9 +144,10 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                         case twitterValue.getMethod.FAVORITE:
                             p_count++;
                             paging.setPage(p_count);
-                            returnGetFavorites().setParams(paging,
+                            TwitterUtils.getFavorites getFavorites = returnGetFavorites();
+                            getFavorites.setParams(paging,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
-                            returnGetFavorites().execute();
+                            getFavorites.execute();
                             break;
 
                         case twitterValue.getMethod.TIMELINE:
@@ -175,7 +165,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         // 行選択イベント
         listView.setOnItemClickListener((adapterView, view1, i, l) -> {
             ListView _listView = (ListView) adapterView;
-            if(!(_listView.getItemAtPosition(i) instanceof Status)){
+            if (!(_listView.getItemAtPosition(i) instanceof Status)) {
                 return;
             }
             Status status = (Status) _listView.getItemAtPosition(i);
@@ -191,7 +181,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @param state 状態
      */
     @Override
-    public void onSaveInstanceState(Bundle state) {
+    public void onSaveInstanceState(@NotNull Bundle state) {
         super.onSaveInstanceState(state);
         putState();
     }
@@ -221,10 +211,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
     /**
      * スピナーを表示
-     *
      */
     public void dispSpinner(PopupWindow mPopupWindow) {
-        WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
+        WeakReference<PopupWindow> _popupWindow = new WeakReference<>(mPopupWindow);
         PopupWindow weak_pop = _popupWindow.get();
         //スピナー表示
         ProgressBar spinner = new ProgressBar(getActivity());
@@ -236,15 +225,14 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         weak_pop.setWindowLayoutMode((int) width, WindowManager.LayoutParams.WRAP_CONTENT);
         weak_pop.setWidth((int) width);
         weak_pop.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        weak_pop.showAtLocation(getActivity().findViewById(R.id.view_pager), Gravity.BOTTOM, 0, 0);
+        weak_pop.showAtLocation(requireActivity().findViewById(R.id.view_pager), Gravity.BOTTOM, 0, 0);
     }
 
     /**
      * スピナー非表示
-     *
      */
     public void hideSpinner(PopupWindow mPopupWindow) {
-        WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
+        WeakReference<PopupWindow> _popupWindow = new WeakReference<>(mPopupWindow);
         PopupWindow weak_pop = _popupWindow.get();
         //スピナー退出
         if (weak_pop != null && weak_pop.isShowing()) {
@@ -256,7 +244,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * ツイート検索実行
      */
     public void runSearch(String q_str, Long sinceID, Long maxID, int count,
-                          Query.ResultType resultType, String howToDisplay){
+                          Query.ResultType resultType, String howToDisplay) {
         dispSpinner(mPopupWindow);
         TwitterUtils.search search = new TwitterUtils.search(getThis());
         search.setParam(q_str, sinceID, maxID, count, resultType, howToDisplay);
@@ -266,7 +254,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * Adapter内のアイテムをすべて取得する。
      *
-     * @return
+     * @return 全アイテム
      */
     public ArrayList<Status> getItemList() {
         ArrayList<Status> statusList = new ArrayList<>();
@@ -363,8 +351,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     adapter.unShiftItems(result, null);
                     try {
                         adapter.notifyDataSetChanged();
-                    }catch (Exception e){
-                        System.out.println(e);
+                    } catch (Exception ignored) {
                     }
                     restoreListViewSelection();
                     //スクロール位置復元
@@ -381,11 +368,13 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     //位置復元
                     restoreListViewSelection();
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + how_to_display);
             }
         }
 
         //取得可能ツイートがもう無い場合
-        if(getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+        if (getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
             adapter.frg_end = true;
         }
         //VIEWにアイテムが未登録の場合、登録
@@ -445,7 +434,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         }
 
         //取得可能ツイートがもう無い場合
-        if(getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET){
+        if (getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
             adapter.frg_end = true;
         }
         //VIEWにアイテムが未登録の場合、登録
@@ -455,18 +444,12 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     }
 
     /**
-     * 最新ツイートを追加
-     */
-    public void addTheLatestTweets(WeakReference<callBacksBase> callBacks) {
-    }
-
-    /**
      * 画面の状態を保存
      */
     protected void putState() {
         if (adapter == null || adapter.getCount() == 0) return;
 
-        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        long maxID = (adapter.getItem(adapter.getCount() - 1)).getId();
         bundle.putLong(BUNDLE_KEY_ITEM_MAX_GET_ID, maxID);
         bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
     }
@@ -506,6 +489,18 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     }
 
     /**
+     * 戻り値の型に合わせてキャスト
+     *
+     * @param obj キャスト前
+     * @param <T> ジェネリクス
+     * @return キャスト後
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T autoCast(Object obj) {
+        return (T) obj;
+    }
+
+    /**
      * コールバック
      * ツイート取得後
      */
@@ -514,20 +509,21 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         if (checkViewDetach(this)) return;
 
         //100以上の場合、洗い替え
-        String _howToDisplay ="";
+        String _howToDisplay;
         List<Status> s_list = null;
         DirectMessageList d_list = null;
-        if(list instanceof ResponseList){
-            s_list = (ResponseList<Status>) list;
-        }else if(list instanceof QueryResult){
-            s_list = ((QueryResult) list).getTweets();
-        }else if(list instanceof DirectMessageList){
+        if (list instanceof ResponseList) {
+            s_list = autoCast(list);
+        } else if (list instanceof QueryResult) {
+            QueryResult q_list = autoCast(list);
+            s_list = q_list.getTweets();
+        } else if (list instanceof DirectMessageList) {
             d_list = (DirectMessageList) list;
         }
-        if(howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)
-                && ((s_list != null && s_list.size() >= 100) || (d_list != null && d_list.size() >= 100))){
+        if (howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)
+                && ((s_list != null && s_list.size() >= 100) || (d_list != null && d_list.size() >= 100))) {
             _howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
-        }else{
+        } else {
             _howToDisplay = howToDisplay;
         }
 

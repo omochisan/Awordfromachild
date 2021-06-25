@@ -206,24 +206,24 @@
         app:layout_constraintTop_toBottomOf="@id/set_main">
 
         <Button
+            style="?android:attr/buttonBarStyle"
             android:id="@+id/set_save"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/set_margin_long"
             android:layout_marginEnd="@dimen/set_margin_long"
-            android:background="#AEAEAE"
-            android:backgroundTint="#E48112"
+            app:backgroundTint="#E48112"
             android:text="@string/common_btn_save"
             android:textSize="@dimen/set_stSize_btn" />
 
         <Button
+            style="?android:attr/buttonBarStyle"
             android:id="@+id/set_cancel"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/set_margin_long"
             android:layout_marginEnd="@dimen/set_margin_long"
-            android:background="#AEAEAE"
-            android:backgroundTint="#808080"
+            app:backgroundTint="#808080"
             android:text="@string/common_btn_cancel"
             android:textSize="@dimen/set_stSize_btn" />
     </LinearLayout>

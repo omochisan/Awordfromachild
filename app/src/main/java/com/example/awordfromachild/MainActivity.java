@@ -2,7 +2,6 @@ package com.example.awordfromachild;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.library.GlideApp;
-import com.example.awordfromachild.library.MyAppGlideModule;
 import com.example.awordfromachild.tab.fragAttention;
 import com.example.awordfromachild.tab.fragFavorite;
 import com.example.awordfromachild.tab.fragNewArrival;
@@ -22,8 +20,6 @@ import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -45,7 +41,29 @@ import twitter4j.User;
 public class MainActivity extends activityBase implements callBacksMain {
     //タブ情報（インデックス／タブ名）
     private final Map<String, String> tabInfo = new HashMap<>();
-    private static TwitterUtils.getTwitterUserInfo getTwitterUserInfo;
+
+    private WeakReference<fragNewArrival> wr_fragNewArrival;
+    private WeakReference<fragAttention> wr_fragAttention;
+    private WeakReference<fragNoti> wr_fragNoti;
+    private WeakReference<fragFavorite> wr_fragFavorite;
+    private WeakReference<fragSearch> wr_fragSearch;
+
+    //タブアイコン
+    private final int[] tabIcons = {
+            R.drawable.main_ic_new,
+            R.drawable.main_ic_attention,
+            R.drawable.main_ic_search,
+            R.drawable.main_ic_favorite,
+            R.drawable.main_ic_noti
+    };
+    //タブのタイトル
+    private String newArrival;
+    private String attention;
+    private String search;
+    private String favorite;
+    private String noti;
+    //タブ
+    private TabLayout tabLayout;
 
     /**
      * ツイートアイコン押下時
@@ -82,27 +100,30 @@ public class MainActivity extends activityBase implements callBacksMain {
                 .setNegativeButton("キャンセル", (dialog12, which) -> dialog12.dismiss()).show();
         return false;
     };
-    WeakReference<fragNewArrival> wr_fragNewArrival;
-    WeakReference<fragAttention> wr_fragAttention;
-    WeakReference<fragNoti> wr_fragNoti;
-    WeakReference<fragFavorite> wr_fragFavorite;
-    WeakReference<fragSearch> wr_fragSearch;
-    //タブアイコン
-    private int[] tabIcons = {
-            R.drawable.main_ic_new,
-            R.drawable.main_ic_attention,
-            R.drawable.main_ic_search,
-            R.drawable.main_ic_favorite,
-            R.drawable.main_ic_noti
+
+    /**
+     * onAttachFragment
+     **/
+    private final FragmentOnAttachListener fragmentOnAttachListener = new FragmentOnAttachListener() {
+        @Override
+        public void onAttachFragment(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
+            if (fragment instanceof fragNewArrival) {
+                wr_fragNewArrival = new WeakReference<>((fragNewArrival) fragment);
+            }
+            if (fragment instanceof fragAttention) {
+                wr_fragAttention = new WeakReference<>((fragAttention) fragment);
+            }
+            if (fragment instanceof fragSearch) {
+                wr_fragSearch = new WeakReference<>((fragSearch) fragment);
+            }
+            if (fragment instanceof fragFavorite) {
+                wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
+            }
+            if (fragment instanceof fragNoti) {
+                wr_fragNoti = new WeakReference<>((fragNoti) fragment);
+            }
+        }
     };
-    //タブのタイトル
-    private String newArrival;
-    private String attention;
-    private String search;
-    private String favorite;
-    private String noti;
-    //タブ
-    private TabLayout tabLayout;
 
     /**
      * リロードアイコン押下時
@@ -119,7 +140,7 @@ public class MainActivity extends activityBase implements callBacksMain {
             } else if (tab_text.equals(attention)) {
                 wr_fragAttention.get().addTheLatestTweets();
             } else if (tab_text.equals(search)) {
-                wr_fragFavorite.get().addTheLatestTweets();
+                wr_fragSearch.get().addTheLatestTweets();
             } else if (tab_text.equals(favorite)) {
                 wr_fragFavorite.get().addTheLatestTweets();
             } else if (tab_text.equals(noti)) {
@@ -171,32 +192,6 @@ public class MainActivity extends activityBase implements callBacksMain {
     };
 
     /**
-     * onAttachFragment
-     *
-     * @param fragment フラグメント
-     */
-    private final FragmentOnAttachListener fragmentOnAttachListener = new FragmentOnAttachListener() {
-        @Override
-        public void onAttachFragment(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
-            if (fragment instanceof fragNewArrival) {
-                wr_fragNewArrival = new WeakReference<>((fragNewArrival) fragment);
-            }
-            if (fragment instanceof fragAttention) {
-                wr_fragAttention = new WeakReference<>((fragAttention) fragment);
-            }
-            if (fragment instanceof fragSearch) {
-                wr_fragSearch = new WeakReference<>((fragSearch) fragment);
-            }
-            if (fragment instanceof fragFavorite) {
-                wr_fragFavorite = new WeakReference<>((fragFavorite) fragment);
-            }
-            if (fragment instanceof fragNoti) {
-                wr_fragNoti = new WeakReference<>((fragNoti) fragment);
-            }
-        }
-    };
-
-    /**
      * onCreate*
      *
      * @param savedInstanceState インスタンス状態
@@ -225,7 +220,7 @@ public class MainActivity extends activityBase implements callBacksMain {
             FragmentManager fragment = getSupportFragmentManager();
             fragment.addFragmentOnAttachListener(fragmentOnAttachListener);
             //自ユーザー情報取得
-            getTwitterUserInfo = new TwitterUtils.getTwitterUserInfo(this);
+            TwitterUtils.getTwitterUserInfo getTwitterUserInfo = new TwitterUtils.getTwitterUserInfo(this);
             getTwitterUserInfo.execute();
             //タブ
             tabLayout = findViewById(R.id.tabs);
@@ -276,7 +271,7 @@ public class MainActivity extends activityBase implements callBacksMain {
      */
     private void dialogTwitterLogin() {
         // BuilderからAlertDialogを作成
-        Dialog dialog = new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_TwitterLoginCheck_title)
                 .setMessage(R.string.dialog_TwitterLoginCheck_message)
                 .setPositiveButton("OK(ログイン画面へ)", (dialog12, which) -> {

@@ -12,15 +12,15 @@ import com.example.awordfromachild.asynctask.callBacksNewArrival;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import twitter4j.Query;
-import twitter4j.Status;
 
 public class fragNewArrival extends fragmentBase implements callBacksNewArrival {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
     static final String _query = "マヂラブ exclude:retweets";
-    static TwitterUtils.getTimeLine getTimeLine;
 
     @Nullable
     @Override
@@ -29,7 +29,6 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         twitterUtils = new TwitterUtils(this);
-        getTimeLine = new TwitterUtils.getTimeLine(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fn_main;
         query = _query;
@@ -38,7 +37,7 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
@@ -59,7 +58,7 @@ public class fragNewArrival extends fragmentBase implements callBacksNewArrival 
      */
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
-        long sinceID = ((Status) adapter.getItem(0)).getId();
+        long sinceID = (adapter.getItem(0)).getId();
         runSearch(_query, sinceID, null, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
                 Query.ResultType.recent, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
     }

@@ -1,12 +1,6 @@
 package com.example.awordfromachild.ui.main;
 
-import android.app.Fragment;
 import android.content.Context;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.tab.fragAttention;
@@ -14,6 +8,15 @@ import com.example.awordfromachild.tab.fragFavorite;
 import com.example.awordfromachild.tab.fragNewArrival;
 import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -36,11 +39,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         mContext = context;
     }
 
+    @NotNull
     @Override
     public androidx.fragment.app.Fragment getItem(int position) {
         // 指定されたページのフラグメントをインスタンス化するために呼び出されます。
         androidx.fragment.app.Fragment fragment = null;
-        switch (position){
+        switch (position) {
             case 0:
                 fragment = new fragNewArrival();
                 break;
@@ -57,7 +61,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 fragment = new fragNoti();
                 break;
         }
-        return fragment;
+        return Objects.requireNonNull(fragment);
     }
 
     @Nullable

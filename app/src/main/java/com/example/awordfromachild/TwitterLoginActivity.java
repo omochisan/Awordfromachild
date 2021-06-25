@@ -72,8 +72,6 @@ public class TwitterLoginActivity extends Activity {
                     //渡されたurlへアクティビティを遷移する
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     twitterLoginActivity.startActivity(intent);
-                } else {
-                    // 失敗。。。
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -82,7 +80,7 @@ public class TwitterLoginActivity extends Activity {
     }
 
     public static class getAccessToken extends AsyncTask<String, Void, AccessToken> {
-        Intent intent;
+        final Intent intent;
 
         public getAccessToken(Intent intent) {
             this.intent = intent;
@@ -117,7 +115,7 @@ public class TwitterLoginActivity extends Activity {
          * ・アクセストークンをデバイスへ登録
          * ・メイン画面へ遷移
          *
-         * @param accessToken
+         * @param accessToken アクセストークン
          */
         private void successOAuth(AccessToken accessToken) {
             //Utilクラスからトークン登録メソッドを呼び出し

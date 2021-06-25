@@ -16,12 +16,11 @@ import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import twitter4j.Query;
-import twitter4j.QueryResult;
-import twitter4j.Status;
 
 /**
  * 注目タブの実装
@@ -29,7 +28,6 @@ import twitter4j.Status;
 public class fragAttention extends fragmentBase implements callBacksAttention {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
     static String _query = "";
-    static TwitterUtils.getFavorites getFavorites;
 
     @Nullable
     @Override
@@ -38,7 +36,6 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         twitterUtils = new TwitterUtils(this);
-        getFavorites = new TwitterUtils.getFavorites(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fa_main;
         getMethod = twitterValue.getMethod.SEARCH;
@@ -46,7 +43,7 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         //preferenceから設定値の呼び出し
@@ -57,12 +54,12 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
                 preferences.getInt(appSharedPreferences.SET_CRITERION_LIKE, twitterValue.DEFAULT_LIKES);
         //いいね数の目安指定がある場合、最新ツイート取得。
         //数指定無い場合、取得タイプを「人気ツイート」に。
-        Query.ResultType qResult = null;
-        if(criterionLike != 0){
+        Query.ResultType qResult;
+        if (criterionLike != 0) {
             qResult = Query.ResultType.recent;
             //_query = twitterValue.APP_HASH_TAG + " min_faves:" + criterionLike;
             _query = "マヂラブ" + " min_faves:" + criterionLike;
-        }else{
+        } else {
             qResult = Query.ResultType.popular;
             //_query = twitterValue.APP_HASH_TAG;
             _query = "マヂラブ";
@@ -80,7 +77,7 @@ public class fragAttention extends fragmentBase implements callBacksAttention {
      */
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
-        long sinceID = ((Status) adapter.getItem(0)).getId();
+        long sinceID = (adapter.getItem(0)).getId();
         runSearch(_query, sinceID, null, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
                 Query.ResultType.popular, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
     }

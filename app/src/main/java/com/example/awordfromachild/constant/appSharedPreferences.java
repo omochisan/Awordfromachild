@@ -32,5 +32,6 @@ public class appSharedPreferences {
     //フォロー一覧取得
     public static final String API_RATE_DATE_GET_FRIEND_LIST= "apiRate_getFriendList";
     //ストリーミング
+    @SuppressWarnings("unused")
     public static final String API_RATE_DATE_STREAM = "apiRate_stream";
 }

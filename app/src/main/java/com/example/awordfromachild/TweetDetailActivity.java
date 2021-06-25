@@ -17,9 +17,6 @@ import androidx.annotation.RequiresApi;
 import twitter4j.Status;
 
 public class TweetDetailActivity extends activityBase implements callBacksBase {
-    //Twitter処理クラス
-    private TwitterUtils twitterUtils;
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +33,7 @@ public class TweetDetailActivity extends activityBase implements callBacksBase {
             {
                 add(getStatus);
             }
-        };;
+        };
         SetDefaultTweetAdapter tweetAdapter = new SetDefaultTweetAdapter(this, 0, list, null);
         //ユーザーアイコン設定
         tweetAdapter.setUserIcon(view, getStatus, R.id.twd_userIcon, R.id.twd_userName);

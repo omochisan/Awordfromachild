@@ -15,13 +15,13 @@ import com.example.awordfromachild.SettingActivity;
 import com.example.awordfromachild.constant.activityClassName;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.Objects;
+
 /**
  * カスタマイズビュー
  * 画面ヘッダーを生成します
  */
 public class SetHeader extends LinearLayout {
-    //タブ
-    private TabLayout tabLayout;
     //ヘッダーに紐づいたactivityクラス名
     private String activity_className;
 
@@ -43,13 +43,13 @@ public class SetHeader extends LinearLayout {
     /**
      * 初期設定
      *
-     * @param context
+     * @param context コンテキスト
      */
     private void init(Context context) {
         // 第 2 引数で this を指定することで、Layout XML を自分自身に inflate する
         View layout = LayoutInflater.from(context).inflate(R.layout.header_layout, this);
-        ((ImageView) layout.findViewById(R.id.hd_logo)).setOnClickListener(listenerLogo);
-        ((ImageView) layout.findViewById(R.id.hd_icon)).setOnClickListener(listenerIcon);
+        (layout.findViewById(R.id.hd_logo)).setOnClickListener(listenerLogo);
+        (layout.findViewById(R.id.hd_icon)).setOnClickListener(listenerIcon);
 
         //ヘッダーに紐づいたActivityクラス名を取得
         //PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), context.getPackageManager().GET_ACTIVITIES);
@@ -91,8 +91,9 @@ public class SetHeader extends LinearLayout {
                 case activityClassName.activity_main:
                 case activityClassName.activity_contextThemeWrapper:
                     //初期選択タブ
-                    tabLayout = getRootView().findViewById(R.id.tabs);
-                    tabLayout.getTabAt(0).select();
+                    //タブ
+                    TabLayout tabLayout = getRootView().findViewById(R.id.tabs);
+                    Objects.requireNonNull(tabLayout.getTabAt(0)).select();
                     break;
 
                 case activityClassName.activity_createTweet:

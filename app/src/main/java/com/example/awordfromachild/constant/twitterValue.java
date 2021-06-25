@@ -73,6 +73,7 @@ public class twitterValue {
     /**
      * タイムライン種別
      */
+    @SuppressWarnings("unused")
     public static class timeLineType {
         // 公開タイムライン
         public static final String PUBLIC = "public_timeline";
@@ -115,12 +116,5 @@ public class twitterValue {
         public static final int CONNECTION_TIMEOUT = 10000;
         //読込タイムアウト
         public static final int READ_TIMEOUT = 10000;
-    }
-
-    /**
-     * TwitterAPI　エンドポイント
-     */
-    public static class TwitterAPIEndPoint {
-        public static final String search = "https://api.twitter.com/1.1/search/tweets.json";
     }
 }

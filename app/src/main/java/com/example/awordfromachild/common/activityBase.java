@@ -3,14 +3,11 @@ package com.example.awordfromachild.common;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -40,22 +37,17 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     // 現在のスクロール位置
     protected static final String BUNDLE_KEY_ITEM_POSITION = "item_position";
     static WeakReference<Activity> weak_activity;
-    //外部からview操作するためHandlerを利用
-    final Handler handler = new Handler();
     //スピナー用
     public PopupWindow mPopupWindow;
     //onPuase時、ListView復元のため一時保存
-    protected Bundle bundle = new Bundle();
+    protected final Bundle bundle = new Bundle();
     //ListViewアダプター
     protected SetDefaultTweetAdapter adapter;
     protected ListView listView;
     //エラーハンドリング
     protected exceptionHandling errHand;
-    //検索クエリ
-    protected String query;
     //Twitter処理クラス
     protected TwitterUtils twitterUtils;
-    protected TwitterUtils.search search;
     protected TwitterUtils.getTimeLine getTimeLine;
     //現在実施中の読込開始ポイント
     protected int now_readPoint = 0;
@@ -85,11 +77,10 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            search = new TwitterUtils.search(this);
             getTimeLine = new TwitterUtils.getTimeLine(this);
 
             if (callBacksBase.class.isAssignableFrom(this.getClass())) {
-                twitterUtils = new TwitterUtils((callBacksBase) this);
+                twitterUtils = new TwitterUtils(this);
                 twitterUtils.setTwitterInstance(this);
             }
             if (vid_listView != 0) {
@@ -125,15 +116,12 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
                 });
 
                 // 行選択イベント
-                listView.setOnItemClickListener(new AbsListView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        ListView _listView = (ListView) adapterView;
-                        Status status = (Status) _listView.getItemAtPosition(i);
-                        Intent intent = new Intent(getApplicationContext(), TweetDetailActivity.class);
-                        intent.putExtra("DATA", status);
-                        startActivity(intent);
-                    }
+                listView.setOnItemClickListener((adapterView, view, i, l) -> {
+                    ListView _listView = (ListView) adapterView;
+                    Status status = (Status) _listView.getItemAtPosition(i);
+                    Intent intent = new Intent(getApplicationContext(), TweetDetailActivity.class);
+                    intent.putExtra("DATA", status);
+                    startActivity(intent);
                 });
             }
         } catch (Exception e) {
@@ -141,14 +129,27 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
         }
     }
 
+    /**
+     * 戻り値の型に合わせてキャスト
+     *
+     * @param obj キャスト前
+     * @param <T> ジェネリクス
+     * @return キャスト後
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T autoCast(Object obj) {
+        return (T) obj;
+    }
+
+    /**
+     * viewが破棄されたかチェック
+     * @param base アクティビティ
+     * @return 破棄／未破棄
+     */
     public Boolean checkViewDetach(Activity base) {
-        weak_activity = new WeakReference<Activity>(base);
+        weak_activity = new WeakReference<>(base);
         Activity activity = weak_activity.get();
-        if (activity.isDestroyed()) {
-            return true;
-        } else {
-            return false;
-        }
+        return activity.isDestroyed();
     }
 
     /**
@@ -174,10 +175,10 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     /**
      * スピナーを表示
      *
-     * @param mPopupWindow
+     * @param mPopupWindow ポップアップ
      */
     public void dispSpinner(PopupWindow mPopupWindow, int viewID) {
-        WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
+        WeakReference<PopupWindow> _popupWindow = new WeakReference<>(mPopupWindow);
         PopupWindow weak_pop = _popupWindow.get();
         //スピナー表示
         ProgressBar spinner = new ProgressBar(this);
@@ -196,10 +197,10 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     /**
      * スピナー非表示
      *
-     * @param mPopupWindow
+     * @param mPopupWindow ポップアップ
      */
     public void hideSpinner(PopupWindow mPopupWindow) {
-        WeakReference<PopupWindow> _popupWindow = new WeakReference<PopupWindow>(mPopupWindow);
+        WeakReference<PopupWindow> _popupWindow = new WeakReference<>(mPopupWindow);
         PopupWindow weak_pop = _popupWindow.get();
         //スピナー退出
         if (weak_pop != null && weak_pop.isShowing()) {
@@ -218,7 +219,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     /**
      * 表示中ツイートの中で、最後尾のツイートのIDを返却
      *
-     * @return
+     * @return 最後尾ツイートID
      */
     protected long returnLastID() {
         return adapter.getItem(adapter.getCount() - 1).getId();
@@ -227,7 +228,8 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     /**
      * ListViewにツイートをセット
      *
-     * @param result
+     * @param result セットするツイート群
+     * @param how_to_display セット方法（洗い替え、先頭に追加、末尾に追加）
      */
     protected void setListView(List<Status> result, String how_to_display) {
         int getCount = result.size(); //取得したカウント
@@ -259,8 +261,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
                     adapter.unShiftItems(result, null);
                     try {
                         adapter.notifyDataSetChanged();
-                    } catch (Exception e) {
-                        System.out.println(e);
+                    } catch (Exception ignored) {
                     }
                     restoreListViewSelection();
                     //スクロール位置復元
@@ -277,6 +278,8 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
                     //位置復元
                     restoreListViewSelection();
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + how_to_display);
             }
         }
 
@@ -292,18 +295,20 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
 
     /**
      * 最新ツイートを追加
+     * ※現在不使用
      */
+    @SuppressWarnings("unused")
     protected void addTheLatestTweets(WeakReference<callBacksBase> callBacks, int viewID) {
         //API制限中かチェック
         try {
-            twitterUtils.checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
+            TwitterUtils.checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_TIMELINE);
         } catch (ParseException | TwitterException e) {
             errHand.exceptionHand(e, callBacks);
         }
 
         dispSpinner(mPopupWindow, viewID);
-        long sinceID = ((Status) adapter.getItem(0)).getId();
-        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        long sinceID = (adapter.getItem(0)).getId();
+        long maxID = (adapter.getItem(adapter.getCount() - 1)).getId();
         getTimeLine.setParam(
                 twitterValue.timeLineType.HOME, sinceID, maxID, twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE,
                 twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
@@ -316,7 +321,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
     protected void putState() {
         if (adapter == null || adapter.getCount() == 0) return;
 
-        long maxID = ((Status) adapter.getItem(adapter.getCount() - 1)).getId();
+        long maxID = (adapter.getItem(adapter.getCount() - 1)).getId();
         bundle.putLong(BUNDLE_KEY_ITEM_MAX_GET_ID, maxID);
         bundle.putInt(BUNDLE_KEY_ITEM_POSITION, listView.getFirstVisiblePosition());
     }

@@ -2,7 +2,6 @@
     <!-- アプリ情報 -->
     <string name="sample">sample text</string>
     <string name="app_name">こどものひとこと</string>
-    <string name="app_name_en">Awordfromachild</string>
 
     <!-- 画像の分類 -->
     <string name="img_icon">icon</string>
@@ -46,13 +45,8 @@
     <string name="hd_icon_text_2">アプリについて</string>
     <string name="hd_icon_text_5">ひとことを\n投稿する</string>
 
-
-    <string name="tweet_hint_1">例）散歩中、子供が～～を見て「～～」と言っていた。</string>
-
     <!-- 検索タブ(fs_) -->
     <string name="fs_text_1">タグ #こどものひとこと を含む</string>
-    <string name="fs_btn_text_1">検索</string>
-    <string name="fs_btn_text_2">← 検索結果に戻る</string>
 
     <!-- 通知タブ(fno_) -->
     <string name="fno_select_1">いいねされた投稿</string>

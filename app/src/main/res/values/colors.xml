@@ -10,7 +10,6 @@
     <color name="light_orange">#FFE1CE</color>
     <color name="dark_orange">#E48112</color>
     <color name="light_gray">#ebeef0</color>
-    <color name="transparent">#00000000</color>
     <color name="tweet_default">#2E2E2E</color>
     <color name="tweet_gray">#FF838383</color>
     <color name="string_default">#2E2E2E</color>

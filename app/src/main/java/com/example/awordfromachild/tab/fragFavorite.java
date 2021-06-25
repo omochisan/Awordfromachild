@@ -12,6 +12,8 @@ import com.example.awordfromachild.asynctask.callBacksFavorite;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import twitter4j.Paging;
@@ -19,7 +21,6 @@ import twitter4j.Paging;
 public class fragFavorite extends fragmentBase implements callBacksFavorite {
     //static final String _query = twitterValue.APP_HASH_TAG + " exclude:retweets";
     static final String _query = "マヂラブ exclude:retweets";
-    static TwitterUtils.getFavorites getFavorites;
 
     @Nullable
     @Override
@@ -33,16 +34,16 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
         query = _query;
         getMethod = twitterValue.getMethod.FAVORITE;
         paging = new Paging(1, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET);
-        getFavorites = new TwitterUtils.getFavorites(this);
         return inflater.inflate(R.layout.fraggood_layout, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ツイート取得実行
         if (adapter == null || adapter.getCount() == 0) {
             dispSpinner(mPopupWindow);
+            TwitterUtils.getFavorites getFavorites = new TwitterUtils.getFavorites(this);
             getFavorites.setParams(paging, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
             getFavorites.execute();
         }
@@ -55,6 +56,7 @@ public class fragFavorite extends fragmentBase implements callBacksFavorite {
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
         paging.setPage(1);
+        TwitterUtils.getFavorites getFavorites = new TwitterUtils.getFavorites(this);
         getFavorites.setHowToDisplay(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
         getFavorites.execute();
     }

@@ -329,7 +329,7 @@ public class TwitterUtils {
      * ツイートを投稿
      */
     public static class tweet extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
         String text;
 
         /**
@@ -356,7 +356,7 @@ public class TwitterUtils {
                 //API制限中かチェック
                 checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_POST_TWEET);
 
-                return twitter.updateStatus("Twitter4Jから初めてのツイート！ #twitter4j");
+                return twitter.updateStatus(text);
             } catch (TwitterException | ParseException e) {
                 cancel(true);
                 return e;
@@ -385,7 +385,7 @@ public class TwitterUtils {
      */
     @SuppressWarnings("unused")
     public static class getFriendIDs extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -443,7 +443,7 @@ public class TwitterUtils {
      * タイムラインを取得
      */
     public static class getTimeLine extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
         String pattern;
         long maxID;
         long sinceID;
@@ -573,7 +573,7 @@ public class TwitterUtils {
      * Twitterの自ユーザー情報を取得
      */
     public static class getTwitterUserInfo extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -616,7 +616,7 @@ public class TwitterUtils {
      * 文字列検索
      */
     public static class search extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
         String q_str;
         Long sinceID;
         Long maxID;
@@ -702,7 +702,7 @@ public class TwitterUtils {
     public static class getFavorites extends AsyncTask<Void, Void, Object> {
         Paging paging;
         String howToDisplay;
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -765,7 +765,7 @@ public class TwitterUtils {
      */
     public static class createFavorite extends AsyncTask<Void, Void, Object> {
         long id;
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -812,7 +812,7 @@ public class TwitterUtils {
      */
     public static class destroyFavorite extends AsyncTask<Void, Void, Object> {
         long id;
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -856,7 +856,7 @@ public class TwitterUtils {
      */
     public static class createReTweet extends AsyncTask<Void, Void, Object> {
         long id;
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -900,7 +900,7 @@ public class TwitterUtils {
      */
     public static class destroyReTweet extends AsyncTask<Void, Void, Object> {
         long id;
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
 
         /**
          * コンストラクタ
@@ -943,7 +943,7 @@ public class TwitterUtils {
      * DMを取得
      */
     public static class getDirectMessages extends AsyncTask<Void, Void, Object> {
-        WeakReference<callBacksBase> callBacks;
+        final WeakReference<callBacksBase> callBacks;
         String getNextCursor;
         String howToDisplay;
 

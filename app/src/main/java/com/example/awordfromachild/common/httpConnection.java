@@ -15,8 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
@@ -30,12 +30,12 @@ import androidx.annotation.RequiresApi;
 public class httpConnection {
     private static final String HMAC_SHA1 = "HmacSHA1";
     final Random RAND = new Random();
-    String consumerKey = "hIZujeQjS8pZrPokAKhOyGqbJ";
-    String consumerSecret = "dCTcMVcmfSbMOlgI5Tv9bMZetviqX9WHrJqEOGXxjTyOJ2xxln";
-    String token;
-    String tokenSecret;
-    long timestamp = System.currentTimeMillis() / 1000;
-    long nonce = timestamp + RAND.nextInt();
+    final String consumerKey = "hIZujeQjS8pZrPokAKhOyGqbJ";
+    final String consumerSecret = "dCTcMVcmfSbMOlgI5Tv9bMZetviqX9WHrJqEOGXxjTyOJ2xxln";
+    final String token;
+    final String tokenSecret;
+    final long timestamp = System.currentTimeMillis() / 1000;
+    final long nonce = timestamp + RAND.nextInt();
 
     public httpConnection() {
         SharedPreferences preferences = ApplicationController.getInstance().getApplicationContext()
@@ -48,10 +48,10 @@ public class httpConnection {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public String generateHeaderString(Map<String, String> reqParams, String requestMethod, String requestUrl) throws UnsupportedEncodingException {
         // 署名用キー生成
-        SecretKeySpec secretKeySpec = generateKeySpec(consumerKey, tokenSecret);
+        SecretKeySpec secretKeySpec = generateKeySpec(tokenSecret);
 
         // データ：OAuthパラメータ
-        Map<String, String> OAuthParams = new HashMap<String, String>();
+        Map<String, String> OAuthParams = new HashMap<>();
         OAuthParams.put("oauth_token", urlEncode(token));
         OAuthParams.put("oauth_consumer_key", urlEncode(consumerKey));
         OAuthParams.put("oauth_signature_method", "HMAC-SHA1");
@@ -60,7 +60,7 @@ public class httpConnection {
         OAuthParams.put("oauth_version", "1.0");
 
         // データ:OAuthパラメータとリクエストパラメータを結合
-        Map<String, String> allParams = new HashMap<String, String>();
+        Map<String, String> allParams = new HashMap<>();
         allParams.putAll(castQueryMap(reqParams));
         allParams.putAll(OAuthParams);
 
@@ -68,34 +68,31 @@ public class httpConnection {
         String allParamsStr = convertParamsMapToParamsString(allParams);
 
         // 署名用データを生成
-        StringBuilder OAuthDataSb = new StringBuilder();
         // リクエストメソッド + URL + パラメータ
-        OAuthDataSb.append(requestMethod).append("&");
-        OAuthDataSb.append(urlEncode(requestUrl)).append("&");
-        OAuthDataSb.append(urlEncode(allParamsStr));
 
-        String OAuthBase = OAuthDataSb.toString();
+        String OAuthBase = requestMethod + "&" +
+                urlEncode(requestUrl) + "&" +
+                urlEncode(allParamsStr);
 
         @SuppressLint({"NewApi", "LocalSuppress"})
         String signature = generateSignature(secretKeySpec, OAuthBase);
         // Mapに署名を追加
         allParams.put("oauth_signature", urlEncode(signature));
 
-        String headerString = convertParamsMapToHeaderString(allParams);
-
-        return headerString;
+        return convertParamsMapToHeaderString(allParams);
 
     }
 
     /**
      * クエリ文字列を変換
-     * @param target_map
-     * @return
-     * @throws UnsupportedEncodingException
+     *
+     * @param target_map クエリ文字列
+     * @return 変換後
+     * @throws UnsupportedEncodingException エンコードエラー
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public Map<String, String> castQueryMap(Map<String, String> target_map) throws UnsupportedEncodingException {
-        Map<String, String > result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         for (Map.Entry<String, String> parameter : target_map.entrySet()) {
             result.put(parameter.getKey(), URLEncoder.encode(parameter.getValue(), "UTF-8"));
         }
@@ -113,7 +110,7 @@ public class httpConnection {
     }
 
     // 署名生成する用のキーを生成
-    public SecretKeySpec generateKeySpec(String consumerKey, String accessTokenSecret) {
+    public SecretKeySpec generateKeySpec(String accessTokenSecret) {
         // コンシューマーキーとアクセストークン シークレットを結合した文字列からキーを生成
         String keyString = urlEncode(consumerSecret) + "&" + urlEncode(accessTokenSecret);
         return new SecretKeySpec(keyString.getBytes(), HMAC_SHA1);
@@ -130,14 +127,11 @@ public class httpConnection {
             // byte配列で署名を作成
             byteHMAC = mac.doFinal(OAuthData.getBytes());
 
-        } catch (InvalidKeyException ike) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException ike) {
             ike.printStackTrace();
-        } catch (NoSuchAlgorithmException nsae) {
-            nsae.printStackTrace();
         }
         // Base64エンコード
-        String signature = Base64.getEncoder().encodeToString(byteHMAC);
-        return signature;
+        return Base64.getEncoder().encodeToString(byteHMAC);
     }
 
     // 署名生成時のデータ生成用
@@ -147,7 +141,7 @@ public class httpConnection {
 
         // Mapをkeyでソートして key1=value1&key2=value2&・・・形式の文字列にする
         result = map.entrySet().stream()
-                .sorted(Map.Entry.<String, String>comparingByKey())
+                .sorted(Map.Entry.comparingByKey())
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("&"));
         return result;
@@ -158,7 +152,7 @@ public class httpConnection {
     public String convertParamsMapToHeaderString(Map<String, String> map) {
         String result = "OAuth ";
         result += map.entrySet().stream()
-                .sorted(Map.Entry.<String, String>comparingByKey())
+                .sorted(Map.Entry.comparingByKey())
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining(","));
         return result;
@@ -172,7 +166,7 @@ public class httpConnection {
             encoded = URLEncoder.encode(value, "UTF-8");
         } catch (UnsupportedEncodingException ignore) {
         }
-        StringBuilder buf = new StringBuilder(encoded.length());
+        StringBuilder buf = new StringBuilder(Objects.requireNonNull(encoded).length());
         char focus;
         for (int i = 0; i < encoded.length(); i++) {
             focus = encoded.charAt(i);

@@ -16,13 +16,6 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 
 public class MyTweetActivity extends activityBase implements callBacksMyTweet {
-    //Bundleキー
-    // 現在表示している中で、一番古いツイート
-    private static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "amt_item_max_get_id";
-    // 現在のスクロール位置
-    private static final String BUNDLE_KEY_ITEM_POSITION = "amt_item_position";
-    //onPuase時、ListView復元のため一時保存
-    private static Bundle bundle = new Bundle();
     WeakReference<callBacksBase> callBacks;
     static TwitterUtils.getTimeLine getTimeLine;
 
@@ -41,11 +34,6 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
 
     }
 
-    /**
-     * onCreate*
-     *
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
@@ -87,7 +75,7 @@ public class MyTweetActivity extends activityBase implements callBacksMyTweet {
         try {
             if (checkViewDetach(this)) return;
 
-            List<Status> result = (ResponseList<Status>) list;
+            List<Status> result = autoCast(list);
             setListView(result, howToDisplay);
             hideSpinner(mPopupWindow);
         } catch (Exception e) {

@@ -13,10 +13,13 @@ import com.example.awordfromachild.asynctask.callBacksNoti;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,10 +32,8 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     static ArrayList<Status> bk_list_reTweet;
     static DirectMessageList bk_list_dm;
     static int vid_nowChecked;
-    static List<Status> merge_list = new ArrayList<>();
+    static final List<Status> merge_list = new ArrayList<>();
     static String dm_getNextCursor;
-    static TwitterUtils.getDirectMessages getDirectMessages;
-    static TwitterUtils.getTimeLine getTimeLine;
 
     /**
      * 画面タイプ変更時
@@ -55,16 +56,13 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             @Nullable Bundle savedInstanceState) {
         //Twitter共通処理クラス生成
         twitterUtils = new TwitterUtils(this);
-        getDirectMessages = new TwitterUtils.getDirectMessages(this);
-        getTimeLine = new TwitterUtils.getTimeLine(this);
-
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fno_main;
         return inflater.inflate(R.layout.fragnoti_layout, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         RadioGroup radioGroup = view.findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
         vid_nowChecked = checkRadioID; //現在の選択状態を保持
@@ -84,11 +82,11 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     public void addTheLatestTweets() {
         dispSpinner(mPopupWindow);
 
-        RadioGroup radioGroup = getActivity().findViewById(R.id.fno_select);
+        RadioGroup radioGroup = requireActivity().findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
         getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT);
 
-        long sinceID = ((Status) adapter.getItem(0)).getId();
+        long sinceID = (adapter.getItem(0)).getId();
     }
 
     /**
@@ -121,6 +119,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
      */
     private void getData(int checkRadioID, String howToDisplay) {
         if (checkRadioID == R.id.fno_rb_favorite || checkRadioID == R.id.fno_rb_retweet) {
+            TwitterUtils.getTimeLine getTimeLine = new TwitterUtils.getTimeLine(this);
             //最新ツイート取得
             if (howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)) {
                 long sinceID = adapter.getItem(0).getId();
@@ -146,6 +145,8 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 adapter.addItems(null, bk_list_dm);
                 adapter.notifyDataSetChanged();
             } else { //バックアップない場合、取得
+                TwitterUtils.getDirectMessages getDirectMessages =
+                        new TwitterUtils.getDirectMessages(this);
                 getDirectMessages.setGetParam(null,
                         twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
                 getDirectMessages.execute();
@@ -163,7 +164,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         if (list instanceof DirectMessageList) {
             d_list = (DirectMessageList) list;
         } else if (list instanceof ResponseList) {
-            s_list = (ResponseList<Status>) list;
+            s_list = autoCast(list);
         }
 
         //リストviewにセット
@@ -190,9 +191,13 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             //if (flg_endDate) adapter.frg_end = true;
             merge_list.addAll(set_list);
             //直近31日以降ではない ＆ 1回読込上限数取得できていない場合、追加読込
-            if (s_list.size() >= 1 && !flg_endDate && merge_list.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
-                getTimeLine.setParam(twitterValue.timeLineType.USER, s_list.get(s_list.size() - 1).getId(), 0,
-                        twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+            if (s_list.size() >= 1 && !flg_endDate &&
+                    merge_list.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
+                TwitterUtils.getTimeLine getTimeLine = new TwitterUtils.getTimeLine(this);
+                getTimeLine.setParam(twitterValue.timeLineType.USER,
+                        s_list.get(s_list.size() - 1).getId(), 0,
+                        twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
+                        twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
                 getTimeLine.execute();
             } else {
                 List<Status> _list = new ArrayList<>(merge_list);
@@ -200,7 +205,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 merge_list.clear();
             }
         } else {
-            dm_getNextCursor = d_list.getNextCursor();
+            dm_getNextCursor = Objects.requireNonNull(d_list).getNextCursor();
             setListView_directMessage(d_list, howToDisplay);
         }
         hideSpinner(mPopupWindow);
@@ -226,10 +231,5 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
 
         //31日前以前の場合、終了
         return t_date.before(_date);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 }

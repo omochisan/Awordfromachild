@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.example.awordfromachild.R;
 import com.example.awordfromachild.TweetDetailActivity;
-import com.example.awordfromachild.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;

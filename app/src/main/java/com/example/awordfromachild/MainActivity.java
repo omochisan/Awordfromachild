@@ -1,7 +1,9 @@
 package com.example.awordfromachild;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,7 +12,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.example.awordfromachild.asynctask.callBacksMain;
+import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.common.activityBase;
+import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.library.GlideApp;
 import com.example.awordfromachild.tab.fragAttention;
 import com.example.awordfromachild.tab.fragFavorite;
@@ -209,6 +213,24 @@ public class MainActivity extends activityBase implements callBacksMain {
         try {
             super.onCreate(savedInstanceState);
             setTabInfo();
+            //画面基礎描画
+            setContentView(R.layout.activity_main);
+
+            //アプリについて
+            TextView app_text = findViewById(R.id.mh_appExplan);
+            app_text.setOnClickListener(popupAppExplainClick);
+            //初回起動の場合、「アプリについて」ポップアップ起動
+            SharedPreferences preferences = getSharedPreferences(
+                    appSharedPreferences.PREF_NAME, Context.MODE_PRIVATE);
+            if(preferences.getBoolean(appSharedPreferences.FLG_FIRST_START, true)){
+                //起動済フラグ登録
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean(appSharedPreferences.FLG_FIRST_START, false);
+                editor.apply();
+                //ポップアップ起動
+                app_text.performClick();
+            }
+
             //Twitter認証用画面よりアクセストークンを取得
             //取得済みの場合、端末に保存してあるアクセストークンをTwitterインスタンスにセット
             if (!TwitterUtils.hasAccessToken(this)) {
@@ -218,8 +240,6 @@ public class MainActivity extends activityBase implements callBacksMain {
                 twitterUtils.setTwitterInstance(this);
             }
 
-            //画面基礎描画
-            setContentView(R.layout.activity_main);
             SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
                     getSupportFragmentManager());
             ViewPager viewPager = findViewById(R.id.view_pager);
@@ -246,9 +266,6 @@ public class MainActivity extends activityBase implements callBacksMain {
             //ツイートボタン
             ImageView tweet_btn = findViewById(R.id.fs_img_tweet);
             tweet_btn.setOnClickListener(iconTweetClick);
-            //アプリについて
-            TextView app_text = findViewById(R.id.mh_appExplan);
-            app_text.setOnClickListener(popupAppExplainClick);
 
         } catch (Exception e) {
             e.printStackTrace();

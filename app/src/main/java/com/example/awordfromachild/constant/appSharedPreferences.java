@@ -7,6 +7,7 @@ public class appSharedPreferences {
     public static final String TOKEN_SECRET = "token_secret";
     public static final String SET_DISPLAY_TYPE_TWEET_CREATE = "display_type_tweet_creation";
     public static final String SET_CRITERION_LIKE = "criterion_like";
+    public static final String FLG_FIRST_START = "flg_first_start";
 
     //API レート制限情報用
     // 日時フォーマット

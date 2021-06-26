@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.example.awordfromachild.ApplicationController;
 import com.example.awordfromachild.R;
-import com.example.awordfromachild.TwitterUtils;
+import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksDefaultTweet;
 

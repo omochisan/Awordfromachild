@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import com.example.awordfromachild.R;
-import com.example.awordfromachild.TwitterUtils;
+import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksFavorite;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;

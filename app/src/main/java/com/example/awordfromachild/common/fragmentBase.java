@@ -114,7 +114,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         twitterUtils.setTwitterInstance(getContext());
-        listView = requireActivity().findViewById(vid_listView);
+        listView = view.findViewById(vid_listView);
 
         //リストビューイベント
         //　スクロール

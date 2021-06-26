@@ -13,34 +13,29 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 /**
  * 対応するフラグメントを返却する
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+public class SectionsPagerAdapter extends FragmentStateAdapter {
 
-    @StringRes
-    private static final int[] TAB_TITLES = new int[]{
-            R.string.tab_text_newArrival,
-            R.string.tab_text_attention,
-            R.string.tab_text_search,
-            R.string.tab_text_favorite,
-            R.string.tab_text_noti
-    };
     private final Context mContext;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
-        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        mContext = context;
+    public SectionsPagerAdapter(FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
+        mContext = fragmentActivity;
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public androidx.fragment.app.Fragment getItem(int position) {
+    public Fragment createFragment(int position) {
         // 指定されたページのフラグメントをインスタンス化するために呼び出されます。
         androidx.fragment.app.Fragment fragment = null;
         switch (position) {
@@ -63,14 +58,15 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         return Objects.requireNonNull(fragment);
     }
 
+    /*
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
         return mContext.getResources().getString(TAB_TITLES[position]);
-    }
+    }*/
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         // Show 5 total pages.
         return 5;
     }

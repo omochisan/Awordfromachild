@@ -15,6 +15,7 @@ import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.common.activityBase;
 import com.example.awordfromachild.constant.appSharedPreferences;
+import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.GlideApp;
 import com.example.awordfromachild.tab.fragAttention;
 import com.example.awordfromachild.tab.fragFavorite;
@@ -23,6 +24,7 @@ import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -30,11 +32,13 @@ import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentOnAttachListener;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 import twitter4j.User;
 
 /**
@@ -199,7 +203,6 @@ public class MainActivity extends activityBase implements callBacksMain {
             } else if (popup_userMenu.getVisibility() == View.GONE) {
                 popup_userMenu.setVisibility(View.VISIBLE);
             }
-
         }
     };
 
@@ -240,9 +243,8 @@ public class MainActivity extends activityBase implements callBacksMain {
                 twitterUtils.setTwitterInstance(this);
             }
 
-            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
-                    getSupportFragmentManager());
-            ViewPager viewPager = findViewById(R.id.view_pager);
+            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this);
+            ViewPager2 viewPager = findViewById(R.id.view_pager);
             viewPager.setAdapter(sectionsPagerAdapter);
             //フラグメント
             FragmentManager fragment = getSupportFragmentManager();
@@ -252,7 +254,9 @@ public class MainActivity extends activityBase implements callBacksMain {
             getTwitterUserInfo.execute();
             //タブ
             tabLayout = findViewById(R.id.tabs);
-            tabLayout.setupWithViewPager(viewPager);
+            new TabLayoutMediator(tabLayout, viewPager,
+                    (tab, position) -> tab.setText(twitterValue.TAB_TITLES[position])
+            ).attach();
             setUpTabIcon();
             //ヘッダー
             TextView title = findViewById(R.id.hd_dispTitle);

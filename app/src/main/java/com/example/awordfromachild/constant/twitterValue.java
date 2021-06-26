@@ -1,5 +1,9 @@
 package com.example.awordfromachild.constant;
 
+import com.example.awordfromachild.R;
+
+import androidx.annotation.StringRes;
+
 /**
  * Twitter関連の定数
  */
@@ -8,6 +12,15 @@ public class twitterValue {
     public static final String APP_HASH_TAG = "#こどものひとこと";
     // デフォルトのいいね目安
     public static final int DEFAULT_LIKES = 0;
+
+    @StringRes
+    public static final int[] TAB_TITLES = new int[]{
+            R.string.tab_text_newArrival,
+            R.string.tab_text_attention,
+            R.string.tab_text_search,
+            R.string.tab_text_favorite,
+            R.string.tab_text_noti
+    };
 
     /**
      * ツイート作成に関する値

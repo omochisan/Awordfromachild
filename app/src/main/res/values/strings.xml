@@ -11,6 +11,7 @@
     <string name="common_dummy">ダミーテキスト</string>
     <string name="common_btn_save">保存</string>
     <string name="common_btn_cancel">キャンセル</string>
+    <string name="common_btn_close">閉じる</string>
 
     <!-- ダイアログ Twitterログイン確認 -->
     <string name="dialog_TwitterLoginCheck_title">Twitterへログイン</string>
@@ -32,9 +33,9 @@
     <string name="dialog_appExplain_common3">■新着、注目、検索タブには、過去1週間以内までの
         ツイートを閲覧できます。</string>
     <string name="dialog_appExplain_common4">■通知タブには、過去30日間までの以下ツイートが表示されます。\n
-    ・いいねされた、アプリハッシュタグがついた自分の投稿\n
-    ・リツイートされた、アプリハッシュタグがついた自分の投稿\n
-    ・ダイレクトメッセージ</string>
+    ・いいねされた＆タグがついた自分の投稿\n
+    ・リツイートされた＆タグがついた自分の投稿\n
+    ・送受信DM</string>
 
     <!-- ポップアップ ユーザーアイコン押下時メニュー -->
     <string name="popup_userMenu3">自分の投稿を表示</string>

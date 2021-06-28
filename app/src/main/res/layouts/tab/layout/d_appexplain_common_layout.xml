@@ -20,7 +20,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/set_margin_long"
+            android:layout_margin="@dimen/set_margin_default"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -28,11 +28,11 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/set_margin_default"
-                app:srcCompat="@drawable/ic_d_baby"
-                android:contentDescription="@string/img_icon" />
+                android:contentDescription="@string/img_icon"
+                app:srcCompat="@drawable/ic_d_baby" />
 
             <View
                 android:layout_width="16dp"
@@ -54,8 +54,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/set_margin_long"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/set_margin_default"
             android:orientation="vertical">
 
             <TextView
@@ -89,6 +89,21 @@
                 android:layout_marginBottom="@dimen/ct_bottomMargin_long"
                 android:text="@string/dialog_appExplain_common4"
                 android:textSize="@dimen/set_stSize_s" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/set_margin_default"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/d_ap_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#808080"
+                android:text="@string/common_btn_close" />
         </LinearLayout>
     </LinearLayout>
 

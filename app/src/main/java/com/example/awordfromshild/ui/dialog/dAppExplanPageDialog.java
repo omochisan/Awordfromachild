@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 
 import com.example.awordfromachild.R;
 
@@ -12,6 +13,11 @@ import androidx.fragment.app.DialogFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class dAppExplanPageDialog extends DialogFragment {
+
+    /**
+     * 閉じる押下時
+     */
+    private final View.OnClickListener closeClick = view -> dismiss();
 
     public static dAppExplanPageDialog newInstance() {
         return new dAppExplanPageDialog();
@@ -28,6 +34,9 @@ public class dAppExplanPageDialog extends DialogFragment {
 
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         getDialog().setCanceledOnTouchOutside(true);
+
+        Button btn_close = view.findViewById(R.id.d_ap_close);
+        btn_close.setOnClickListener(closeClick);
 
         return view;
     }

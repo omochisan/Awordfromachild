@@ -23,7 +23,7 @@ import com.example.awordfromachild.tab.fragNewArrival;
 import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
-import com.example.awordfromshild.ui.dialog.dAppExplanPageDialog;
+import com.example.awordfromachild.ui.dialog.dAppExplanPageDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 

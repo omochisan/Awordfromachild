@@ -1,4 +1,4 @@
-package com.example.awordfromshild.ui.dialog;
+package com.example.awordfromachild.ui.dialog;
 
 import java.util.Objects;
 

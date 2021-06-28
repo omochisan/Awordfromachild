@@ -11,6 +11,7 @@ import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.asynctask.callBacksCreateTweet;
 import com.example.awordfromachild.asynctask.callBacksMain;
 import com.example.awordfromachild.asynctask.callBacksNewArrival;
+import com.example.awordfromachild.asynctask.callBacksNoti;
 import com.example.awordfromachild.constant.appSharedPreferences;
 import com.example.awordfromachild.constant.twitterValue;
 
@@ -569,7 +570,7 @@ public class TwitterUtils {
     /**
      * Twitterの自ユーザー情報を取得
      */
-    public static class getTwitterUserInfo extends AsyncTask<Void, Void, Object> {
+    public static class getTwitterMyUserInfo extends AsyncTask<Void, Void, Object> {
         final WeakReference<callBacksBase> callBacks;
 
         /**
@@ -577,7 +578,7 @@ public class TwitterUtils {
          *
          * @param callBacks コールバック先
          */
-        public getTwitterUserInfo(callBacksBase callBacks) {
+        public getTwitterMyUserInfo(callBacksBase callBacks) {
             this.callBacks = new WeakReference<>(callBacks);
         }
 
@@ -601,6 +602,56 @@ public class TwitterUtils {
             //取得情報返却
             callBacksMain callback = (callBacksMain) callBacks.get();
             callback.callBackGetUser(((User) user));
+        }
+
+        @Override
+        protected void onCancelled(Object err) {
+            errHand.exceptionHand(err, callBacks);
+        }
+    }
+
+    /**
+     * Twitterのユーザー情報を取得
+     */
+    public static class getTwitterUserInfo extends AsyncTask<Void, Void, Object> {
+        private final WeakReference<callBacksBase> callBacks;
+        private long userID;
+        private String howToDisplay;
+
+        /**
+         * コンストラクタ
+         *
+         * @param callBacks コールバック先
+         */
+        public getTwitterUserInfo(callBacksBase callBacks) {
+            this.callBacks = new WeakReference<>(callBacks);
+        }
+
+        public void setParam(long userID, String howToDisplay){
+            this.userID = userID;
+            this.howToDisplay = howToDisplay;
+        }
+
+        @Override
+        protected Object doInBackground(Void... aVoid) {
+            try {
+                //API制限中かチェック
+                checkAPIUnderRestriction(appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
+
+                return twitter.showUser(userID);
+            } catch (TwitterException | ParseException e) {
+                cancel(true);
+                return e;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Object user) {
+            //API制限チェック
+            checkAPIRate(((User) user).getRateLimitStatus(), appSharedPreferences.API_RATE_DATE_GET_USER_INFO);
+            //取得情報返却
+            callBacksNoti callback = (callBacksNoti) callBacks.get();
+            callback.callBackGetUser(((User) user), howToDisplay);
         }
 
         @Override

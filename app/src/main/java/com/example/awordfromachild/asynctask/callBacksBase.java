@@ -19,6 +19,7 @@ public interface callBacksBase {
     /**
      * ツイート取得時
      * @param list 取得タイムライン
+     * @param howToDisplay 取得ツイート　画面追加方法
      */
     void callBackGetTweets(Object list, String howToDisplay);
 }

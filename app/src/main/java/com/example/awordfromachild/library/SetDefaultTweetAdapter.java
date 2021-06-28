@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
-import twitter4j.DirectMessage;
-import twitter4j.DirectMessageList;
 import twitter4j.Status;
 
 public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> implements callBacksDefaultTweet {
@@ -40,16 +38,11 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
     private final static String ptn_retweet = "ret";
     private final static String mapKey_favorite = "favo";
     private final static String mapKey_retweet = "ret";
-    static TwitterUtils.createFavorite createFavorite;
-    static TwitterUtils.destroyFavorite destroyFavorite;
-    static TwitterUtils.createReTweet createReTweet;
-    static TwitterUtils.destroyReTweet destroyReTweet;
     //ツイート群の現在の状態を保持
     public final List<Map<String, Object>> arr_mItems_status = new ArrayList<>();
     //表示ツイート打ち止め
     public boolean frg_end = false;
     private List<twitter4j.Status> mItems;
-    private DirectMessageList mItems_dm;
     private final Context app_context;
     private final int mResource;
     private final LayoutInflater mInflater;
@@ -61,14 +54,12 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      * @param resource リソースID
      * @param items    リストビューの要素
      */
-    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items, DirectMessageList items_d) {
+    public SetDefaultTweetAdapter(Context context, int resource, List<Status> items) {
         super(context, resource, items);
         mResource = resource;
         if (items != null) {
             mItems = items;
             arr_mItems_status.addAll(setNewestStatus(items));
-        } else if (items_d != null) {
-            mItems_dm = items_d;
         }
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -76,10 +67,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
         //Twitter処理クラス
         TwitterUtils twitterUtils = new TwitterUtils((callBacksBase) context);
         twitterUtils.setTwitterInstance(getContext());
-        createFavorite = new TwitterUtils.createFavorite(this);
-        destroyFavorite = new TwitterUtils.destroyFavorite(this);
-        createReTweet = new TwitterUtils.createReTweet(this);
-        destroyReTweet = new TwitterUtils.destroyReTweet(this);
 
         app_context = ApplicationController.getInstance().getApplicationContext();
     }
@@ -228,11 +215,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             boolean st_favo = (boolean) arr_mItems_status.get(position).get(mapKey_favorite);
             if (!st_favo) {
                 setIcon(ptn_favo, true, like);
+                TwitterUtils.createFavorite createFavorite =
+                        new TwitterUtils.createFavorite(this);
                 createFavorite.setTweetId(_item.getId());
                 createFavorite.execute();
                 arr_mItems_status.get(position).replace(mapKey_favorite, true);
             } else {
                 setIcon(ptn_favo, false, like);
+                TwitterUtils.destroyFavorite destroyFavorite =
+                        new TwitterUtils.destroyFavorite(this);
                 destroyFavorite.setTweetId(_item.getId());
                 destroyFavorite.execute();
                 arr_mItems_status.get(position).replace(mapKey_favorite, false);
@@ -247,11 +238,15 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
             boolean st_ret = (boolean) arr_mItems_status.get(position).get(mapKey_retweet);
             if (!st_ret) {
                 setIcon(ptn_retweet, true, ret);
+                TwitterUtils.createReTweet createReTweet =
+                        new TwitterUtils.createReTweet(this);
                 createReTweet.setTweetId(_item.getId());
                 createReTweet.execute();
                 arr_mItems_status.get(position).replace(mapKey_retweet, true);
             } else {
                 setIcon(ptn_retweet, false, ret);
+                TwitterUtils.destroyReTweet destroyReTweet =
+                        new TwitterUtils.destroyReTweet(this);
                 destroyReTweet.setTweetId(_item.getId());
                 destroyReTweet.execute();
                 arr_mItems_status.get(position).replace(mapKey_retweet, false);
@@ -389,7 +384,7 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items 追加ツイート
      */
-    public void addItems(List<Status> items, DirectMessageList items_dm) {
+    public void addItems(List<Status> items) {
         if (items != null) {
             if (mItems == null) {
                 mItems = items;
@@ -397,12 +392,6 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
                 mItems.addAll(items);
             }
             arr_mItems_status.addAll(setNewestStatus(items));
-        } else {
-            if (mItems_dm == null) {
-                mItems_dm = items_dm;
-            } else {
-                mItems_dm.addAll(items_dm);
-            }
         }
     }
 
@@ -411,13 +400,9 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
      *
      * @param items 追加ツイート
      */
-    public void unShiftItems(List<Status> items, List<DirectMessage> items_dm) {
-        if (items != null) {
-            mItems.addAll(0, items);
-            arr_mItems_status.addAll(0, setNewestStatus(items));
-        } else {
-            mItems_dm.addAll(0, items_dm);
-        }
+    public void unShiftItems(List<Status> items) {
+        mItems.addAll(0, items);
+        arr_mItems_status.addAll(0, setNewestStatus(items));
     }
 
     /**
@@ -444,21 +429,14 @@ public class SetDefaultTweetAdapter extends ArrayAdapter<twitter4j.Status> imple
 
         //表示ツイート打ち止めの場合
         LinearLayout l = view.findViewById(R.id.tw_linear_);
-        if (frg_end &&
-                ((mItems != null && mItems.size() == position + 1) ||
-                        (mItems_dm != null && mItems_dm.size() == position + 1))) {
+        if (frg_end && ((mItems != null && mItems.size() == position + 1))) {
             l.setVisibility(View.VISIBLE);
         } else {
             l.setVisibility(View.GONE);
         }
 
         // リストビューに表示する要素を取得
-        twitter4j.Status item = null;
-        if (mItems != null) {
-            item = mItems.get(position);
-        } else if (mItems_dm != null) {
-            item = (Status) mItems_dm.get(position);
-        }
+        twitter4j.Status item = mItems.get(position);
 
         // ユーザーアイコンを設定
         setUserIcon(view, Objects.requireNonNull(item), R.id.tw_userIcon, R.id.tw_userName);

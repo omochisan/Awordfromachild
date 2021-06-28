@@ -8,10 +8,12 @@ import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 
 import com.example.awordfromachild.R;
-import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.asynctask.callBacksNoti;
+import com.example.awordfromachild.common.TwitterUtils;
 import com.example.awordfromachild.common.fragmentBase;
 import com.example.awordfromachild.constant.twitterValue;
+import com.example.awordfromachild.library.SetDefaultTweetAdapter;
+import com.example.awordfromachild.library.SetDefaultTweetAdapter_DM;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,22 +25,28 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import twitter4j.DirectMessage;
 import twitter4j.DirectMessageList;
 import twitter4j.ResponseList;
 import twitter4j.Status;
+import twitter4j.User;
 
 public class fragNoti extends fragmentBase implements callBacksNoti {
-    static ArrayList<Status> bk_list_favorite;
-    static ArrayList<Status> bk_list_reTweet;
-    static DirectMessageList bk_list_dm;
+    static List<Status> bk_list_favorite;
+    static List<Status> bk_list_reTweet;
+    static List<DirectMessage> bk_list_dm;
+    static List<User> bk_list_dmUser;
     static int vid_nowChecked;
     static final List<Status> merge_list = new ArrayList<>();
-    static String dm_getNextCursor;
+    static int getUserCount = 0;
+    static DirectMessageList d_list;
+    final static List<User> d_userList = new ArrayList<>();
 
     /**
      * 画面タイプ変更時
      */
-    private final RadioGroup.OnCheckedChangeListener radioChanged = new RadioGroup.OnCheckedChangeListener() {
+    private final RadioGroup.OnCheckedChangeListener radioChanged =
+            new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup radioGroup, int i) {
             int checkRadioID = radioGroup.getCheckedRadioButtonId();
@@ -47,6 +55,16 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             vid_nowChecked = checkRadioID; //現在の選択状態を保持
         }
     };
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        RadioGroup radioGroup = getView().findViewById(R.id.fno_select);
+        int checkRadioID = radioGroup.getCheckedRadioButtonId();
+        vid_nowChecked = checkRadioID; //現在の選択状態を保持
+        setGetMethod(checkRadioID); //選択ラジオボタンごとにデータ取得
+        getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
+    }
 
     @Nullable
     @Override
@@ -58,20 +76,15 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         twitterUtils = new TwitterUtils(this);
         mPopupWindow = new PopupWindow(getContext()); //スピナー用
         vid_listView = R.id.fno_main;
+        getUserCount = 0;
         return inflater.inflate(R.layout.fragnoti_layout, container, false);
     }
 
     @Override
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
-        RadioGroup radioGroup = view.findViewById(R.id.fno_select);
-        int checkRadioID = radioGroup.getCheckedRadioButtonId();
-        vid_nowChecked = checkRadioID; //現在の選択状態を保持
-        setGetMethod(checkRadioID); //選択ラジオボタンごとにデータ取得
-        getData(checkRadioID, twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH);
-
         super.onViewCreated(view, savedInstanceState);
-
         //ラジオボタン処理
+        RadioGroup radioGroup = getView().findViewById(R.id.fno_select);
         radioGroup.setOnCheckedChangeListener(radioChanged);
     }
 
@@ -107,6 +120,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             bk_list_reTweet = getItemList();
         } else if (vid_nowChecked == R.id.fno_rb_dm) {
             bk_list_dm = getItemList_dm();
+            bk_list_dmUser = adapter_dm.userList;
         }
     }
 
@@ -114,6 +128,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
      * 選択ラジオボタンごとにデータ取得
      *
      * @param checkRadioID 選択ラジオボタン　リソースID
+     * @param howToDisplay ツイート　画面追加方法
      */
     private void getData(int checkRadioID, String howToDisplay) {
         if (checkRadioID == R.id.fno_rb_favorite || checkRadioID == R.id.fno_rb_retweet) {
@@ -128,9 +143,14 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 List<Status> _bk = checkRadioID == R.id.fno_rb_favorite ?
                         bk_list_favorite : bk_list_reTweet;
                 if (_bk != null) {  //バックアップがある場合
-                    adapter.clear();
-                    adapter.addItems(_bk, null);
+                    if(adapter == null){
+                        adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, _bk);
+                    }else {
+                        adapter.clear();
+                        adapter.addItems(_bk);
+                    }
                     adapter.notifyDataSetChanged();
+                    listView.setAdapter(adapter);
                 } else { //バックアップない場合、取得
                     getTimeLine.setParam(twitterValue.timeLineType.USER, 0, 0,
                             twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX, howToDisplay);
@@ -139,9 +159,14 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
             }
         } else if (checkRadioID == R.id.fno_rb_dm) {
             if (bk_list_dm != null) {  //バックアップがある場合
-                adapter.clear();
-                adapter.addItems(null, bk_list_dm);
-                adapter.notifyDataSetChanged();
+                if(adapter_dm == null){
+                    adapter_dm = new SetDefaultTweetAdapter_DM(getContext(), R.layout.tweet_default, bk_list_dm, bk_list_dmUser);
+                }else{
+                    adapter_dm.clear();
+                    adapter_dm.addItems(bk_list_dm, d_userList);
+                }
+                adapter_dm.notifyDataSetChanged();
+                listView.setAdapter(adapter_dm);
             } else { //バックアップない場合、取得
                 TwitterUtils.getDirectMessages getDirectMessages =
                         new TwitterUtils.getDirectMessages(this);
@@ -152,6 +177,12 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         }
     }
 
+    /**
+     * コールバック
+     * ツイート取得後
+     * @param list 取得タイムライン
+     * @param howToDisplay 取得ツイート　画面追加方法
+     */
     @Override
     public void callBackGetTweets(Object list, String howToDisplay) {
         if (checkViewDetach(this)) return;
@@ -161,6 +192,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
         List<Status> set_list = new ArrayList<>();
         if (list instanceof DirectMessageList) {
             d_list = (DirectMessageList) list;
+            fragNoti.d_list = d_list;
         } else if (list instanceof ResponseList) {
             s_list = autoCast(list);
         }
@@ -186,9 +218,10 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                     if (s.getRetweetCount() >= 1) set_list.add(s);
                 }
             }
-            //if (flg_endDate) adapter.frg_end = true;
             merge_list.addAll(set_list);
+
             //直近31日以降ではない ＆ 1回読込上限数取得できていない場合、追加読込
+            //※DM取得APIは元々、直近30日しか取れない仕様
             if (s_list.size() >= 1 && !flg_endDate &&
                     merge_list.size() < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
                 TwitterUtils.getTimeLine getTimeLine = new TwitterUtils.getTimeLine(this);
@@ -203,10 +236,38 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
                 merge_list.clear();
             }
         } else {
+            //追加読込用カーソルを保持
             dm_getNextCursor = Objects.requireNonNull(d_list).getNextCursor();
-            setListView_directMessage(d_list, howToDisplay);
+
+            // ユーザー情報を取得
+            TwitterUtils.getTwitterUserInfo getTwitterUserInfo =
+                    new TwitterUtils.getTwitterUserInfo(this);
+            long userID = d_list.get(getUserCount).getSenderId();
+            getTwitterUserInfo.setParam(userID, howToDisplay);
+            getTwitterUserInfo.execute();
         }
         hideSpinner(mPopupWindow);
+    }
+
+    /**
+     * コールバック
+     * ユーザー情報取得後
+     * @param user ユーザー情報
+     * @param howToDisplay 取得ツイート　画面追加方法
+     */
+    @Override
+    public void callBackGetUser(User user, String howToDisplay) {
+        d_userList.add(user);
+        getUserCount++;
+
+        if(getUserCount == d_list.size()){
+            setListView_directMessage(d_list, d_userList, howToDisplay);
+        }else{
+            TwitterUtils.getTwitterUserInfo sUserInfo =
+                    new TwitterUtils.getTwitterUserInfo(this);
+            sUserInfo.setParam(d_list.get(getUserCount).getSenderId(), howToDisplay);
+            sUserInfo.execute();
+        }
     }
 
     /**

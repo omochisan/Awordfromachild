@@ -17,6 +17,7 @@ import com.example.awordfromachild.TweetDetailActivity;
 import com.example.awordfromachild.asynctask.callBacksBase;
 import com.example.awordfromachild.constant.twitterValue;
 import com.example.awordfromachild.library.SetDefaultTweetAdapter;
+import com.example.awordfromachild.library.SetDefaultTweetAdapter_DM;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +34,7 @@ import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
 import twitter4j.Status;
+import twitter4j.User;
 
 public abstract class fragmentBase extends Fragment implements callBacksBase {
     //Bundleキー
@@ -51,6 +53,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     protected int now_readPoint = 0;
     //ListViewアダプター
     protected SetDefaultTweetAdapter adapter;
+    protected SetDefaultTweetAdapter_DM adapter_dm;
     protected ListView listView;
     //検索クエリ
     protected String query;
@@ -59,6 +62,8 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     //追加読込処理
     protected String getMethod;
     protected int p_count;
+    //DM追加読込用カーソル
+    protected String dm_getNextCursor;
 
     private callBacksBase getThis() {
         return this;
@@ -160,10 +165,15 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                             getTimeLine.setParam(twitterValue.timeLineType.USER, returnLastID(),
                                     0, twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET_MAX,
                                     twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            getTimeLine.execute();
                             break;
 
                         case twitterValue.getMethod.DM:
-
+                            TwitterUtils.getDirectMessages getDirectMessages =
+                                    new TwitterUtils.getDirectMessages(getThis());
+                            getDirectMessages.setGetParam(dm_getNextCursor,
+                                    twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH);
+                            getDirectMessages.execute();
                             break;
                     }
                 }
@@ -265,6 +275,8 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @return 全アイテム
      */
     public ArrayList<Status> getItemList() {
+        if(adapter == null) return null;
+
         ArrayList<Status> statusList = new ArrayList<>();
         for (int i = 0; i < adapter.getCount(); i++) {
             statusList.add(adapter.getItem(i));
@@ -277,10 +289,12 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      *
      * @return 全アイテム（ツイート）
      */
-    public DirectMessageList getItemList_dm() {
-        DirectMessageList dmList = null;
-        for (int i = 0; i < adapter.getCount(); i++) {
-            dmList.add((DirectMessage) adapter.getItem(i));
+    public List<DirectMessage> getItemList_dm() {
+        if(adapter_dm == null) return null;
+
+        List<DirectMessage> dmList = new ArrayList<>();
+        for (int i = 0; i < adapter_dm.getCount(); i++) {
+            dmList.add((DirectMessage) adapter_dm.getItem(i));
         }
         return dmList;
     }
@@ -339,7 +353,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
         //カスタマイズしたlistViewに取得結果を表示
         if (adapter == null) {
-            adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, result, null);
+            adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, result);
         } else {
             //最新ツイートを先頭に追加する＆一定以上の取得数の場合、追加ではなく洗い替えに変更
             //（古い順から取得ができないため）
@@ -350,13 +364,13 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             switch (how_to_display) {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH: //表示ツイート洗い替え
                     adapter.clear();
-                    adapter.addItems(result, null);
+                    adapter.addItems(result);
                     adapter.notifyDataSetChanged();
                     break;
 
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT: //先頭に追加
                     putState(); //追加前に画面表示状態保持
-                    adapter.unShiftItems(result, null);
+                    adapter.unShiftItems(result);
                     try {
                         adapter.notifyDataSetChanged();
                     } catch (Exception ignored) {
@@ -370,7 +384,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                     putState(); //追加前に画面表示状態保持
 
                     result.remove(0);
-                    adapter.addItems(result, null);
+                    adapter.addItems(result);
                     adapter.notifyDataSetChanged();
                     restoreListViewSelection();
                     //位置復元
@@ -386,7 +400,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
             adapter.frg_end = true;
         }
         //VIEWにアイテムが未登録の場合、登録
-        if (listView.getAdapter() == null) {
+        if (listView.getAdapter() == null || listView.getAdapter() instanceof SetDefaultTweetAdapter_DM) {
             listView.setAdapter(adapter);
         }
     }
@@ -394,10 +408,14 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
     /**
      * ListViewにDMをセット
      *
-     * @param result DM群
+     * @param dmList DM群
+     * @param userList DM送信ユーザーリスト
+     * @param how_to_display 取得ツイート　画面追加方法
      */
-    protected void setListView_directMessage(DirectMessageList result, String how_to_display) {
-        int getCount = result.size(); //取得したカウント
+    protected void setListView_directMessage(DirectMessageList dmList,
+                                             @SuppressWarnings("SameParameterValue") List<User> userList,
+                                             String how_to_display) {
+        int getCount = dmList.size(); //取得したカウント
 
         //取得ツイートが０の場合
         if (getCount == 0) {
@@ -405,26 +423,26 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         }
 
         //カスタマイズしたlistViewに取得結果を表示
-        if (adapter == null) {
-            adapter = new SetDefaultTweetAdapter(getContext(), R.layout.tweet_default, null, result);
+        if (adapter_dm == null) {
+            adapter_dm = new SetDefaultTweetAdapter_DM(getContext(), R.layout.tweet_default, dmList, userList);
         } else {
             //最新ツイートを先頭に追加する＆一定以上の取得数の場合、追加ではなく洗い替えに変更
             //（古い順から取得ができないため）
             if (how_to_display.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT) &&
-                    result.size() >= twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE) {
+                    dmList.size() >= twitterValue.tweetCounts.GET_COUNT_NEWER_TIMELINE) {
                 how_to_display = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
             }
             switch (how_to_display) {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH: //表示ツイート洗い替え
-                    adapter.clear();
-                    adapter.addItems(null, result);
-                    adapter.notifyDataSetChanged();
+                    adapter_dm.clear();
+                    adapter_dm.addItems(dmList, userList);
+                    adapter_dm.notifyDataSetChanged();
                     break;
 
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT: //先頭に追加
                     putState(); //追加前に画面表示状態保持
-                    adapter.unShiftItems(null, result);
-                    adapter.notifyDataSetChanged();
+                    adapter_dm.unShiftItems(dmList, userList);
+                    adapter_dm.notifyDataSetChanged();
                     //スクロール位置復元
                     restoreListViewSelection();
                     break;
@@ -432,9 +450,9 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
                 case twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_PUSH: //末尾に追加
                     putState(); //追加前に画面表示状態保持
 
-                    result.remove(0);
-                    adapter.addItems(null, result);
-                    adapter.notifyDataSetChanged();
+                    dmList.remove(0);
+                    adapter_dm.addItems(dmList, userList);
+                    adapter_dm.notifyDataSetChanged();
                     //位置復元
                     restoreListViewSelection();
                     break;
@@ -443,11 +461,11 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
         //取得可能ツイートがもう無い場合
         if (getCount == 0 || getCount < twitterValue.tweetCounts.ONE_TIME_DISPLAY_TWEET) {
-            adapter.frg_end = true;
+            adapter_dm.frg_end = true;
         }
         //VIEWにアイテムが未登録の場合、登録
-        if (listView.getAdapter() == null) {
-            listView.setAdapter(adapter);
+        if (listView.getAdapter() == null || listView.getAdapter() instanceof SetDefaultTweetAdapter) {
+            listView.setAdapter(adapter_dm);
         }
     }
 
@@ -519,17 +537,14 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         //100以上の場合、洗い替え
         String _howToDisplay;
         List<Status> s_list = null;
-        DirectMessageList d_list = null;
         if (list instanceof ResponseList) {
             s_list = autoCast(list);
         } else if (list instanceof QueryResult) {
             QueryResult q_list = autoCast(list);
             s_list = q_list.getTweets();
-        } else if (list instanceof DirectMessageList) {
-            d_list = (DirectMessageList) list;
         }
         if (howToDisplay.equals(twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_UNSHIFT)
-                && ((s_list != null && s_list.size() >= 100) || (d_list != null && d_list.size() >= 100))) {
+                && ((s_list != null && s_list.size() >= 100))) {
             _howToDisplay = twitterValue.howToDisplayTweets.TWEET_HOW_TO_DISPLAY_REWASH;
         } else {
             _howToDisplay = howToDisplay;
@@ -538,8 +553,6 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
         //リストviewにセット
         if (s_list != null) {
             setListView(s_list, _howToDisplay);
-        } else {
-            setListView_directMessage(d_list, _howToDisplay);
         }
         hideSpinner(mPopupWindow);
     }

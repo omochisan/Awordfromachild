@@ -23,6 +23,7 @@ import com.example.awordfromachild.tab.fragNewArrival;
 import com.example.awordfromachild.tab.fragNoti;
 import com.example.awordfromachild.tab.fragSearch;
 import com.example.awordfromachild.ui.main.SectionsPagerAdapter;
+import com.example.awordfromshild.ui.dialog.dAppExplanPageDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -32,7 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -40,6 +40,8 @@ import androidx.fragment.app.FragmentOnAttachListener;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 import twitter4j.User;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * メインスレッド
@@ -112,10 +114,15 @@ public class MainActivity extends activityBase implements callBacksMain {
      * 「アプリについて」押下時
      */
     @SuppressLint("ClickableViewAccessibility")
-    private final View.OnClickListener popupAppExplainClick  = view -> new AlertDialog.Builder(view.getContext())
-            .setTitle(R.string.dialog_appExplain_title)
-            .setMessage(R.string.dialog_appExplain)
-            .setNegativeButton("閉じる", (dialog12, which) -> dialog12.dismiss()).show();
+    private final View.OnClickListener popupAppExplainClick  = view -> {
+        dAppExplanPageDialog newFragment = dAppExplanPageDialog.newInstance();
+        newFragment.show(getSupportFragmentManager(), TAG);
+
+        /*new AlertDialog.Builder(view.getContext())
+                .setTitle(R.string.dialog_appExplain_title)
+                .setMessage(R.string.dialog_appExplain)
+                .setNegativeButton("閉じる", (dialog12, which) -> dialog12.dismiss()).show();*/
+    };
 
     /**
      * onAttachFragment
@@ -219,7 +226,6 @@ public class MainActivity extends activityBase implements callBacksMain {
             //画面基礎描画
             setContentView(R.layout.activity_main);
 
-            //アプリについて
             TextView app_text = findViewById(R.id.mh_appExplan);
             app_text.setOnClickListener(popupAppExplainClick);
             //初回起動の場合、「アプリについて」ポップアップ起動
@@ -230,8 +236,12 @@ public class MainActivity extends activityBase implements callBacksMain {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putBoolean(appSharedPreferences.FLG_FIRST_START, false);
                 editor.apply();
+
                 //ポップアップ起動
-                app_text.performClick();
+                dAppExplanPageDialog newFragment = dAppExplanPageDialog.newInstance();
+                newFragment.show(getSupportFragmentManager(), TAG);
+
+                //app_text.performClick();
             }
 
             //Twitter認証用画面よりアクセストークンを取得
@@ -250,7 +260,7 @@ public class MainActivity extends activityBase implements callBacksMain {
             FragmentManager fragment = getSupportFragmentManager();
             fragment.addFragmentOnAttachListener(fragmentOnAttachListener);
             //自ユーザー情報取得
-            TwitterUtils.getTwitterUserInfo getTwitterUserInfo = new TwitterUtils.getTwitterUserInfo(this);
+            TwitterUtils.getTwitterMyUserInfo getTwitterUserInfo = new TwitterUtils.getTwitterMyUserInfo(this);
             getTwitterUserInfo.execute();
             //タブ
             tabLayout = findViewById(R.id.tabs);

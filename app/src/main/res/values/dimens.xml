@@ -6,6 +6,7 @@
     <dimen name="ct_bottomMargin">16dp</dimen>
     <dimen name="ct_bottomMargin_long">20dp</dimen>
 
+    <dimen name="set_stSize_s">14sp</dimen>
     <dimen name="set_stSize_heading">16sp</dimen>
     <dimen name="set_stSize_explain">16sp</dimen>
     <dimen name="set_stSize_explain2">16sp</dimen>

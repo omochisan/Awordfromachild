@@ -24,9 +24,17 @@
     <string name="dialog_TwitterLogout_message">表示中のユーザーからログアウトします。</string>
 
     <!-- ダイアログ　アプリについて -->
-    <string name="dialog_appExplain_title">アプリについて</string>
-    <string name="dialog_appExplain">アプリについて</string>
-
+    <string name="dialog_appExplain_title">アプリ\n「こどものひとこと」について</string>
+    <string name="dialog_appExplain_common1">■このアプリは、子供の何気ない一言や会話を投稿し、
+        Twitterを利用して手軽に共有し楽しむアプリです。</string>
+    <string name="dialog_appExplain_common2">■各タブには、ハッシュタグ「こどものひとこと」が付いた
+        ツイートを表示します。</string>
+    <string name="dialog_appExplain_common3">■新着、注目、検索タブには、過去1週間以内までの
+        ツイートを閲覧できます。</string>
+    <string name="dialog_appExplain_common4">■通知タブには、過去30日間までの以下ツイートが表示されます。\n
+    ・いいねされた、アプリハッシュタグがついた自分の投稿\n
+    ・リツイートされた、アプリハッシュタグがついた自分の投稿\n
+    ・ダイレクトメッセージ</string>
 
     <!-- ポップアップ ユーザーアイコン押下時メニュー -->
     <string name="popup_userMenu3">自分の投稿を表示</string>

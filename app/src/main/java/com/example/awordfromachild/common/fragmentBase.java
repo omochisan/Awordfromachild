@@ -36,7 +36,7 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.User;
 
-public abstract class fragmentBase extends Fragment implements callBacksBase {
+public class fragmentBase extends Fragment implements callBacksBase {
     //Bundleキー
     // 現在表示している中で、一番古いツイート
     protected static final String BUNDLE_KEY_ITEM_MAX_GET_ID = "item_max_get_id";
@@ -294,7 +294,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
 
         List<DirectMessage> dmList = new ArrayList<>();
         for (int i = 0; i < adapter_dm.getCount(); i++) {
-            dmList.add((DirectMessage) adapter_dm.getItem(i));
+            dmList.add(adapter_dm.getItem(i));
         }
         return dmList;
     }
@@ -305,7 +305,7 @@ public abstract class fragmentBase extends Fragment implements callBacksBase {
      * @param secondsUntilReset 解除されるまでの分数
      */
     public void ex_twitterAPILimit(int secondsUntilReset) {
-        double minutes = Math.ceil((double) (int)secondsUntilReset / 60) + 1;
+        double minutes = Math.ceil((double) secondsUntilReset / 60) + 1;
         String minutes_str = String.valueOf(minutes);
         Toast.makeText(getContext(), "ごめんなさい、この操作は制限中です。\n" +
                 minutes_str.substring(0, minutes_str.indexOf(".")) +

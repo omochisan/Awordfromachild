@@ -27,7 +27,7 @@ public class SettingActivity extends activityBase {
                 SharedPreferences.Editor editor = preferences.edit();
                 //ツイート作成画面タイプ
                 RadioGroup rgroup = findViewById(R.id.set_ct_defaultType_rgroup);
-                if (rgroup.getCheckedRadioButtonId() == R.id.set_ct_defaultType_r1) {
+                if (rgroup.getCheckedRadioButtonId() == R.id.set_ct_defaultType_free) {
                     editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE);
                 } else {
                     editor.putString(appSharedPreferences.SET_DISPLAY_TYPE_TWEET_CREATE, twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FORM);
@@ -82,9 +82,9 @@ public class SettingActivity extends activityBase {
         //ツイート作成画面　デフォルトタイプ
         RadioGroup dispType = findViewById(R.id.set_ct_defaultType_rgroup);
         if (set_dispType.equals(twitterValue.createTweetValue.TYPE_OF_TWEET_CREATION_FREE)) {
-            dispType.check(R.id.set_ct_defaultType_r1);
+            dispType.check(R.id.set_ct_defaultType_free);
         } else {
-            dispType.check(R.id.set_ct_defaultType_r2);
+            dispType.check(R.id.set_ct_defaultType_form);
         }
         //いいね目安
         RadioGroup criterionLike = findViewById(R.id.set_at_radioGroup);

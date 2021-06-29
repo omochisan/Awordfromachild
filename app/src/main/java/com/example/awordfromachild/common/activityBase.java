@@ -78,10 +78,8 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
             super.onCreate(savedInstanceState);
             getTimeLine = new TwitterUtils.getTimeLine(this);
 
-            if (callBacksBase.class.isAssignableFrom(this.getClass())) {
-                twitterUtils = new TwitterUtils(this);
-                twitterUtils.setTwitterInstance(this);
-            }
+            twitterUtils = new TwitterUtils(this);
+            twitterUtils.setTwitterInstance(this);
             if (vid_listView != 0) {
                 listView = findViewById(vid_listView);
             }
@@ -155,7 +153,7 @@ public class activityBase extends AppCompatActivity implements callBacksBase {
      * TwitterAPIのレート制限発生
      */
     public void ex_twitterAPILimit(int secondsUntilReset) {
-        double minutes = Math.ceil((double) (int)secondsUntilReset / 60) + 1;
+        double minutes = Math.ceil((double) secondsUntilReset / 60) + 1;
         String minutes_str = String.valueOf(minutes);
         Toast.makeText(this, "ごめんなさい、この操作は制限中です。\n" +
                 minutes_str.substring(0, minutes_str.indexOf(".")) +

@@ -32,14 +32,15 @@ import twitter4j.Status;
 import twitter4j.User;
 
 public class fragNoti extends fragmentBase implements callBacksNoti {
-    static List<Status> bk_list_favorite;
-    static List<Status> bk_list_reTweet;
-    static List<DirectMessage> bk_list_dm;
-    static List<User> bk_list_dmUser;
-    static int vid_nowChecked;
-    static final List<Status> merge_list = new ArrayList<>();
-    static int getUserCount = 0;
-    static DirectMessageList d_list;
+    private static List<Status> bk_list_favorite;
+    private static List<Status> bk_list_reTweet;
+    private static List<DirectMessage> bk_list_dm;
+    private static List<User> bk_list_dmUser;
+    private static int vid_nowChecked;
+    private static final List<Status> merge_list = new ArrayList<>();
+    private static int getUserCount = 0;
+    private static DirectMessageList d_list;
+    private RadioGroup radioGroup;
     final static List<User> d_userList = new ArrayList<>();
 
     /**
@@ -59,7 +60,6 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     @Override
     public void onResume(){
         super.onResume();
-        RadioGroup radioGroup = getView().findViewById(R.id.fno_select);
         int checkRadioID = radioGroup.getCheckedRadioButtonId();
         vid_nowChecked = checkRadioID; //現在の選択状態を保持
         setGetMethod(checkRadioID); //選択ラジオボタンごとにデータ取得
@@ -84,7 +84,7 @@ public class fragNoti extends fragmentBase implements callBacksNoti {
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ラジオボタン処理
-        RadioGroup radioGroup = getView().findViewById(R.id.fno_select);
+        radioGroup = view.findViewById(R.id.fno_select);
         radioGroup.setOnCheckedChangeListener(radioChanged);
     }
 

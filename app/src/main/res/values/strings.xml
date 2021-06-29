@@ -61,8 +61,8 @@
     <string name="fs_text_1">タグ #こどものひとこと を含む</string>
 
     <!-- 通知タブ(fno_) -->
-    <string name="fno_select_1">いいねされた投稿</string>
-    <string name="fno_select_2">リツイートされた投稿</string>
+    <string name="fno_select_1">いいねされた</string>
+    <string name="fno_select_2">リツイートされた</string>
     <string name="fno_select_3">Ⅾ Ⅿ</string>
 
     <!-- ツイート作成(ct_) -->

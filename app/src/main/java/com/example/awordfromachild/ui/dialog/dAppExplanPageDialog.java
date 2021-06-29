@@ -9,6 +9,8 @@ import android.widget.Button;
 
 import com.example.awordfromachild.R;
 
+import java.util.Objects;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -32,7 +34,7 @@ public class dAppExplanPageDialog extends DialogFragment {
         final DialogPagePagerAdapter adapter = new DialogPagePagerAdapter(getActivity());
         viewPager.setAdapter(adapter);
 
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        Objects.requireNonNull(getDialog()).getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         getDialog().setCanceledOnTouchOutside(true);
 
         Button btn_close = view.findViewById(R.id.d_ap_close);

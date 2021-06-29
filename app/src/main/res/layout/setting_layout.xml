@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -20,8 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/setHeader"
-        tools:layout_editor_absoluteX="411dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setHeader">
 
         <LinearLayout
             android:id="@+id/set_ct"
@@ -67,30 +67,31 @@
                     android:orientation="vertical">
 
                     <RadioButton
-                        android:id="@+id/set_ct_defaultType_r1"
+                        android:id="@+id/set_ct_defaultType_free"
                         android:layout_width="match_parent"
                         android:layout_height="38dp"
                         android:text="@string/set_ct_defaultType_type1"
                         android:textColor="@color/string_default" />
 
                     <RadioButton
-                        android:id="@+id/set_ct_defaultType_r2"
+                        android:id="@+id/set_ct_defaultType_form"
                         android:layout_width="match_parent"
                         android:layout_height="38dp"
                         android:text="@string/set_ct_defaultType_type2"
                         android:textColor="@color/string_default" />
                 </RadioGroup>
+
             </LinearLayout>
 
-        </LinearLayout>
+            <View
+                android:id="@+id/border1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/set_margin_default"
+                android:layout_marginEnd="@dimen/set_margin_default"
+                android:background="#F98A0F" />
 
-        <View
-            android:id="@+id/border1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="@dimen/set_margin_default"
-            android:layout_marginEnd="@dimen/set_margin_default"
-            android:background="#F98A0F" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/set_at"

@@ -51,8 +51,8 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
             TextView vt;
             RadioGroup type_rGroup = findViewById(R.id.ct_inputType);
             int checked = type_rGroup.getCheckedRadioButtonId();
-            //自由入力
-            if (checked == R.id.ct_form_radio) {
+
+            if (checked == R.id.ct_form_radio) {//フォーム入力
                 EditText edit_when = findViewById(R.id.ct_input_when);
                 String str_when = (edit_when.getText()).toString();
                 EditText edit_where = findViewById(R.id.ct_input_where);
@@ -62,7 +62,7 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
                 EditText edit_word = findViewById(R.id.ct_input_word);
                 String str_word = (edit_word.getText()).toString();
                 text = str_when + str_where + str_how + str_word;
-            } else if (checked == R.id.ct_free_radio) {
+            } else if (checked == R.id.ct_free_radio) {//自由入力
                 vt = findViewById(R.id.ct_input_free);
                 text = (vt.getText()).toString();
             }
@@ -116,7 +116,7 @@ public class CreateTweetActivity extends activityBase implements callBacksCreate
             } else {
                 btnEnableSwitch(true);
                 str = all_len_count + "／"
-                        + twitterValue.createTweetValue.CHARALIMIT_FREE;
+                        + twitterValue.createTweetValue.CHARALIMIT_FORM;
                 Objects.requireNonNull(textCount).setText(str);
                 textCount.setTextColor(Color.DKGRAY);
             }

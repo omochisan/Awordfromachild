@@ -34,13 +34,13 @@
                 android:id="@+id/ct_free_radio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/ct_inputType_free" />
+                android:text="@string/ct_inputType_form" />
 
             <RadioButton
                 android:id="@+id/ct_form_radio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/ct_inputType_form" />
+                android:text="@string/ct_inputType_free" />
 
         </RadioGroup>
 

@@ -18,7 +18,7 @@
             android:id="@+id/fno_rb_favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:checked="true"
             android:text="@string/fno_select_1" />
 
@@ -26,14 +26,14 @@
             android:id="@+id/fno_rb_retweet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="4"
             android:text="@string/fno_select_2" />
 
         <RadioButton
             android:id="@+id/fno_rb_dm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:text="@string/fno_select_3" />
     </RadioGroup>
 

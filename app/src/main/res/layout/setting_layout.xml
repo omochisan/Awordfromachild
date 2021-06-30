@@ -168,7 +168,7 @@
                         android:id="@+id/set_at_s"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/set_at_large" />
+                        android:text="@string/set_at_small" />
 
                     <RadioButton
                         android:id="@+id/set_at_m"
@@ -180,7 +180,7 @@
                         android:id="@+id/set_at_l"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/set_at_small" />
+                        android:text="@string/set_at_large" />
                 </RadioGroup>
 
             </LinearLayout>
